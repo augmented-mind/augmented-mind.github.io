@@ -11,42 +11,85 @@
 
     & > li {
       margin: 1rem 0;
-      .section > .desc > h3 > a {
-        background-color: transparent;
-      }
 
       .section > .meta {
-        margin: 0 0 0.5rem 0;
+        margin: 0 0 0.2rem 0;
         opacity: 0.6;
-      }
+        font-size: 0.85rem;
 
-      .tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.4rem;
-        list-style: none;
-        padding: 0;
-        margin: 0.5rem 0 0 0;
-
-        li {
-          margin: 0;
-        }
-
-        .tag-link {
+        .episode-id {
           font-size: 0.7rem;
-          font-weight: normal;
+          font-weight: 500;
           padding: 0.15rem 0.4rem;
           border: 1px solid var(--gray);
           border-radius: 4px;
-          color: var(--gray);
-          background: transparent;
-          text-decoration: none;
+          margin-right: 0.3rem;
+        }
 
-          &:hover {
-            border-color: var(--secondary);
-            color: var(--secondary);
+        .meta-sep {
+          opacity: 0.5;
+        }
+      }
+
+      .title-row {
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+
+        .desc {
+          flex: 1;
+
+          h3 {
+            margin: 0;
+
+            a {
+              background-color: transparent;
+            }
           }
         }
+
+        .tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.3rem;
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          flex-shrink: 0;
+
+          li {
+            margin: 0;
+          }
+
+          .tag-link {
+            font-size: 0.65rem;
+            opacity: 0.6;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Sidebar layout: stack title and tags vertically, hide tags
+.sidebar.left .recent-notes {
+  & > ul.recent-ul > li {
+    margin: 0.6rem 0;
+
+    .section > .meta {
+      font-size: 0.75rem;
+      margin-bottom: 0.1rem;
+    }
+
+    .title-row {
+      display: block;
+
+      .desc h3 {
+        font-size: 0.9rem;
+      }
+
+      .tags {
+        display: none;
       }
     }
   }

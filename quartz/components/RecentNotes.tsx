@@ -42,36 +42,39 @@ export default ((userOpts?: Partial<Options>) => {
           {pages.slice(0, opts.limit).map((page) => {
             const title = page.frontmatter?.title ?? i18n(cfg.locale).propertyDefaults.title
             const tags = page.frontmatter?.tags ?? []
+            const episodeId = page.frontmatter?.episodeId as string | undefined
 
             return (
               <li class="recent-li">
                 <div class="section">
-                  {page.dates && (
-                    <p class="meta">
-                      <Date date={getDate(cfg, page)!} locale={cfg.locale} />
-                    </p>
-                  )}
-                  <div class="desc">
-                    <h3>
-                      <a href={resolveRelative(fileData.slug!, page.slug!)} class="internal">
-                        {title}
-                      </a>
-                    </h3>
+                  <p class="meta">
+                    {episodeId && <span class="episode-id">{episodeId}</span>}
+                    {episodeId && page.dates && <span class="meta-sep"> · </span>}
+                    {page.dates && <Date date={getDate(cfg, page)!} locale={cfg.locale} />}
+                  </p>
+                  <div class="title-row">
+                    <div class="desc">
+                      <h3>
+                        <a href={resolveRelative(fileData.slug!, page.slug!)} class="internal">
+                          {title}
+                        </a>
+                      </h3>
+                    </div>
+                    {opts.showTags && tags.length > 0 && (
+                      <ul class="tags">
+                        {tags.map((tag) => (
+                          <li>
+                            <a
+                              class="internal tag-link"
+                              href={resolveRelative(fileData.slug!, `tags/${tag}` as FullSlug)}
+                            >
+                              {tag}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
-                  {opts.showTags && (
-                    <ul class="tags">
-                      {tags.map((tag) => (
-                        <li>
-                          <a
-                            class="internal tag-link"
-                            href={resolveRelative(fileData.slug!, `tags/${tag}` as FullSlug)}
-                          >
-                            {tag}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
                 </div>
               </li>
             )

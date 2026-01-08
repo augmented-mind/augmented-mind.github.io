@@ -1,3 +1,27 @@
 @use "./base.scss";
+@use "./variables.scss" as *;
 
-// put your custom CSS here!
+// Index page: use single-column layout on tablet/smaller screens
+body[data-slug="index"] {
+  .page > #quartz-body {
+    @media all and ($tablet) {
+      grid-template-columns: auto;
+      grid-template-areas:
+        "grid-header"
+        "grid-center"
+        "grid-footer";
+    }
+
+    .sidebar.left {
+      @media all and ($tablet) {
+        display: none;
+      }
+    }
+
+    .sidebar.right {
+      @media all and ($tablet) {
+        display: none;
+      }
+    }
+  }
+}
