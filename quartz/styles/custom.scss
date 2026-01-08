@@ -1,15 +1,231 @@
 @use "./base.scss";
 @use "./variables.scss" as *;
 
+// =============================================
+// WORKFLOW-INSPIRED AESTHETIC
+// Warm cream tones, soft shadows, dot patterns
+// =============================================
+
+// Subtle dot pattern background
+body {
+  background-image: radial-gradient(circle, var(--gray) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: 0 0;
+  padding-top: 2rem;
+}
+
+// Page container with softer feel
+.page {
+  & > #quartz-body {
+    .center {
+      background: var(--light);
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 
+        0 1px 3px rgba(0, 0, 0, 0.04),
+        0 4px 12px rgba(0, 0, 0, 0.03);
+      border: 1px solid var(--lightgray);
+      margin-top: 4rem;
+      min-width: 0; // Prevent grid/flex overflow
+      box-sizing: border-box;
+      
+      @media all and ($mobile) {
+        border-radius: 12px;
+        padding: 1.5rem;
+      }
+    }
+    
+    .page-header {
+      margin-top: 4rem;
+    }
+  }
+}
+
+// Softer article title styling
+.article-title {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+// Header card for page title and search - unified card in left sidebar
+.sidebar.left {
+  .page-title {
+    background: var(--light);
+    border-radius: 12px 12px 0 0;
+    padding: 1.25rem 1rem 0.75rem;
+    margin: 0;
+    border: 1px solid var(--lightgray);
+    border-bottom: none;
+    box-shadow: 
+      0 1px 2px rgba(0, 0, 0, 0.03),
+      0 2px 8px rgba(0, 0, 0, 0.02);
+  }
+  
+  .flex-component:has(.search) {
+    background: var(--light);
+    border-radius: 0 0 12px 12px;
+    padding: 0.5rem 1rem 1rem;
+    margin-top: -1.2rem; // Close the gap from sidebar flex
+    border: 1px solid var(--lightgray);
+    border-top: none;
+    box-shadow: 
+      0 1px 2px rgba(0, 0, 0, 0.03),
+      0 2px 8px rgba(0, 0, 0, 0.02);
+  }
+}
+
+// Card-like styling for sidebar elements
+.sidebar {
+  .backlinks,
+  .toc,
+  .graph,
+  .recent-notes {
+    background: var(--light);
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 
+      0 1px 2px rgba(0, 0, 0, 0.03),
+      0 2px 8px rgba(0, 0, 0, 0.02);
+    border: 1px solid var(--lightgray);
+  }
+}
+
+// Explorer card styling
+.explorer {
+  background: var(--light);
+  border-radius: 12px;
+  padding: 0.75rem;
+  box-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.03),
+    0 2px 8px rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--lightgray);
+}
+
+// Search bar styling
+.search {
+  & > .search-button {
+    background: var(--highlight);
+    border-radius: 8px;
+    border: 1px solid var(--lightgray);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+    transition: all 0.2s ease;
+    
+    &:hover {
+      border-color: var(--gray);
+      background: var(--lightgray);
+    }
+  }
+}
+
+// Tag styling with warm accents
+a.internal.tag-link {
+  background: var(--highlight);
+  border: 1px solid rgba(224, 123, 57, 0.2);
+  border-radius: 6px;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.85em;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(224, 123, 57, 0.18);
+    border-color: rgba(224, 123, 57, 0.35);
+  }
+}
+
+// Blockquote with warm accent
+blockquote {
+  background: var(--highlight);
+  border-left: 3px solid var(--secondary);
+  border-radius: 0 8px 8px 0;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+}
+
+// Code blocks with softer appearance
+pre {
+  border-radius: 10px;
+  border: 1px solid var(--lightgray);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+code {
+  border-radius: 5px;
+  font-size: 0.88em;
+}
+
+// Callout styling
+.callout {
+  border-radius: 10px;
+  border: 1px solid var(--lightgray);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+// Links with subtle warmth
+a {
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  
+  &.internal {
+    border-radius: 4px;
+  }
+}
+
+// Footer styling - solid background above dotted pattern
+footer {
+  margin-top: 2rem;
+  padding: 2rem;
+  background: var(--light);
+  border-radius: 16px;
+  border: 1px solid var(--lightgray);
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.03);
+  min-width: 0;
+  box-sizing: border-box;
+  
+  @media all and ($mobile) {
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+}
+
+// Page list items (for episode listings)
+.page-listing {
+  .section-li {
+    background: var(--light);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--lightgray);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+    transition: all 0.2s ease;
+    
+    &:hover {
+      border-color: var(--gray);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      transform: translateY(-1px);
+    }
+  }
+}
+
 // Index page: use single-column layout on tablet/smaller screens
 body[data-slug="index"] {
   .page > #quartz-body {
+    // Tablet: single column, hide sidebars
     @media all and ($tablet) {
-      grid-template-columns: auto;
+      grid-template-columns: 1fr;
       grid-template-areas:
         "grid-header"
         "grid-center"
         "grid-footer";
+      padding: 0 1rem;
+    }
+    
+    // Mobile: tighter padding
+    @media all and ($mobile) {
+      grid-template-columns: 1fr;
+      padding: 0 0.75rem;
     }
 
     .sidebar.left {
@@ -23,5 +239,49 @@ body[data-slug="index"] {
         display: none;
       }
     }
+    
+    // Center content on index page
+    .center {
+      padding-top: 1rem;
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+      
+      @media all and ($tablet) {
+        margin: 1rem auto;
+        width: 100%;
+      }
+      
+      @media all and ($mobile) {
+        padding: 1.25rem;
+        margin: 0.5rem 0;
+      }
+    }
   }
+}
+
+// Non-index (article) pages: align center content with other boxes
+body:not([data-slug="index"]) {
+    .page > #quartz-body {
+        .center {
+            margin-top: 6rem;
+            margin-bottom: 2rem;
+            width: 100%;
+            padding-top: 1rem;
+            .page-header {
+                margin-top: 1rem;
+            }
+            .content-meta {
+                margin-bottom: 0.25rem;
+            }
+            .article-title {
+                margin-top: 0rem;
+            }
+        }
+        .sidebar.left {
+            .page-title {
+                padding-top: 2rem;
+            }
+        }
+    }
 }
