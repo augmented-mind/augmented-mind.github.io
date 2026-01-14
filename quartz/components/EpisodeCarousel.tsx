@@ -90,7 +90,7 @@ export default ((userOpts?: Partial<Options>) => {
                       <ul class="card-tags">
                         {tags.slice(0, 2).map((tag) => (
                           <li>
-                            <span class="tag">{tag}</span>
+                            <span class="tag">{tag.replace(/-/g, " ")}</span>
                           </li>
                         ))}
                       </ul>
