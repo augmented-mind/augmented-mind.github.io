@@ -12,7 +12,8 @@ export default (() => {
     externalResources,
     ctx,
   }: QuartzComponentProps) => {
-    const titleSuffix = cfg.pageTitleSuffix ?? ""
+    const isIndexPage = fileData.slug === "index" || fileData.slug === ""
+    const titleSuffix = isIndexPage ? "" : " | Augmented Mind Podcast"
     const title =
       (fileData.frontmatter?.title ?? i18n(cfg.locale).propertyDefaults.title) + titleSuffix
     const description =
