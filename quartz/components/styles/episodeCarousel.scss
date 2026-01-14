@@ -1,0 +1,282 @@
+@use "../../styles/variables.scss" as *;
+
+.episode-carousel {
+  margin: 1.5rem 0;
+
+  .carousel-title {
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--darkgray);
+  }
+
+  .carousel-container {
+    // Enable horizontal scrolling with snap
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+
+    // Hide scrollbar but keep functionality
+    scrollbar-width: thin;
+    scrollbar-color: var(--lightgray) transparent;
+
+    &::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--lightgray);
+      border-radius: 3px;
+
+      &:hover {
+        background: var(--gray);
+      }
+    }
+
+    // Bottom padding for scrollbar
+    padding-bottom: 0.75rem;
+    // Extend container to edges
+    margin: 0 -0.5rem;
+    // Scroll-snap padding for snap alignment
+    scroll-padding-left: 0.5rem;
+    scroll-padding-right: 0.5rem;
+  }
+
+  .carousel-track {
+    display: inline-flex; // Use inline-flex so padding is included in scrollable width
+    gap: 1rem;
+    // Padding on track ensures space on both sides within scroll area
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+
+    // Ensure cards don't shrink
+    & > * {
+      flex-shrink: 0;
+    }
+  }
+
+  .episode-card {
+    // Card sizing - responsive
+    width: 280px;
+    min-width: 280px;
+    scroll-snap-align: start;
+
+    // Card styling matching design system
+    background: var(--light);
+    border-radius: 12px;
+    border: 1px solid var(--lightgray);
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+
+    // Soft shadow like other cards
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.03),
+      0 2px 8px rgba(0, 0, 0, 0.02);
+
+    // Hover effects
+    transition: all 0.25s ease;
+
+    &:hover {
+      border-color: var(--gray);
+      box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.04),
+        0 4px 16px rgba(0, 0, 0, 0.06);
+      transform: translateY(-2px);
+
+      .card-image img {
+        transform: scale(1.03);
+      }
+
+      .play-overlay {
+        opacity: 1;
+        background: rgba(0, 0, 0, 0.5);
+      }
+    }
+
+    @media all and ($mobile) {
+      width: 240px;
+      min-width: 240px;
+    }
+  }
+
+  .card-image {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: var(--highlight);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center; // Center the image
+      transition: transform 0.3s ease;
+    }
+
+    .play-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.35);
+      opacity: 0.8;
+      transition: all 0.25s ease;
+
+      svg {
+        width: 48px;
+        height: 48px;
+        color: white;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+      }
+    }
+  }
+
+  .card-content {
+    padding: 0.875rem 1rem 1rem;
+  }
+
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--gray);
+
+    .episode-id {
+      font-weight: 600;
+      padding: 0.15rem 0.4rem;
+      border: 1px solid var(--gray);
+      border-radius: 4px;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .episode-date {
+      opacity: 0.8;
+    }
+  }
+
+  .card-title {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--dark);
+
+    // Truncate long titles to 2 lines
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin: 0.5rem 0 0 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      margin: 0;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 500;
+      padding: 0.15rem 0.45rem;
+      background: var(--highlight);
+      border: 1px solid rgba(224, 123, 57, 0.2);
+      border-radius: 4px;
+      color: var(--secondary);
+    }
+  }
+
+  .see-more {
+    margin: 1rem 0 0 0;
+    font-size: 0.9rem;
+
+    a {
+      color: var(--secondary);
+      font-weight: 500;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// Larger cards on desktop when in center content area
+.center .episode-carousel {
+  .carousel-container {
+    margin: 0 0 0 -1rem;
+    scroll-padding-left: 1rem;
+    scroll-padding-right: 1rem;
+
+    @media all and ($mobile) {
+      margin: 0 0 0 -1rem;
+      scroll-padding-left: 1rem;
+      scroll-padding-right: 1rem;
+    }
+  }
+
+  .carousel-track {
+    padding-left: 1rem;
+    padding-right: 1rem;
+
+    @media all and ($mobile) {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  }
+
+  .episode-card {
+    width: 300px;
+    min-width: 300px;
+
+    @media all and ($mobile) {
+      width: 260px;
+      min-width: 260px;
+    }
+  }
+}
+
+// Sidebar variant (if needed)
+.sidebar .episode-carousel {
+  .carousel-title {
+    font-size: 1rem;
+  }
+
+  .episode-card {
+    width: 200px;
+    min-width: 200px;
+  }
+
+  .card-content {
+    padding: 0.75rem;
+  }
+
+  .card-title {
+    font-size: 0.85rem;
+  }
+
+  .card-tags {
+    display: none;
+  }
+}

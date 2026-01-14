@@ -2,7 +2,17 @@ import { PageLayout, SharedLayout } from "./quartz/cfg"
 import * as Component from "./quartz/components"
 import { SimpleSlug } from "./quartz/util/path"
 
+// Sidebar episodes list (vertical, compact)
 const episodesSection = Component.RecentNotes({
+  title: "Episodes",
+  limit: 20,
+  showTags: true,
+  filter: (f) => f.slug!.startsWith("episodes/") && f.slug! !== "episodes/index",
+  linkToMore: "episodes/" as SimpleSlug,
+})
+
+// Landing page episodes carousel (horizontal cards with images)
+const episodesCarousel = Component.EpisodeCarousel({
   title: "Episodes",
   limit: 20,
   showTags: true,
@@ -28,12 +38,12 @@ export const sharedPageComponents: SharedLayout = {
   head: Component.Head(),
   header: [],
   afterBody: [
-    // Show episodes list on index page (in center content area)
+    // Show episodes carousel on index page (in center content area)
     Component.ConditionalRender({
-      component: episodesSection,
+      component: episodesCarousel,
       condition: (page) => page.fileData.slug === "index",
     }),
-    // On mobile for non-index pages, show episodes
+    // On mobile for non-index pages, show episodes list
     Component.MobileOnly(
       Component.ConditionalRender({
         component: episodesSection,
