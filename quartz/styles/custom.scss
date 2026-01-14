@@ -211,6 +211,11 @@ footer {
 
 // Index page: use single-column layout on tablet/smaller screens
 body[data-slug="index"] {
+  // Reduce title margin on index page
+  .article-title {
+    margin-bottom: 0.25rem;
+  }
+  
   .page > #quartz-body {
     // Tablet: single column, hide sidebars
     @media all and ($tablet) {
@@ -232,29 +237,59 @@ body[data-slug="index"] {
       @media all and ($tablet) {
         display: none;
       }
+      @media all and ($mobile) {
+        display: none;
+      }
     }
 
     .sidebar.right {
       @media all and ($tablet) {
         display: none;
       }
+      @media all and ($mobile) {
+        display: none;
+      }
+    }
+
+    // adjust top 
+    @media all and ($mobile) {
+      .page-header {
+        margin-top: 2rem;
+      }
     }
     
     // Center content on index page
-    .center {
-      padding-top: 1rem;
-      max-width: 100%;
-      min-width: 0;
+    .center,
+    footer {
+      width: 85%;
+      max-width: 85%;
+      min-width: 0 !important;
+      margin-left: auto;
+      margin-right: auto;
       box-sizing: border-box;
       
-      @media all and ($tablet) {
-        margin: 1rem auto;
+      @media all and ($mobile) {
         width: 100%;
+        max-width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+      }
+    }
+    
+    .center {
+      padding-top: 0rem;
+      margin-top: 2rem;
+      margin-bottom: 3rem;
+      
+      @media all and ($tablet) {
+        margin-top: 1rem;
+        margin-bottom: 3rem;
       }
       
       @media all and ($mobile) {
         padding: 1.25rem;
-        margin: 0.5rem 0;
+        margin-top: 0.5rem;
+        margin-bottom: 2rem;
       }
     }
   }

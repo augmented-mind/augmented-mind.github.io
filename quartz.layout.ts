@@ -20,6 +20,16 @@ const episodesCarousel = Component.EpisodeCarousel({
   linkToMore: "episodes/" as SimpleSlug,
 })
 
+// Subscribe links for podcast platforms
+const subscribeLinks = Component.SubscribeLinks({
+  rss: "https://anchor.fm/s/10dbf5b7c/podcast/rss",
+  links: {
+    youtube: "https://www.youtube.com/@TheAugmentedMindPodcast",
+    spotify: "https://open.spotify.com/show/the-am-podcast",
+    apple: "https://podcasts.apple.com/podcast/the-am-podcast",
+  },
+})
+
 // Left sidebar components (used on content pages)
 const left = [
   Component.PageTitle(),
@@ -65,6 +75,11 @@ export const defaultContentPageLayout: PageLayout = {
       condition: (page) => page.fileData.slug !== "index",
     }),
     Component.ArticleTitle(),
+    // Show subscribe links only on index page
+    Component.ConditionalRender({
+      component: subscribeLinks,
+      condition: (page) => page.fileData.slug === "index",
+    }),
     Component.ConditionalRender({
       component: Component.TagList(),
       condition: (page) => page.fileData.slug !== "index",
