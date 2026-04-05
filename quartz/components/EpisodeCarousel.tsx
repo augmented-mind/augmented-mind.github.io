@@ -44,72 +44,95 @@ export default ((userOpts?: Partial<Options>) => {
         <div class="carousel-wrapper">
           <button class="carousel-arrow carousel-arrow-left" aria-label="Scroll left">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M15 18l-6-6 6-6"/>
+              <path d="M15 18l-6-6 6-6" />
             </svg>
           </button>
           <div class="carousel-container">
             <div class="carousel-track">
-            {pages.slice(0, opts.limit).map((page) => {
-              const title = page.frontmatter?.title ?? "Untitled"
-              const tags = page.frontmatter?.tags ?? []
-              const episodeId = page.frontmatter?.episodeId as string | undefined
-              const coverImage = (page.frontmatter?.coverImage as string) || DEFAULT_COVER
-              const youtubeUrl = page.frontmatter?.youtubeUrl as string | undefined
-              const guestOffset = (page.frontmatter?.guestOffset as number) ?? 0
+              {pages.slice(0, opts.limit).map((page) => {
+                const title = page.frontmatter?.title ?? "Untitled"
+                const tags = page.frontmatter?.tags ?? []
+                const episodeId = page.frontmatter?.episodeId as string | undefined
+                const coverImage = (page.frontmatter?.coverImage as string) || DEFAULT_COVER
+                const youtubeUrl = page.frontmatter?.youtubeUrl as string | undefined
+                const guestOffset = (page.frontmatter?.guestOffset as number) ?? 0
 
-              // Use YouTube URL if available, otherwise link to internal page
-              const linkUrl = youtubeUrl || resolveRelative(fileData.slug!, page.slug!)
-              const isExternal = !!youtubeUrl
+                // Splitting card into two distinct link areas: link and notes
+                // link: points to YouTube for immediate playback.
+                // notes: points to the internal node for notes/graph links.
+                const linkUrl = youtubeUrl || resolveRelative(fileData.slug!, page.slug!)
+                const notesUrl = resolveRelative(fileData.slug!, page.slug!)
+                const isExternal = !!youtubeUrl
 
-              return (
-                <a
-                  href={linkUrl}
-                  class="episode-card"
-                  target={isExternal ? "_blank" : undefined}
-                  rel={isExternal ? "noopener noreferrer" : undefined}
-                >
-                  <div class="card-image">
-                    <img
-                      src={coverImage}
-                      alt={`Cover for ${title}`}
-                      loading="lazy"
-                      style={{ marginTop: "0" }}
-                    />
-                    {isExternal && (
-                      <div class="play-overlay">
-                        <svg viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M8 5v14l11-7z"/>
-                        </svg>
+                return (
+                  <div class="episode-card">
+                    {/* Primary Link Area: Image + Play Overlay */}
+                    <a
+                      href={linkUrl}
+                      class="card-image-link"
+                      target={isExternal ? "_blank" : undefined}
+                      rel={isExternal ? "noopener noreferrer" : undefined}
+                    >
+                      <div class="card-image">
+                        <img
+                          src={coverImage}
+                          alt={`Cover for ${title}`}
+                          loading="lazy"
+                          style={{ marginTop: "0" }}
+                        />
+                        {isExternal && (
+                          <div class="play-overlay">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M8 5v14l11-7z" />
+                            </svg>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                  <div class="card-content">
-                    <div class="card-meta">
-                      {episodeId && <span class="episode-id">{episodeId}</span>}
-                      {page.dates && (
-                        <span class="episode-date">
-                          <Date date={getDate(cfg, page)!} locale={cfg.locale} />
+                    </a>
+                    <div class="card-content">
+                      <div class="card-meta">
+                        {episodeId && <span class="episode-id">{episodeId}</span>}
+                        {page.dates && (
+                          <span class="episode-date">
+                            <Date date={getDate(cfg, page)!} locale={cfg.locale} />
+                          </span>
+                        )}
+                      </div>
+                      {/* Primary Link Area: Episode Title */}
+                      <a
+                        href={linkUrl}
+                        class="card-title-link"
+                        target={isExternal ? "_blank" : undefined}
+                        rel={isExternal ? "noopener noreferrer" : undefined}
+                      >
+                        <h4 class="card-title">{title}</h4>
+                      </a>
+                      {opts.showTags && tags.length > 0 && (
+                        <span
+                          class="episode-guest"
+                          style={{ transform: `translateY(${guestOffset}rem)` }}
+                        >
+                          {tags[0].replace(/-/g, " ")}
                         </span>
                       )}
+                      {/* Secondary Link Area: Internal Knowledge Base */}
+                      <div class="card-footer">
+                        <a
+                          href={notesUrl}
+                          class="show-notes-link"
+                        >
+                          Notes & Links →
+                        </a>
+                      </div>
                     </div>
-                    <h4 class="card-title">{title}</h4>
-                    {opts.showTags && tags.length > 0 && (
-                      <span
-                        class="episode-guest"
-                        style={{ transform: `translateY(${guestOffset}rem)` }}
-                      >
-                        {tags[0].replace(/-/g, " ")}
-                      </span>
-                    )}
                   </div>
-                </a>
-              )
-            })}
+                )
+              })}
             </div>
           </div>
           <button class="carousel-arrow carousel-arrow-right" aria-label="Scroll right">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M9 18l6-6-6-6"/>
+              <path d="M9 18l6-6-6-6" />
             </svg>
           </button>
         </div>

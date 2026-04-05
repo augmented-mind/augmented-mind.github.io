@@ -67,8 +67,26 @@ export const sharedPageComponents: SharedLayout = {
       Component.ConditionalRender({
         component: episodesSection,
         condition: (page) => page.fileData.slug !== "index",
-      })
+      }),
     ),
+    // Forum/Comments Section
+    // Positioned in afterBody to ensure it appears at the bottom of the main content 
+    Component.ConditionalRender({
+      component: Component.Comments({
+        provider: "giscus",
+        options: {
+          repo: "augmented-mind/augmented-mind.github.io",
+          repoId: "_X_", // Placeholder [REPLACE ME]
+          category: "Announcements", // Placeholder [REPLACE ME]
+          categoryId: "_X_", // Placeholder [REPLACE ME]
+          mapping: "url", // Placeholder [REPLACE ME]
+          strict: true, // Placeholder [REPLACE ME]
+          reactionsEnabled: true, // Placeholder [REPLACE ME]
+          inputPosition: "bottom", // Placeholder [REPLACE ME]
+        },
+      }),
+      condition: (page) => page.fileData.slug !== "index",
+    }),
   ],
   footer: Component.Footer({
     links: {},

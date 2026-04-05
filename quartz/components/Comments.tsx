@@ -35,24 +35,47 @@ export default ((opts: Options) => {
       return <></>
     }
 
+    // Showing a visual placeholder for now (AMA Node or Forum Node) 
+    // when the repoId is still set instead of the placeholder string. 
+    const isPlaceholder = opts.options.repoId.includes("_X_")
+
     return (
-      <div
-        class={classNames(displayClass, "giscus")}
-        data-repo={opts.options.repo}
-        data-repo-id={opts.options.repoId}
-        data-category={opts.options.category}
-        data-category-id={opts.options.categoryId}
-        data-mapping={opts.options.mapping ?? "url"}
-        data-strict={boolToStringBool(opts.options.strict ?? true)}
-        data-reactions-enabled={boolToStringBool(opts.options.reactionsEnabled ?? true)}
-        data-input-position={opts.options.inputPosition ?? "bottom"}
-        data-light-theme={opts.options.lightTheme ?? "light"}
-        data-dark-theme={opts.options.darkTheme ?? "dark"}
-        data-theme-url={
-          opts.options.themeUrl ?? `https://${cfg.baseUrl ?? "example.com"}/static/giscus`
-        }
-        data-lang={opts.options.lang ?? "en"}
-      ></div>
+      <div class={classNames(displayClass, "comments-area")}>
+        {isPlaceholder && (
+          <div style={{
+            padding: "2rem",
+            border: "2px dashed #e07b39", // orange dashed border
+            borderRadius: "8px",
+            textAlign: "center",
+            color: "#e07b39",
+            marginTop: "2rem",
+            marginBottom: "1rem",
+            backgroundColor: "rgba(224, 123, 57, 0.05)"
+          }}>
+            {/* TODO: Add a link to the GitHub Discussions page. Thinking AMA for people, Forum for other pages. */}
+            <p><strong>{fileData.slug?.startsWith("people/") ? "AMA Node" : "Forum Node"} (Coming Soon)</strong></p>
+            <p style={{ fontSize: "0.8rem" }}>Next: Enable GitHub Discussions + update repoId/categoryId to activate.</p>
+          </div>
+        )}
+        {/* The giscus div is where the external iframe will be injected */}
+        <div
+          class="giscus"
+          data-repo={opts.options.repo}
+          data-repo-id={opts.options.repoId}
+          data-category={opts.options.category}
+          data-category-id={opts.options.categoryId}
+          data-mapping={opts.options.mapping ?? "url"}
+          data-strict={boolToStringBool(opts.options.strict ?? true)}
+          data-reactions-enabled={boolToStringBool(opts.options.reactionsEnabled ?? true)}
+          data-input-position={opts.options.inputPosition ?? "bottom"}
+          data-light-theme={opts.options.lightTheme ?? "light"}
+          data-dark-theme={opts.options.darkTheme ?? "dark"}
+          data-theme-url={
+            opts.options.themeUrl ?? `https://${cfg.baseUrl ?? "example.com"}/static/giscus`
+          }
+          data-lang={opts.options.lang ?? "en"}
+        ></div>
+      </div>
     )
   }
 
