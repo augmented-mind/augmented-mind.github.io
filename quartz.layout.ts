@@ -77,12 +77,12 @@ export const sharedPageComponents: SharedLayout = {
         options: {
           repo: "augmented-mind/augmented-mind.github.io",
           repoId: "_X_", // Placeholder [REPLACE ME]
-          category: "Announcements", // Placeholder [REPLACE ME]
+          category: "General",
           categoryId: "_X_", // Placeholder [REPLACE ME]
-          mapping: "url", // Placeholder [REPLACE ME]
-          strict: true, // Placeholder [REPLACE ME]
-          reactionsEnabled: true, // Placeholder [REPLACE ME]
-          inputPosition: "bottom", // Placeholder [REPLACE ME]
+          mapping: "url",
+          strict: true,
+          reactionsEnabled: true,
+          inputPosition: "bottom",
         },
       }),
       condition: (page) => page.fileData.slug !== "index",
