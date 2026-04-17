@@ -51,6 +51,40 @@ body {
   letter-spacing: -0.02em;
 }
 
+body[data-slug^="episodes/"] {
+  --episode-card-bg: #fffefc;
+}
+
+body[data-slug^="episodes/"] .page > #quartz-body .center {
+  background: var(--episode-card-bg);
+}
+
+body[data-slug^="episodes/"] .sidebar.left {
+  .page-title,
+  .flex-component:has(.search) {
+    background: var(--episode-card-bg);
+  }
+}
+
+@media all and ($mobile) {
+  body[data-slug^="episodes/"] .page > #quartz-body .sidebar.left {
+    background: var(--episode-card-bg);
+  }
+}
+
+body[data-slug^="episodes/"] .sidebar {
+  .backlinks,
+  .toc,
+  .graph,
+  .recent-notes {
+    background: var(--episode-card-bg);
+  }
+}
+
+body[data-slug^="episodes/"] .explorer {
+  background: var(--episode-card-bg);
+}
+
 // Header card for page title and search - unified card in left sidebar
 .sidebar.left {
   // Desktop: stacked card style
