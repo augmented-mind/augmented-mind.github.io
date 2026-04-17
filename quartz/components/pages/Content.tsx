@@ -37,11 +37,13 @@ function hasClass(el: Element, className: string): boolean {
   return classes === className
 }
 
-function createYouTubeEmbed(title: string, embedUrl: string): Element {
+function createYouTubeEmbed(title: string, embedUrl: string, topOfArticle = false): Element {
   return {
     type: "element",
     tagName: "div",
-    properties: { className: ["youtube-embed-inline"] },
+    properties: {
+      className: ["youtube-embed-inline", ...(topOfArticle ? ["top-of-article"] : [])],
+    },
     children: [
       {
         type: "element",
@@ -68,7 +70,7 @@ function createYouTubeEmbed(title: string, embedUrl: string): Element {
   }
 }
 
-function injectYouTubeEmbed(root: Root, title: string, youtubeUrl: string) {
+function injectYouTubeEmbed(root: Root, title: string, youtubeUrl: string, topOfArticle = false) {
   const embedUrl = getYouTubeEmbedUrl(youtubeUrl)
   if (!embedUrl) {
     return
@@ -81,6 +83,11 @@ function injectYouTubeEmbed(root: Root, title: string, youtubeUrl: string) {
       hasClass(child, "youtube-embed-inline"),
   )
   if (alreadyInjected) {
+    return
+  }
+
+  if (topOfArticle) {
+    root.children.splice(0, 0, createYouTubeEmbed(title, embedUrl, true))
     return
   }
 
@@ -104,9 +111,10 @@ const Content: QuartzComponent = ({ fileData, tree }: QuartzComponentProps) => {
   const root = tree as Root
   const title = (fileData.frontmatter?.title as string | undefined) ?? "YouTube video"
   const youtubeUrl = fileData.frontmatter?.youtubeUrl as string | undefined
+  const isEpisodePage = fileData.slug?.startsWith("episodes/") && fileData.slug !== "episodes/index"
 
   if (youtubeUrl) {
-    injectYouTubeEmbed(root, title, youtubeUrl)
+    injectYouTubeEmbed(root, title, youtubeUrl, isEpisodePage)
   }
 
   const content = htmlToJsx(fileData.filePath!, root) as ComponentChildren
@@ -116,10 +124,20 @@ const Content: QuartzComponent = ({ fileData, tree }: QuartzComponentProps) => {
 }
 
 Content.css = `
+body[data-slug^="episodes/"] .page-header {
+  display: none;
+}
+
 .youtube-embed-inline {
   margin: 1.5rem 0 1.5rem 0;
   padding-top: 1.25rem;
   border-top: 1px solid var(--lightgray);
+}
+
+.youtube-embed-inline.top-of-article {
+  margin: 0 0 1.5rem 0;
+  padding-top: 1rem;
+  border-top: none;
 }
 
 .youtube-embed-frame {

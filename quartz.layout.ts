@@ -2,6 +2,8 @@ import { PageLayout, SharedLayout } from "./quartz/cfg"
 import * as Component from "./quartz/components"
 import { SimpleSlug } from "./quartz/util/path"
 
+const isEpisodePage = (slug?: string) => slug?.startsWith("episodes/") && slug !== "episodes/index"
+
 // Sidebar episodes list (vertical, compact)
 const episodesSection = Component.RecentNotes({
   title: "Episodes",
@@ -99,9 +101,12 @@ export const defaultContentPageLayout: PageLayout = {
     // Show date above title on non-index pages
     Component.ConditionalRender({
       component: Component.ContentMeta({ showReadingTime: false }),
-      condition: (page) => page.fileData.slug !== "index",
+      condition: (page) => page.fileData.slug !== "index" && !isEpisodePage(page.fileData.slug),
     }),
-    Component.ArticleTitle(),
+    Component.ConditionalRender({
+      component: Component.ArticleTitle(),
+      condition: (page) => !isEpisodePage(page.fileData.slug),
+    }),
     // Show subscribe links only on index page
     Component.ConditionalRender({
       component: subscribeLinks,
