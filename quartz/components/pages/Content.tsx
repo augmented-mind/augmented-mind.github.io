@@ -1,6 +1,7 @@
 import { ComponentChildren } from "preact"
 import { Element, Root } from "hast"
 import { htmlToJsx } from "../../util/jsx"
+import { Date, getDate } from "../Date"
 import { QuartzComponent, QuartzComponentConstructor, QuartzComponentProps } from "../types"
 
 function getYouTubeEmbedUrl(url: string): string | null {
@@ -107,11 +108,13 @@ function injectYouTubeEmbed(root: Root, title: string, youtubeUrl: string, topOf
   root.children.splice(insertIndex ?? 0, 0, createYouTubeEmbed(title, embedUrl))
 }
 
-const Content: QuartzComponent = ({ fileData, tree }: QuartzComponentProps) => {
+const Content: QuartzComponent = ({ fileData, tree, cfg }: QuartzComponentProps) => {
   const root = tree as Root
   const title = (fileData.frontmatter?.title as string | undefined) ?? "YouTube video"
   const youtubeUrl = fileData.frontmatter?.youtubeUrl as string | undefined
+  const episodeId = fileData.frontmatter?.episodeId as string | undefined
   const isEpisodePage = fileData.slug?.startsWith("episodes/") && fileData.slug !== "episodes/index"
+  const pageDate = getDate(cfg, fileData)
 
   if (youtubeUrl) {
     injectYouTubeEmbed(root, title, youtubeUrl, isEpisodePage)
@@ -120,12 +123,73 @@ const Content: QuartzComponent = ({ fileData, tree }: QuartzComponentProps) => {
   const content = htmlToJsx(fileData.filePath!, root) as ComponentChildren
   const classes: string[] = fileData.frontmatter?.cssclasses ?? []
   const classString = ["popover-hint", ...classes].join(" ")
-  return <article class={classString}>{content}</article>
+
+  return (
+    <>
+      {isEpisodePage && (
+        <div class="episode-inline-header">
+          {episodeId && <span class="episode-id">{episodeId}</span>}
+          {episodeId && pageDate && <span class="meta-sep">·</span>}
+          {pageDate && <Date date={pageDate} locale={cfg.locale} />}
+          {(episodeId || pageDate) && <span class="meta-sep">·</span>}
+          <span class="episode-inline-title">{title}</span>
+        </div>
+      )}
+      <article class={classString}>{content}</article>
+    </>
+  )
 }
 
 Content.css = `
 body[data-slug^="episodes/"] .page-header {
   display: none;
+}
+
+body[data-slug^="episodes/"] .page > #quartz-body .center {
+  padding-top: calc(2rem + 16px);
+}
+
+@media all and (max-width: 800px) {
+  body[data-slug^="episodes/"] .page > #quartz-body .center {
+    padding-top: calc(1.5rem + 16px);
+  }
+}
+
+.episode-inline-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 1rem 0;
+  min-width: 0;
+  color: var(--gray);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.episode-inline-header .episode-id {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.4rem;
+  border: 1px solid var(--gray);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.episode-inline-header .meta-sep {
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.episode-inline-header time {
+  flex-shrink: 0;
+}
+
+.episode-inline-header .episode-inline-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--secondary);
+  font-weight: 600;
 }
 
 .youtube-embed-inline {
@@ -136,7 +200,7 @@ body[data-slug^="episodes/"] .page-header {
 
 .youtube-embed-inline.top-of-article {
   margin: 0 0 1.5rem 0;
-  padding-top: 1rem;
+  padding-top: 0.5rem;
   border-top: none;
 }
 
