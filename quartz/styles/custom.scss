@@ -29,7 +29,7 @@ body {
         0 1px 3px rgba(0, 0, 0, 0.04),
         0 4px 12px rgba(0, 0, 0, 0.03);
       border: 1px solid var(--lightgray);
-      margin-top: 4rem;
+      margin-top: 3rem;
       min-width: 0; // Prevent grid/flex overflow
       box-sizing: border-box;
       
@@ -40,7 +40,7 @@ body {
     }
     
     .page-header {
-      margin-top: 4rem;
+      margin-top: 3rem;
     }
   }
 }
@@ -64,6 +64,18 @@ body[data-slug^="episodes/"] .sidebar.left {
   .page-title,
   .flex-component:has(.search) {
     background: var(--episode-card-bg);
+  }
+}
+
+.page > #quartz-body .sidebar {
+  @media all and not ($mobile) {
+    padding-top: 3rem;
+  }
+}
+
+@media all and ($mobile) {
+  .page > #quartz-body .sidebar.left {
+    padding-top: 2rem;
   }
 }
 
@@ -381,7 +393,7 @@ body[data-slug="index"] {
 body:not([data-slug="index"]) {
     .page > #quartz-body {
         .center {
-            margin-top: 6rem;
+            margin-top: 3rem;
             margin-bottom: 2rem;
             width: 100%;
             padding-top: 1rem;
