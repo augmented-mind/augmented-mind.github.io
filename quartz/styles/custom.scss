@@ -53,6 +53,7 @@ body {
 
 body[data-slug^="episodes/"] {
   --episode-card-bg: #fffefc;
+  --episode-card-header-bg: var(--light);
 }
 
 body[data-slug^="episodes/"] .page > #quartz-body .center {

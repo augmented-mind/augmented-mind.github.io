@@ -147,6 +147,7 @@ body[data-slug^="episodes/"] .page-header {
 
 body[data-slug^="episodes/"] .page > #quartz-body .center {
   padding-top: calc(2rem + 16px);
+  overflow: hidden;
 }
 
 @media all and (max-width: 800px) {
@@ -159,11 +160,23 @@ body[data-slug^="episodes/"] .page > #quartz-body .center {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  margin: 0 0 1rem 0;
+  margin: calc(-2rem + 16px) -2rem 1.25rem;
+  padding: 1rem 2rem 0.9rem;
   min-width: 0;
   color: var(--gray);
   font-size: 0.85rem;
   white-space: nowrap;
+  background: var(--episode-card-header-bg, var(--lightgray));
+  border-bottom: 1px solid var(--lightgray);
+  border-radius: 16px 16px 0 0;
+}
+
+@media all and (max-width: 800px) {
+  .episode-inline-header {
+    margin: calc(-1.5rem + 16px) -1.5rem 1rem;
+    padding: 0.9rem 1.5rem 0.8rem;
+    border-radius: 12px 12px 0 0;
+  }
 }
 
 .episode-inline-header .episode-id {
