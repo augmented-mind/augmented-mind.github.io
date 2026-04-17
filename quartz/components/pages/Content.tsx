@@ -127,12 +127,12 @@ const Content: QuartzComponent = ({ fileData, tree, cfg }: QuartzComponentProps)
   return (
     <>
       {isEpisodePage && (
-        <div class="episode-inline-header">
+        <div class="episode-inline-header popover-hint">
           {episodeId && <span class="episode-id">{episodeId}</span>}
-          {episodeId && pageDate && <span class="meta-sep">·</span>}
-          {pageDate && <Date date={pageDate} locale={cfg.locale} />}
-          {(episodeId || pageDate) && <span class="meta-sep">·</span>}
+          {episodeId && <span class="meta-sep">·</span>}
           <span class="episode-inline-title">{title}</span>
+          {pageDate && <span class="meta-sep">·</span>}
+          {pageDate && <Date date={pageDate} locale={cfg.locale} />}
         </div>
       )}
       <article class={classString}>{content}</article>

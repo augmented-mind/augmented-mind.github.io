@@ -27,15 +27,15 @@
     position: relative;
     width: 30rem;
     max-height: 20rem;
-    padding: 0 1rem 1rem 1rem;
+    padding: 0;
     font-weight: initial;
     font-style: initial;
     line-height: normal;
     font-size: initial;
     font-family: var(--bodyFont);
     border: 1px solid var(--lightgray);
-    background-color: var(--light);
-    border-radius: 5px;
+    background-color: color-mix(in srgb, var(--light) 92%, white 8%);
+    border-radius: 12px;
     box-shadow: 6px 6px 36px 0 rgba(0, 0, 0, 0.25);
     overflow: auto;
     overscroll-behavior: contain;
@@ -68,6 +68,63 @@
 
   h1 {
     font-size: 1.5rem;
+  }
+
+  & > .popover-inner > .popover-hint:first-child:not(article) {
+    padding: 0.8rem 1rem 0.75rem;
+    background: var(--light);
+    border-bottom: 1px solid var(--lightgray);
+  }
+
+  & > .popover-inner > .popover-hint:first-child:not(article) .content-meta {
+    margin: 0 0 0.3rem 0;
+    font-size: 0.75rem;
+    color: var(--gray);
+  }
+
+  & > .popover-inner > .popover-hint:first-child:not(article) .article-title {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--secondary);
+    line-height: 1.2;
+  }
+
+  & > .popover-inner > article.popover-hint {
+    padding: 0.9rem 1rem 1rem;
+  }
+
+  & > .popover-inner > article.popover-hint > *:first-child {
+    margin-top: 0;
+  }
+
+  .episode-inline-header {
+    margin: 0 !important;
+    padding: 0.75rem 1rem 0.7rem;
+    gap: 0.35rem;
+    background: var(--light);
+    border-bottom: 1px solid var(--lightgray);
+    border-radius: 12px 12px 0 0;
+    font-size: 0.8rem;
+    line-height: 1.2;
+  }
+
+  .episode-inline-header .episode-id {
+    font-size: 0.66rem;
+    padding: 0.12rem 0.35rem;
+  }
+
+  .youtube-embed-inline {
+    display: block;
+  }
+
+  .youtube-embed-inline.top-of-article {
+    margin: 0 0 0.85rem;
+    padding-top: 0;
+    border-top: none;
+  }
+
+  .youtube-embed-frame {
+    border-radius: 10px;
   }
 
   visibility: hidden;
