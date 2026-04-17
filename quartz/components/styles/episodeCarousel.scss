@@ -49,11 +49,7 @@
       padding-right: 0.25rem;
       background: linear-gradient(to right, transparent, var(--light) 60%);
 
-      &:hover svg {
-        transform: translateX(2px);
-        background: var(--secondary);
-        color: white;
-      }
+      &:hover svg { transform: translateX(2px); background: var(--secondary); color: white; }
     }
 
     &-left {
@@ -62,11 +58,7 @@
       padding-left: 0.25rem;
       background: linear-gradient(to left, transparent, var(--light) 60%);
 
-      &:hover svg {
-        transform: translateX(-2px);
-        background: var(--secondary);
-        color: white;
-      }
+      &:hover svg { transform: translateX(-2px); background: var(--secondary); color: white; }
     }
   }
 
@@ -101,7 +93,7 @@
     padding-right: 0.5rem;
 
     // Ensure cards don't shrink
-    &>* {
+    & > * {
       flex-shrink: 0;
     }
   }
@@ -112,15 +104,14 @@
     min-width: 280px;
     scroll-snap-align: start;
 
-    // Using <div> instead of <a> to support multiple internal links.
-    // Uses flex-direction: column to push the "Notes and Links" link to the bottom.
+    // Card styling matching design system
     background: var(--light);
     border-radius: 12px;
     border: 1px solid var(--lightgray);
     overflow: hidden;
+    text-decoration: none;
     color: inherit;
-    display: flex;
-    flex-direction: column;
+    display: block;
 
     // Soft shadow like other cards
     box-shadow:
@@ -145,23 +136,12 @@
         opacity: 1;
         background: rgba(0, 0, 0, 0.5);
       }
-
-      // Visual feedback for the primary title link
-      .card-title {
-        color: var(--secondary);
-      }
     }
 
     @media all and ($mobile) {
       width: 240px;
       min-width: 240px;
     }
-  }
-
-  // Wrapper for the primary video/playback link - image area
-  .card-image-link {
-    display: block;
-    text-decoration: none;
   }
 
   .card-image {
@@ -175,7 +155,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: center;
+      object-position: center; // Center the image
       transition: transform 0.3s ease;
     }
 
@@ -201,9 +181,6 @@
   .card-content {
     position: relative;
     padding: 0.875rem 1rem 1rem;
-    flex-grow: 1; // Ensures content fills space so footer can push to bottom
-    display: flex;
-    flex-direction: column;
   }
 
   .card-meta {
@@ -227,14 +204,7 @@
     .episode-date {
       opacity: 0.8;
     }
-  }
 
-  // Wrapper for the primary video/playback link; title area
-  .card-title-link {
-    text-decoration: none;
-    color: inherit;
-    display: block;
-    margin-bottom: 0.5rem;
   }
 
   .card-title {
@@ -243,7 +213,6 @@
     font-weight: 600;
     line-height: 1.35;
     color: var(--dark);
-    transition: color 0.2s ease;
 
     // Truncate long titles to 2 lines
     display: -webkit-box;
@@ -255,37 +224,11 @@
   .episode-guest {
     position: absolute;
     right: 1rem;
-    // Positioned at the top right of the content area to avoid 
-    // overlapping with the new .card-footer at the bottom.
-    top: 0.7rem;
+    bottom: 0.6rem;
     font-family: "Caveat", cursive;
     font-weight: 500;
     font-size: 1rem;
     color: var(--secondary);
-  }
-
-  // Container for the secondary link that points to the internal Quartz node
-  .card-footer {
-    margin-top: auto; // pushing footer to the bottom of the card
-    padding-top: 0.75rem;
-    display: flex;
-    align-items: center;
-
-    .show-notes-link {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--secondary);
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25rem;
-      transition: all 0.2s ease;
-
-      &:hover {
-        color: var(--tertiary);
-        transform: translateX(2px);
-      }
-    }
   }
 
   .see-more {

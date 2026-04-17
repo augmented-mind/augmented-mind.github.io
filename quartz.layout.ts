@@ -70,7 +70,7 @@ export const sharedPageComponents: SharedLayout = {
       }),
     ),
     // Forum/Comments Section
-    // Positioned in afterBody to ensure it appears at the bottom of the main content 
+    // Positioned in afterBody to ensure it appears at the bottom of the main content
     Component.ConditionalRender({
       component: Component.Comments({
         provider: "giscus",
@@ -106,10 +106,6 @@ export const defaultContentPageLayout: PageLayout = {
     Component.ConditionalRender({
       component: subscribeLinks,
       condition: (page) => page.fileData.slug === "index",
-    }),
-    Component.ConditionalRender({
-      component: Component.TagList(),
-      condition: (page) => page.fileData.slug !== "index",
     }),
   ],
   left: left.map((c) =>
