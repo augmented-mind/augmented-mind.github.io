@@ -1,0 +1,34 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "body": "<img width=\"2890\" height=\"1532\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/90f66726-2276-45bf-8dd7-08fa9fde629e\" />\n\n@sepo-agent /answer \n\nLet's check how the dark mode is set up in the repo ? and let's plan to fix the recent UI changes to make it work better for dark mode. ",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABAo0Q-w",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Here's a full breakdown of how dark mode is currently set up and where it's breaking.\n\n---\n\n## How Dark Mode Works\n\n**Strategy**: Attribute-based theme switching via `:root[saved-theme=\"dark\"]`.\n\n**Key files:**\n| File | Role |\n|---|---|\n| [`quartz/util/theme.ts`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/util/theme.ts) | Generates `:root` and `:root[saved-theme=\"dark\"]` CSS variable blocks |\n| [`quartz.config.ts`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz.config.ts#L31-L51) | Defines all light/dark color tokens |\n| [`quartz/components/scripts/darkmode.inline.ts`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/scripts/darkmode.inline.ts) | Sets `saved-theme` attribute before DOM renders (prevents flash) |\n| [`quartz/styles/custom.scss`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/styles/custom.scss) | All the recent card/layout UI — primary place for issues |\n\n**Variable switching**: `theme.ts` outputs this at build time:\n```css\n:root { --light: #fdfcfa; --dark: #2d2926; ... }\n:root[saved-theme=\"dark\"] { --light: #1c1a18; --dark: #f5f2ed; ... }\n```\nEverything in `custom.scss` uses `var(--light)`, `var(--lightgray)`, etc. — so it **should** switch automatically. Mostly it does. But there are two concrete problems.\n\n---\n\n## Issues Found\n\n### 1. `--episode-card-bg` is hardcoded — breaks episode pages in dark mode (critical)\n\n[`custom.scss` line 55](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/styles/custom.scss#L55):\n\n```scss\nbody[data-slug^=\"episodes/\"] {\n  --episode-card-bg: #fffefc;  // ← hardcoded near-white, never switches!\n}\n```\n\nThis variable is used for the background of the episode center content, sidebar widgets, and explorer. In dark mode, text becomes `#d4cfc8` (light) but the background stays `#fffefc` (near-white) — making text nearly invisible. Every other page uses `var(--light)` directly so they're fine.\n\n**Fix**: Replace the hardcoded value with `var(--light)` (the values are nearly identical in light mode — `#fffefc` vs `#fdfcfa`):\n\n```scss\nbody[data-slug^=\"episodes/\"] {\n  --episode-card-bg: var(--light);  // inherits dark mode switch automatically\n}\n```\n\n### 2. Box shadows use hardcoded dark colors — invisible in dark mode (cosmetic)\n\nAll the card `box-shadow` values use `rgba(0, 0, 0, 0.03)` etc. On a dark `#1c1a18` background, a dark shadow is essentially invisible — cards lose their depth. In dark mode, shadows typically need to use lighter colors or the border alone needs to carry the separation.\n\n---\n\n## Proposed Fix Plan\n\n**Step 1** — Fix `--episode-card-bg` (1-line change in `custom.scss` line 55):\n```scss\n// Before\n--episode-card-bg: #fffefc;\n// After\n--episode-card-bg: var(--light);\n```\n\n**Step 2** — Add a dark mode shadow override block in `custom.scss`:\n```scss\n:root[saved-theme=\"dark\"] {\n  .sidebar .backlinks,\n  .sidebar .toc,\n  .sidebar .graph,\n  .sidebar .recent-notes,\n  .explorer,\n  .page > #quartz-body .center,\n  footer {\n    box-shadow: 0 1px 2px rgba(255, 255, 255, 0.04),\n                0 2px 8px rgba(255, 255, 255, 0.02);\n  }\n}\n```\n(Or use the existing `border: 1px solid var(--lightgray)` alone for separation, which already switches correctly.)\n\n**Step 3** — Verify the dot pattern background:\n```scss\nbody {\n  background-image: radial-gradient(circle, var(--gray) 1px, transparent 1px);\n}\n```\n`var(--gray)` does switch in dark mode (`#8a847d` → `#5c5650`), so this should be OK.\n\n---\n\n## Questions Before I Code\n\n1. **Episode page intent**: Was `--episode-card-bg: #fffefc` meant to be slightly distinct from the regular `--light` background? If yes, we can add a dark mode override separately rather than collapsing it to `var(--light)`.\n2. **Shadows**: Should dark mode cards keep their `border` only (cleaner), or use a light/inverted shadow for more depth?\n3. **Scope**: Should I address anything else visible in the screenshot? (I can see the image dimensions but not the full details — a screenshot of what specifically looks broken would help me prioritize.)",
+      "createdAt": "2026-04-28T17:43:00Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/19#issuecomment-4337766651",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-04-28T17:39:42Z",
+  "labels": [],
+  "number": 19,
+  "state": "OPEN",
+  "title": "Better dark mode support",
+  "updatedAt": "2026-04-28T17:43:00Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/19"
+}

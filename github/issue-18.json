@@ -1,0 +1,84 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "body": "@sepo-agent /answer\n\nCan you check what are the needed setup for adding https://giscus.app/ -- we already installed the app ",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABAozd_w",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Good news: **giscus is already wired up in the codebase** — the component, custom themes (light/dark), and layout placement are all done. The only thing blocking activation is two placeholder IDs in [`quartz.layout.ts`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz.layout.ts#L79-L83).\n\nI fetched the live values from the GitHub API. Here's what needs to be replaced:\n\n| Field | Current placeholder | Correct value |\n|---|---|---|\n| `repoId` | `_X_` | `R_kgDOQ1061w` |\n| `categoryId` | `_X_` | `DIC_kwDOQ106184C5cJQ` |\n\n**The one change needed** in `quartz.layout.ts` (lines 81–83):\n\n```ts\nrepoId: \"R_kgDOQ1061w\",\ncategory: \"General\",\ncategoryId: \"DIC_kwDOQ106184C5cJQ\",\n```\n\nOther available discussion categories (if you ever want a different mapping):\n\n| Category | ID |\n|---|---|\n| Announcements | `DIC_kwDOQ106184C5cJP` |\n| **Episodes** | `DIC_kwDOQ106184C7Cda` |\n| **General** | `DIC_kwDOQ106184C5cJQ` |\n| Ideas | `DIC_kwDOQ106184C5cJS` |\n| Q&A | `DIC_kwDOQ106184C5cJR` |\n\n**Verification checklist** (all already done based on the code):\n- [x] Giscus GitHub App installed on the repo\n- [x] GitHub Discussions enabled (categories exist above)\n- [x] `Comments` component implemented with custom light/dark CSS themes\n- [x] Placed in layout for all non-index pages\n- [x] Dark mode sync via `postMessage`\n- [ ] Replace placeholder `repoId` and `categoryId` — **this is the only remaining step**\n\nWant me to open a PR with that one-line change?",
+      "createdAt": "2026-04-28T17:40:55Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/18#issuecomment-4337753599",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABAozr-w",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /implement ",
+      "createdAt": "2026-04-28T17:41:29Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/18#issuecomment-4337757179",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABAo0j_g",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo implementation finished**\n\n- Branch: `agent/implement-issue-18/claude-25068521131`\n- Pull request: https://github.com/augmented-mind/augmented-mind.github.io/pull/20\n\nReplaced the placeholder `repoId` and `categoryId` values in `quartz.layout.ts` with the live IDs fetched from the GitHub GraphQL API (`R_kgDOQ1061w` and `DIC_kwDOQ106184C5cJQ` for the General discussion category). The giscus component, custom light/dark themes, and layout wiring were already in place — this single edit activates the comment system.",
+      "createdAt": "2026-04-28T17:43:48Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/18#issuecomment-4337771518",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-04-28T17:37:57Z",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "number": 18,
+  "state": "OPEN",
+  "title": "Add giscus to our codebase",
+  "updatedAt": "2026-04-28T17:43:48Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/18"
+}

@@ -1,0 +1,625 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\r\n\r\nInstalls the Sepo agent runtime and GitHub Actions scaffold into this repository via the existing-repository install flow.\r\n\r\nSource agent checkout: `self-evolving/repo` (https://github.com/self-evolving/repo/commit/8af626679d8aff87a7b4f09151f489e4c5ccfe2b ).\r\n\r\n## Installed files\r\n\r\n- Added `.agent/` runtime, docs, scripts, TypeScript sources, tests, and local runner tooling.\r\n- Added Sepo-owned `.github/actions/` composite actions.\r\n- Added Sepo-owned `.github/prompts/` prompt templates.\r\n- Added Sepo agent workflows under `.github/workflows/`:\r\n  - `agent-*.yml`\r\n  - `test-scripts.yml`\r\n\r\n## Conflict audit\r\n\r\n| Area | Outcome |\r\n| --- | --- |\r\n| `.agent/` | Absent in target; added from source with generated/dependency dirs excluded. |\r\n| `.github/` | Target had no overlapping Sepo files; added source files without deleting target-only content. |\r\n| Existing target `.github` files | Preserved: `dependabot.yml`, issue templates, PR template, and `workflows/deploy.yml`. |\r\n| `.skills/` | Not copied. |\r\n| `AGENT.md` | Not copied. |\r\n| Agent branches | No `agent/memory`, `agent/rubrics`, or other `agent/*` heads were present before install. |\r\n| Secrets / variables | No repository secrets or variables were visible via `gh secret list` / `gh variable list`; provider/auth settings still need owner configuration. |\r\n| Existing workflows | Preserved existing Pages/deploy/dependabot workflows. |\r\n\r\nNo target-owned files were removed or overwritten.\r\n\r\n## Validation\r\n\r\n- `git diff --check` / `git diff --cached --check` passed after removing copied trailing whitespace flagged by Git's whitespace check.\r\n- `npm --prefix .agent ci` passed.\r\n- `npm --prefix .agent run build` passed.\r\n- `npm --prefix .agent test` passed: 375/375 tests.\r\n- Parsed 28 GitHub workflow/action YAML files successfully.\r\n\r\n## Required setup after merge\r\n\r\n1. Ensure GitHub Actions are enabled.\r\n2. Configure at least one model provider secret:\r\n   - `OPENAI_API_KEY` for Codex-backed runs, and/or\r\n   - `CLAUDE_CODE_OAUTH_TOKEN` for Claude-backed runs.\r\n3. Choose/confirm GitHub auth mode:\r\n   - recommended default: install the hosted [Sepo GitHub App](https://github.com/apps/sepo-agent-app/installations/select_target) for hosted OIDC auth,\r\n   - or configure BYO app secrets: `AGENT_APP_ID` + `AGENT_APP_PRIVATE_KEY`,\r\n   - or configure `AGENT_PAT` as a fallback,\r\n   - or rely on the workflow token fallback for lowest-friction/emergency use.\r\n4. Optional repository variables to consider:\r\n   - `AGENT_HANDLE`\r\n   - `AGENT_RUNS_ON`\r\n   - `AGENT_ACCESS_POLICY`\r\n   - `AGENT_DEFAULT_PROVIDER`\r\n   - `AGENT_MEMORY_POLICY`\r\n   - `AGENT_RUBRICS_POLICY`\r\n   - `AGENT_SESSION_BUNDLE_MODE`\r\n   - `AGENT_STATUS_LABEL_ENABLED`\r\n\r\n## Post-merge first-run steps\r\n\r\n- Check whether memory/rubrics branches already exist:\r\n  `git ls-remote --heads https://github.com/augmented-mind/augmented-mind.github.io.git agent/memory agent/rubrics`\r\n- If `agent/memory` is missing, run the `Agent / Memory / Initialization` workflow once.\r\n- If rubric steering is desired and `agent/rubrics` is missing, run `Agent / Rubrics / Initialization` once.\r\n- Open a smoke-test issue or comment mentioning `@sepo-agent /answer` after secrets/auth are configured.\r\n",
+  "closedAt": "2026-04-28T17:36:55Z",
+  "comments": [],
+  "createdAt": "2026-04-28T17:34:04Z",
+  "files": [
+    {
+      "path": ".agent/action-templates/agent-action-template.yml",
+      "additions": 105,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/docs/README.md",
+      "additions": 42,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/docs/access-policy.md",
+      "additions": 82,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/docs/actions/README.md",
+      "additions": 20,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/docs/actions/agent-actions.md",
+      "additions": 106,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/docs/actions/internal-actions.md",
+      "additions": 14,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/docs/architecture/memory.md",
+      "additions": 213,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/docs/architecture/overall-design.md",
+      "additions": 72,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/docs/architecture/request-lifecycle.md",
+      "additions": 48,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/docs/architecture/rubrics.md",
+      "additions": 128,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/docs/architecture/supported-workflows.md",
+      "additions": 129,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/docs/assets/sepo-overview.png",
+      "additions": 0,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/docs/customization/configuration-list.md",
+      "additions": 40,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/docs/customization/creating-your-own-actions.md",
+      "additions": 48,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/docs/customization/creating-your-own-workflows.md",
+      "additions": 3,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/docs/deployment/README.md",
+      "additions": 11,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/docs/deployment/install-existing-repository.md",
+      "additions": 99,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/docs/deployment/self-hosted-github-action-runner.md",
+      "additions": 28,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/docs/deployment/setup-guide.md",
+      "additions": 71,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/docs/deployment/using-your-own-github-app.md",
+      "additions": 22,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/docs/overview/quick-start.md",
+      "additions": 50,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/docs/overview/what-is-self-evolving-repo.md",
+      "additions": 28,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/docs/technical-details/agent-orchestrator.md",
+      "additions": 61,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/docs/technical-details/developer-notes.md",
+      "additions": 31,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/docs/technical-details/key-concepts.md",
+      "additions": 127,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/docs/technical-details/session-continuity.md",
+      "additions": 88,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/package-lock.json",
+      "additions": 853,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/package.json",
+      "additions": 19,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/scripts/post-agent-verify.sh",
+      "additions": 45,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/scripts/resolve-scheduled-activity-gate.sh",
+      "additions": 283,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/acpx-adapter.test.ts",
+      "additions": 364,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/add-label-cli.test.ts",
+      "additions": 146,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/agent-action-expiration.test.ts",
+      "additions": 74,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/approval.test.ts",
+      "additions": 226,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/context.test.ts",
+      "additions": 263,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/discussion-transcript.test.ts",
+      "additions": 236,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/discussion.test.ts",
+      "additions": 122,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/envelope.test.ts",
+      "additions": 1229,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/extract-context-cli.test.ts",
+      "additions": 909,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/fetch-discussion-transcript-cli.test.ts",
+      "additions": 162,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/git.test.ts",
+      "additions": 25,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/handoff.test.ts",
+      "additions": 344,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/memory-artifacts.test.ts",
+      "additions": 65,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/memory-bootstrap-branch-cli.test.ts",
+      "additions": 151,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/memory-init-cli.test.ts",
+      "additions": 54,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/memory-policy.test.ts",
+      "additions": 98,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/memory-resolve-policy-cli.test.ts",
+      "additions": 22,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/memory-search-cli.test.ts",
+      "additions": 25,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/memory-search.test.ts",
+      "additions": 123,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/memory-sync-github-artifacts.test.ts",
+      "additions": 210,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/memory-sync-state.test.ts",
+      "additions": 58,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/memory-update-cli.test.ts",
+      "additions": 74,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/memory-update.test.ts",
+      "additions": 192,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/mentions.test.ts",
+      "additions": 37,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/post-comment-cli.test.ts",
+      "additions": 128,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/resolve-agent-provider.test.ts",
+      "additions": 156,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/resolve-approval-cli.test.ts",
+      "additions": 293,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/resolve-dispatch-cli.test.ts",
+      "additions": 38,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/response.test.ts",
+      "additions": 192,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/review-summary-minimize.test.ts",
+      "additions": 245,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/rubrics.test.ts",
+      "additions": 366,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/runtime-state.test.ts",
+      "additions": 206,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/schedule-policy.test.ts",
+      "additions": 63,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/scheduled-activity.test.ts",
+      "additions": 246,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/session-bundle.test.ts",
+      "additions": 327,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/session-policy.test.ts",
+      "additions": 47,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/thread-state.test.ts",
+      "additions": 533,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/triage.test.ts",
+      "additions": 375,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/verify.test.ts",
+      "additions": 83,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/access-policy.ts",
+      "additions": 130,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/acpx-adapter.ts",
+      "additions": 708,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/approval.ts",
+      "additions": 177,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/add-label.ts",
+      "additions": 44,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/add-reaction.ts",
+      "additions": 22,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/checkout-pr.ts",
+      "additions": 35,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/commit.ts",
+      "additions": 39,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/create-discussion.ts",
+      "additions": 58,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/create-issue.ts",
+      "additions": 49,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/create-pr.ts",
+      "additions": 54,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/detect-head-change.ts",
+      "additions": 18,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/dispatch-agent-implement.ts",
+      "additions": 38,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/dispatch-agent-orchestrator.ts",
+      "additions": 52,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/extract-context.ts",
+      "additions": 225,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/fetch-discussion-transcript.ts",
+      "additions": 125,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/memory/bootstrap-branch.ts",
+      "additions": 223,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/memory/init.ts",
+      "additions": 101,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/memory/read-sync-state.ts",
+      "additions": 24,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/memory/resolve-policy.ts",
+      "additions": 60,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/memory/search.ts",
+      "additions": 144,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/memory/sync-github-artifacts.ts",
+      "additions": 552,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/memory/update.ts",
+      "additions": 209,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/memory/write-sync-state.ts",
+      "additions": 54,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/orchestrate-handoff.ts",
+      "additions": 297,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/orchestrator-preflight.ts",
+      "additions": 25,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/parse-response.ts",
+      "additions": 31,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/post-comment.ts",
+      "additions": 97,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/post-response.ts",
+      "additions": 41,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/prepare-approval.ts",
+      "additions": 88,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/prepare-rubrics-update-summary.ts",
+      "additions": 42,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/push-pr-head.ts",
+      "additions": 22,
+      "deletions": 0,
+      "changeType": "ADDED"
+    }
+  ],
+  "headRefName": "agent/install-agent-infra",
+  "labels": [],
+  "mergedAt": "2026-04-28T17:36:55Z",
+  "number": 17,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "MERGED",
+  "title": "chore: install Sepo agent infrastructure",
+  "updatedAt": "2026-04-28T17:37:08Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/17"
+}

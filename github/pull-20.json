@@ -1,0 +1,696 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n\n- Replaces placeholder `repoId` (`_X_`) with `R_kgDOQ1061w`\n- Replaces placeholder `categoryId` (`_X_`) with `DIC_kwDOQ106184C5cJQ` (General category)\n\nThe giscus component, custom light/dark CSS themes, and conditional layout placement were already implemented. This change supplies the two IDs needed to activate the comment widget on all non-index pages.\n\nCloses #18\n",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABAo1Zmw",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /answer why do we have so many diffs ",
+      "createdAt": "2026-04-28T17:46:04Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/20#issuecomment-4337785243",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABAo2G0Q",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "The diff explosion comes from `.agent/dist/` — **456 of the 457 changed files** are compiled agent infrastructure artifacts (JS bundles, `.d.ts` type declarations, `.js.map` source maps). The only substantive change is [`quartz.layout.ts`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz.layout.ts), which swaps in the live giscus `repoId` and `categoryId`.\n\nThe root cause: `.agent/dist/` is not in `.gitignore`, so the compiled TypeScript output got committed alongside the real change.\n\n**Fix**: add `.agent/dist/` to `.gitignore`. Since `main` already shows `?? .agent/dist/` as untracked, this should be straightforward — either:\n\n1. Add `.agent/dist/` to `.gitignore` and re-open this PR with only `quartz.layout.ts` changed, or\n2. Squash/rebase this PR to strip the dist files before merge.",
+      "createdAt": "2026-04-28T17:48:01Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/20#issuecomment-4337796817",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABAo2YnA",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "Yes please do both @sepo-agent /fix-pr",
+      "createdAt": "2026-04-28T17:48:45Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/20#issuecomment-4337801372",
+      "viewerDidAuthor": false
+    }
+  ],
+  "createdAt": "2026-04-28T17:43:44Z",
+  "files": [
+    {
+      "path": ".agent/dist/__tests__/acpx-adapter.test.d.ts",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/acpx-adapter.test.d.ts.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/acpx-adapter.test.js",
+      "additions": 283,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/acpx-adapter.test.js.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/add-label-cli.test.d.ts",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/add-label-cli.test.d.ts.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/add-label-cli.test.js",
+      "additions": 122,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/add-label-cli.test.js.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/agent-action-expiration.test.d.ts",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/agent-action-expiration.test.d.ts.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/agent-action-expiration.test.js",
+      "additions": 65,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/agent-action-expiration.test.js.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/approval.test.d.ts",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/approval.test.d.ts.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/approval.test.js",
+      "additions": 171,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/approval.test.js.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/context.test.d.ts",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/context.test.d.ts.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/context.test.js",
+      "additions": 194,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/context.test.js.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/discussion-transcript.test.d.ts",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/discussion-transcript.test.d.ts.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/discussion-transcript.test.js",
+      "additions": 198,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/discussion-transcript.test.js.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/discussion.test.d.ts",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/discussion.test.d.ts.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/discussion.test.js",
+      "additions": 91,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/discussion.test.js.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/envelope.test.d.ts",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/envelope.test.d.ts.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/envelope.test.js",
+      "additions": 1005,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/envelope.test.js.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/extract-context-cli.test.d.ts",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/extract-context-cli.test.d.ts.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/extract-context-cli.test.js",
+      "additions": 752,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/extract-context-cli.test.js.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/fetch-discussion-transcript-cli.test.d.ts",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/fetch-discussion-transcript-cli.test.d.ts.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/fetch-discussion-transcript-cli.test.js",
+      "additions": 138,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/fetch-discussion-transcript-cli.test.js.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/git.test.d.ts",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/git.test.d.ts.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/git.test.js",
+      "additions": 19,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/git.test.js.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/handoff.test.d.ts",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/handoff.test.d.ts.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/handoff.test.js",
+      "additions": 275,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/handoff.test.js.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-artifacts.test.d.ts",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-artifacts.test.d.ts.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-artifacts.test.js",
+      "additions": 54,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-artifacts.test.js.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-bootstrap-branch-cli.test.d.ts",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-bootstrap-branch-cli.test.d.ts.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-bootstrap-branch-cli.test.js",
+      "additions": 119,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-bootstrap-branch-cli.test.js.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-init-cli.test.d.ts",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-init-cli.test.d.ts.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-init-cli.test.js",
+      "additions": 46,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-init-cli.test.js.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-policy.test.d.ts",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-policy.test.d.ts.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-policy.test.js",
+      "additions": 64,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-policy.test.js.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-resolve-policy-cli.test.d.ts",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-resolve-policy-cli.test.d.ts.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-resolve-policy-cli.test.js",
+      "additions": 24,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-resolve-policy-cli.test.js.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-search-cli.test.d.ts",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-search-cli.test.d.ts.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-search-cli.test.js",
+      "additions": 21,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-search-cli.test.js.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-search.test.d.ts",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-search.test.d.ts.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-search.test.js",
+      "additions": 81,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-search.test.js.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-sync-github-artifacts.test.d.ts",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-sync-github-artifacts.test.d.ts.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-sync-github-artifacts.test.js",
+      "additions": 171,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-sync-github-artifacts.test.js.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-sync-state.test.d.ts",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-sync-state.test.d.ts.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-sync-state.test.js",
+      "additions": 49,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-sync-state.test.js.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-update-cli.test.d.ts",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-update-cli.test.d.ts.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-update-cli.test.js",
+      "additions": 56,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-update-cli.test.js.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-update.test.d.ts",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-update.test.d.ts.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-update.test.js",
+      "additions": 113,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/memory-update.test.js.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/mentions.test.d.ts",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/mentions.test.d.ts.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/mentions.test.js",
+      "additions": 32,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/mentions.test.js.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/post-comment-cli.test.d.ts",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/post-comment-cli.test.d.ts.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/post-comment-cli.test.js",
+      "additions": 110,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/dist/__tests__/post-comment-cli.test.js.map",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    }
+  ],
+  "headRefName": "agent/implement-issue-18/claude-25068521131",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": null,
+  "number": 20,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "OPEN",
+  "title": "feat: activate giscus comments with live repo and category IDs",
+  "updatedAt": "2026-04-28T17:49:18Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/20"
+}

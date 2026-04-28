@@ -1,0 +1,121 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n- route episode cards to internal content pages instead of YouTube\n- enrich episode pages (EP00–EP03) with YouTube-derived summaries and timestamps\n- redesign episode pages to feature a top video, compact inline episode header, and tighter layout spacing\n- align popover previews with the new episode header treatment\n- lighten episode page surfaces and refine sidebar/card spacing\n\n## Notes\n- keeps episode page tags hidden in the main content view\n- leaves the giscus/comments placeholder wiring from the existing branch in place\n",
+  "closedAt": "2026-04-17T17:45:18Z",
+  "comments": [],
+  "createdAt": "2026-04-17T17:25:17Z",
+  "files": [
+    {
+      "path": "content/episodes/ep00.md",
+      "additions": 37,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "content/episodes/ep01.md",
+      "additions": 46,
+      "deletions": 3,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "content/episodes/ep02.md",
+      "additions": 40,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "content/episodes/ep03.md",
+      "additions": 24,
+      "deletions": 3,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "content/people/woosuk-kwon.md",
+      "additions": 23,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "content/topics/paged-attention.md",
+      "additions": 32,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "content/topics/streaming-inference.md",
+      "additions": 28,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "content/topics/white-box-inference.md",
+      "additions": 29,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "quartz.layout.ts",
+      "additions": 26,
+      "deletions": 7,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/components/Comments.tsx",
+      "additions": 40,
+      "deletions": 17,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/components/EpisodeCarousel.tsx",
+      "additions": 3,
+      "deletions": 8,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/components/pages/Content.tsx",
+      "additions": 231,
+      "deletions": 3,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/components/scripts/popover.inline.ts",
+      "additions": 3,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/components/styles/popover.scss",
+      "additions": 60,
+      "deletions": 3,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/components/styles/recentNotes.scss",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/styles/custom.scss",
+      "additions": 50,
+      "deletions": 3,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "pr-15",
+  "labels": [],
+  "mergedAt": "2026-04-17T17:45:17Z",
+  "number": 16,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "MERGED",
+  "title": "Improve episode pages, previews, and navigation",
+  "updatedAt": "2026-04-17T17:45:20Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/16"
+}
