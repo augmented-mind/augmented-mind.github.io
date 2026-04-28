@@ -1,0 +1,1 @@
+{"version":3,"file":"review-summary-minimize.d.ts","sourceRoot":"","sources":["../src/review-summary-minimize.ts"],"names":[],"mappings":"AAAA,OAAO,EAEL,KAAK,aAAa,EACnB,MAAM,qBAAqB,CAAC;AA4C7B,KAAK,sCAAsC,GAAG;IAC5C,IAAI,EAAE,MAAM,CAAC;IACb,QAAQ,EAAE,MAAM,CAAC;IACjB,MAAM,CAAC,EAAE,aAAa,CAAC;CACxB,CAAC;AAmJF;;GAEG;AACH,wBAAgB,+BAA+B,CAC7C,OAAO,EAAE,sCAAsC,GAC9C,MAAM,CAkBR"}

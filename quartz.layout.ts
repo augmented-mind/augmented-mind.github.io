@@ -78,9 +78,9 @@ export const sharedPageComponents: SharedLayout = {
         provider: "giscus",
         options: {
           repo: "augmented-mind/augmented-mind.github.io",
-          repoId: "_X_", // Placeholder [REPLACE ME]
+          repoId: "R_kgDOQ1061w",
           category: "General",
-          categoryId: "_X_", // Placeholder [REPLACE ME]
+          categoryId: "DIC_kwDOQ106184C5cJQ",
           mapping: "url",
           strict: true,
           reactionsEnabled: true,
