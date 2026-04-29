@@ -52,7 +52,7 @@ body {
 }
 
 body[data-slug^="episodes/"] {
-  --episode-card-bg: #fffefc;
+  --episode-card-bg: var(--light);
   --episode-card-header-bg: var(--light);
 }
 
@@ -418,4 +418,19 @@ body:not([data-slug="index"]) {
             }
         }
     }
+}
+
+// Dark mode: remove invisible dark box-shadows; borders provide separation
+:root[saved-theme="dark"] {
+  .page > #quartz-body .center,
+  footer,
+  .sidebar .backlinks,
+  .sidebar .toc,
+  .sidebar .graph,
+  .sidebar .recent-notes,
+  .explorer,
+  .sidebar.left .page-title,
+  .sidebar.left .flex-component:has(.search) {
+    box-shadow: none;
+  }
 }
