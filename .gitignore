@@ -1,6 +1,8 @@
 .DS_Store
 .gitignore
 node_modules
+.agent/node_modules/
+.agent/dist/
 public
 prof
 tsconfig.tsbuildinfo
