@@ -1,0 +1,36 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n\n- Replaces placeholder `repoId` (`_X_`) with `R_kgDOQ1061w`\n- Replaces placeholder `categoryId` (`_X_`) with `DIC_kwDOQ106184C5cJQ` (General discussion category)\n\nThe giscus component, custom light/dark CSS themes, and conditional layout placement were already implemented. `.agent/dist/` is now in `.gitignore` (added in #23), so this PR contains only the 2-line change that activates the comment widget on all non-index pages.\n\nCloses #18\n",
+  "closedAt": "2026-04-29T20:56:37Z",
+  "comments": [],
+  "createdAt": "2026-04-29T20:53:43Z",
+  "files": [
+    {
+      "path": "quartz.layout.ts",
+      "additions": 2,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "agent/implement-issue-18/claude-25133232252",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": "2026-04-29T20:56:37Z",
+  "number": 24,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "MERGED",
+  "title": "feat: activate giscus comments (clean PR)",
+  "updatedAt": "2026-04-29T20:56:59Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/24"
+}

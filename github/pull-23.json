@@ -1,0 +1,151 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n- update the installed Sepo agent infrastructure from self-evolving/repo@60c1cd5\n- refresh agent workflows, prompts/actions, runtime source, tests, and docs\n- add generated-output ignores for .agent/dist/ and .agent/node_modules/\n- preserve the existing Quartz/site GitHub assets such as deploy.yml, Dependabot, issue templates, and PR template\n\n## Install audit\n| Area | Outcome |\n| --- | --- |\n| Source revision | self-evolving/repo@60c1cd5 |\n| Target branch | main |\n| Existing agent install | Present; updated in place |\n| .agent/ | Re-synced, excluding generated/dependency outputs |\n| .github/actions and .github/prompts | Re-synced from Sepo |\n| .github/workflows/agent-*.yml and test-scripts.yml | Updated from Sepo |\n| Target-owned .github files | Preserved: deploy.yml, dependabot.yml, issue templates, pull_request_template.md |\n| .skills/ and AGENT.md | Not copied; not requested |\n| agent/memory | Already exists remotely; do not reinitialize |\n| agent/rubrics | Not present remotely; initialize only if rubric steering is wanted |\n\n## Validation\n- git diff --check\n- git diff --cached --check\n- npm --prefix .agent ci\n- npm --prefix .agent run build\n- npm --prefix .agent test\n\n## Post-merge notes\n- At least one model provider secret is still required; this repository currently has CLAUDE_CODE_OAUTH_TOKEN configured.\n- For Vercel deployments that reject agent-authored commits, set repository variables AGENT_COMMITTER_NAME and AGENT_COMMITTER_EMAIL to a GitHub identity that has access to the Vercel project.\n- Existing agent/memory branch should be reused. Run Agent / Rubrics / Initialization only if an agent/rubrics branch is desired.\n",
+  "closedAt": "2026-04-29T20:50:36Z",
+  "comments": [],
+  "createdAt": "2026-04-29T20:47:07Z",
+  "files": [
+    {
+      "path": ".agent/docs/actions/agent-actions.md",
+      "additions": 2,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/architecture/request-lifecycle.md",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/architecture/supported-workflows.md",
+      "additions": 17,
+      "deletions": 13,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/customization/configuration-list.md",
+      "additions": 2,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/deployment/install-existing-repository.md",
+      "additions": 9,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/technical-details/agent-orchestrator.md",
+      "additions": 36,
+      "deletions": 13,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/envelope.test.ts",
+      "additions": 11,
+      "deletions": 6,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/github.test.ts",
+      "additions": 71,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/orchestrate-handoff-cli.test.ts",
+      "additions": 224,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/triage.test.ts",
+      "additions": 31,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/cli/dispatch-agent-orchestrator.ts",
+      "additions": 15,
+      "deletions": 4,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/cli/orchestrate-handoff.ts",
+      "additions": 133,
+      "deletions": 12,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/cli/orchestrator-preflight.ts",
+      "additions": 4,
+      "deletions": 3,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/github.ts",
+      "additions": 44,
+      "deletions": 6,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/triage.ts",
+      "additions": 35,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/agent-fix-pr.yml",
+      "additions": 10,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/agent-implement.yml",
+      "additions": 10,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/agent-orchestrator.yml",
+      "additions": 23,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/agent-review.yml",
+      "additions": 10,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/agent-router.yml",
+      "additions": 48,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".gitignore",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "agent/update-sepo-infra",
+  "labels": [],
+  "mergedAt": "2026-04-29T20:50:36Z",
+  "number": 23,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "MERGED",
+  "title": "Update Sepo agent infrastructure",
+  "updatedAt": "2026-04-29T20:50:55Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/23"
+}

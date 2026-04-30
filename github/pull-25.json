@@ -1,0 +1,60 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "baseRefName": "main",
+  "body": "Picks up the remaining delta from [`self-evolving/repo`](https://github.com/self-evolving/repo) main (`60c1cd5`) that wasn't included in the previous sync (PR #23).\n\n## Changes\n\n- **`.skills/distill-rubrics/SKILL.md`** (new) — skill for distilling durable rubric preferences from agent execution histories.\n- **`.skills/install-agent/SKILL.md`** (new) — skill for installing the Sepo agent into another repository.\n- **`.skills/update-agent/SKILL.md`** (new) — skill for upgrading an existing Sepo agent installation.\n- **`AGENT.md`** (new) — top-level agent documentation describing how to use the agent and trigger workflows.\n- **`.gitignore`** — added `.claude/worktrees/` entry (from upstream).\n\n`.agent/` and `.github/` agent assets are already in sync from PR #23 and were not changed.\n\n## Validation\n\n- `npm --prefix .agent test`: 387/387 pass\n- YAML lint: all workflow, action, and template YAML valid\n- `git diff --check`: whitespace clean\n\nCloses #22.\n",
+  "closedAt": "2026-04-29T21:16:34Z",
+  "comments": [],
+  "createdAt": "2026-04-29T21:04:12Z",
+  "files": [
+    {
+      "path": ".gitignore",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".skills/distill-rubrics/SKILL.md",
+      "additions": 93,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".skills/install-agent/SKILL.md",
+      "additions": 157,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".skills/update-agent/SKILL.md",
+      "additions": 148,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "AGENT.md",
+      "additions": 12,
+      "deletions": 0,
+      "changeType": "ADDED"
+    }
+  ],
+  "headRefName": "agent/implement-issue-22/claude-25133611191",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": null,
+  "number": 25,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "CLOSED",
+  "title": "chore: add .skills/, AGENT.md, and .gitignore entry from upstream self-evolving/repo",
+  "updatedAt": "2026-04-29T21:16:34Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/25"
+}

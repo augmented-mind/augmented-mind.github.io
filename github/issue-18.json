@@ -6,7 +6,7 @@
     "name": "Shannon Shen"
   },
   "body": "@sepo-agent /answer\n\nCan you check what are the needed setup for adding https://giscus.app/ -- we already installed the app ",
-  "closedAt": null,
+  "closedAt": "2026-04-29T20:56:38Z",
   "comments": [
     {
       "id": "IC_kwDOQ106188AAAABAozd_w",
@@ -65,6 +65,49 @@
       "reactionGroups": [],
       "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/18#issuecomment-4337771518",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABAyB8lg",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /implement try to make PR again -> the previous one was not successful because of gitignore issues.",
+      "createdAt": "2026-04-29T20:51:13Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/18#issuecomment-4347427990",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABAyC29w",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo implementation finished**\n\n- Branch: `agent/implement-issue-18/claude-25133232252`\n- Pull request: https://github.com/augmented-mind/augmented-mind.github.io/pull/24\n\nApplied the same quartz.layout.ts change as the previous attempt — swapping placeholder `repoId` and `categoryId` with live giscus values (`R_kgDOQ1061w` / `DIC_kwDOQ106184C5cJQ`). This time the diff is exactly 2 lines: `.agent/dist/` was added to `.gitignore` in PR #23 so none of the compiled agent artifacts will be included.",
+      "createdAt": "2026-04-29T20:53:47Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/18#issuecomment-4347442935",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-04-28T17:37:57Z",
@@ -77,8 +120,8 @@
     }
   ],
   "number": 18,
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "Add giscus to our codebase",
-  "updatedAt": "2026-04-28T17:43:48Z",
+  "updatedAt": "2026-04-29T20:56:38Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/18"
 }

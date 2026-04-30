@@ -6,7 +6,7 @@
     "name": "Shannon Shen"
   },
   "body": "<img width=\"2890\" height=\"1532\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/90f66726-2276-45bf-8dd7-08fa9fde629e\" />\n\n@sepo-agent /answer \n\nLet's check how the dark mode is set up in the repo ? and let's plan to fix the recent UI changes to make it work better for dark mode. ",
-  "closedAt": null,
+  "closedAt": "2026-04-29T23:22:20Z",
   "comments": [
     {
       "id": "IC_kwDOQ106188AAAABAo0Q-w",
@@ -22,13 +22,63 @@
       "reactionGroups": [],
       "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/19#issuecomment-4337766651",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABAyKkBA",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /implement let's try again -> after we fix some issues in the repo-agent",
+      "createdAt": "2026-04-29T21:16:25Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/19#issuecomment-4347569156",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABAyLceg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo implementation finished**\n\n- Branch: `agent/implement-issue-19/claude-25134374609`\n- Pull request: https://github.com/augmented-mind/augmented-mind.github.io/pull/26\n\nFixed two dark mode issues in custom.scss. First, changed --episode-card-bg from the hardcoded near-white #fffefc to var(--light) so episode pages correctly use the dark background in dark mode instead of showing light text on a white card. Second, added a :root[saved-theme=\"dark\"] block that strips the invisible dark box-shadows (rgba(0,0,0,...)) from all card elements — in dark mode the existing var(--lightgray) borders already provide visual separation.",
+      "createdAt": "2026-04-29T21:19:06Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/19#issuecomment-4347583610",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-04-28T17:39:42Z",
-  "labels": [],
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
   "number": 19,
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "Better dark mode support",
-  "updatedAt": "2026-04-28T17:43:00Z",
+  "updatedAt": "2026-04-29T23:22:20Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/19"
 }

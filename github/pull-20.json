@@ -5,7 +5,7 @@
   },
   "baseRefName": "main",
   "body": "## Summary\n\n- Replaces placeholder `repoId` (`_X_`) with `R_kgDOQ1061w`\n- Replaces placeholder `categoryId` (`_X_`) with `DIC_kwDOQ106184C5cJQ` (General category)\n\nThe giscus component, custom light/dark CSS themes, and conditional layout placement were already implemented. This change supplies the two IDs needed to activate the comment widget on all non-index pages.\n\nCloses #18\n",
-  "closedAt": null,
+  "closedAt": "2026-04-29T20:53:03Z",
   "comments": [
     {
       "id": "IC_kwDOQ106188AAAABAo1Zmw",
@@ -689,8 +689,8 @@
   "number": 20,
   "reviewDecision": "",
   "reviews": [],
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "feat: activate giscus comments with live repo and category IDs",
-  "updatedAt": "2026-04-28T17:49:18Z",
+  "updatedAt": "2026-04-29T20:53:03Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/20"
 }
