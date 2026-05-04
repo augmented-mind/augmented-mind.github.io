@@ -1,0 +1,104 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n\n- Adds `content/episodes/ep04.md` for EP04 with full frontmatter, timestamps from the issue, and a References section linking to Ken Liu's homepage, The Open Anonymity Project, and the Unlinkable Inference blog post.\n- Adds `content/people/ken-liu.md` guest profile following the existing `woosuk-kwon.md` pattern, with bio, contributions, and links.\n\n> **Note:** No cover image was provided in the issue. The frontmatter references `/static/covers/EP04-cover.png` (consistent with other episodes) — the image can be added separately when available.\n\nCloses #31\n",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABBGQvzQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo automation handoff dispatched: `implement` -> `review` (round 3/5).\n\nimplementation succeeded; dispatching review\n\n<!-- sepo-agent-handoff state:dispatched created:1777874474499 base64:aGFuZG9mZjphdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW86MjUzMDM1NTE1NTM6aW1wbGVtZW50OjMxOnJldmlldzozMjoz -->",
+      "createdAt": "2026-05-04T06:01:13Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/32#issuecomment-4368641997",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABBGRGnA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| N/A | N/A | 0 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| — | — | not applicable | N/A | No rubrics branch (`agent/rubrics`) exists in this repository |\n\n## Notes\n\n- No rubrics have been defined for `augmented-mind/augmented-mind.github.io`. The `agent/rubrics` branch does not exist, so there are no user/team rubrics to score against.\n- To enable rubric-based reviews, initialize rubrics via `/rubrics-initialization` and define at least one active rubric file on the `agent/rubrics` branch.\n\n## Findings\n\n- **INFO:** No active rubric set found. Rubrics review returns N/A until rubrics are initialized for this repository.\n\n## Final Rubric Verdict\n\nN/A",
+      "createdAt": "2026-05-04T06:02:46Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/32#issuecomment-4368647836",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABBGR2SQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\n\n- PR #32 adds two new content files to publish Episode 4: `content/episodes/ep04.md` (episode page with frontmatter, intro, timestamps, and references) and `content/people/ken-liu.md` (guest profile for Ken Liu, Stanford CS PhD student and founder of The Open Anonymity Project).\n- All source material was drawn from issue #31; the implementation follows existing Quartz content conventions for episodes and people pages.\n- The content is accurate — all 17 timestamps, the YouTube video ID, and all three references match the issue verbatim.\n- No framework-level changes are made; this is a pure content addition.\n- The PR is blocked on one live visual regression and one content pattern deviation that should be resolved before merging.\n\n## Review\n\nContent is accurate and structurally sound overall, but two issues prevent a clean SHIP: a broken carousel image (not a graceful placeholder) and a missing \"Key Takeaways\" section that breaks the pattern established across all four existing episodes.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Broken carousel image from non-existent cover asset | WARNING | `coverImage` is set to a non-empty path that doesn't exist; the carousel bypasses its SVG fallback and renders a broken `<img>` until the PNG is added. |\n| Missing \"Key Takeaways\" section | WARNING | All four existing episodes (EP00–EP03) include a `## Key Takeaways` section; EP04 skips it entirely, breaking the established content pattern visible to site visitors. |\n| `guestOffset` field omitted from frontmatter | INFO | EP02 and EP03 explicitly declare `guestOffset: 0`; EP04 omits it. Functionally harmless (defaults to `0` in the carousel component), but inconsistent with convention. |\n| Ken Liu people page has fewer links than prior guests | INFO | `woosuk-kwon.md` has three links; `ken-liu.md` has two. Source material for Ken Liu didn't include additional social links — faithfully reproduced, no action needed. |\n\n## Progress\n\n- All 17 timestamps verified to match issue #31 verbatim.\n- YouTube URL format and video ID (`rFyHnK7PGrY`) are correct.\n- `[[ken-liu|Ken Liu]]` wiki-link syntax matches EP03 pattern.\n- `## Appearances` on the people page correctly back-links to ep04.\n- Tags, `episodeId`, and `date` fields all follow existing patterns.\n- PR description explicitly acknowledges the missing cover image; the framing (\"can be added separately\") understates the impact (broken image vs. graceful placeholder).\n- No rubrics are defined for this repository — rubrics review returned N/A.\n\n## Issue Details\n\n<details>\n<summary>Broken carousel image from non-existent cover asset</summary>\n\n**Cause:** `content/episodes/ep04.md` line 5 sets `coverImage: \"/static/covers/EP04-cover.png\"` but the file does not exist in the repository. The carousel component (`EpisodeCarousel.tsx`) uses `(page.frontmatter?.coverImage as string) || DEFAULT_COVER` — the `||` short-circuits only when the value is falsy. A non-empty string is truthy, so the SVG placeholder is never reached and the carousel renders a broken image.\n\n**Candidate solutions:**\n1. Remove the `coverImage` line from the frontmatter until the PNG is committed (triggers the graceful SVG placeholder).\n2. Add the actual `EP04-cover.png` to `/static/covers/` before merging.\n\n**Comments:** The PR description acknowledges the missing image but treats it as low-impact. It is not — the fallback mechanism is bypassed entirely.\n\n</details>\n\n<details>\n<summary>Missing \"Key Takeaways\" section</summary>\n\n**Cause:** The episode file goes directly from the intro paragraph to `## Timestamps`, omitting the `## Key Takeaways` section present in EP00, EP01, EP02, and EP03.\n\n**Candidate solutions:**\n1. Synthesize 4–6 key takeaways from the timestamp labels and issue description (topics available: unlinkable inference, blind signatures, secure inference proxies, OpenClaw, intelligence neutrality, safety concerns with private AI inference).\n2. Add a placeholder section to be filled in after the episode is published.\n\n</details>\n\n<details>\n<summary>`guestOffset` field omitted from frontmatter</summary>\n\n**Cause:** EP02 and EP03 explicitly include `guestOffset: 0` in frontmatter; EP04 does not. The carousel defaults to `0` via `?? 0`, so there is no runtime impact.\n\n**Candidate solutions:** Add `guestOffset: 0` to `content/episodes/ep04.md` frontmatter for consistency.\n\n</details>\n\n## Recommended Next Step\n\n`FIX_PR`: Two concrete branch changes are needed — remove or resolve the `coverImage` reference and add the missing `## Key Takeaways` section — both are safe and unambiguous for an automated fix-pr pass.\n\n## Final Verdict\n\n**MINOR_ISSUES**\n\n## Action Items\n\n- [ ] Fix broken cover image: either remove `coverImage: \"/static/covers/EP04-cover.png\"` from `content/episodes/ep04.md` frontmatter until the asset exists, or add the PNG to `/static/covers/`.\n- [ ] Add a `## Key Takeaways` section to `content/episodes/ep04.md` following the EP00–EP03 pattern, synthesizing 4–6 takeaways from the episode material.\n- [ ] (Optional) Add `guestOffset: 0` to `content/episodes/ep04.md` frontmatter for consistency with EP02/EP03.",
+      "createdAt": "2026-05-04T06:06:16Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/32#issuecomment-4368660041",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-05-04T06:00:52Z",
+  "files": [
+    {
+      "path": "content/episodes/ep04.md",
+      "additions": 42,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "content/people/ken-liu.md",
+      "additions": 22,
+      "deletions": 0,
+      "changeType": "ADDED"
+    }
+  ],
+  "headRefName": "agent/implement-issue-31/claude-25303551553",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": null,
+  "number": 32,
+  "reviewDecision": "",
+  "reviews": [
+    {
+      "id": "PRR_kwDOQ1061877ZWDu",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-05-04T06:05:33Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "9eddcf2ea7d88dee1682e2df19d4bf42038b7baf"
+      }
+    }
+  ],
+  "state": "OPEN",
+  "title": "feat: add Episode 4 — The Privacy Layer of Personal Intelligence with Ken Liu",
+  "updatedAt": "2026-05-04T06:06:16Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/32"
+}

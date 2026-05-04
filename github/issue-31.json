@@ -1,0 +1,216 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjE0MjA1MTY2",
+    "is_bot": false,
+    "login": "XenonMolecule",
+    "name": "Michael Ryan"
+  },
+  "body": "@sepo-agent /answer\n\nCan you update the website to include episode 4?  Here are the links and details!!  Please use episodes 1-3 as examples.\n\n**Title:** The Privacy Layer of Personal Intelligence with Ken Liu | AM Podcast #4\n**Description:** \n\n```\nKen Liu is a Stanford CS PhD student and founder of The Open Anonymity Project. Ken’s pioneering work explores the intersection between language models and data & user privacy.\n\nOutline:\n0:00 - Teaser\n1:08 - Prelude: Introducing Ken Liu\n1:41 - Monologue: The Open Anonymity Project\n3:41 - Ken’s Path to Privacy Research\n6:31 - The Biggest Privacy Concern for LLM Users\n9:39 - Three Perspectives on Tackling AI Privacy\n10:57 - “AI presents a Uniquely Worse Privacy Problem”\n13:44 - The Open Anonymity (OA) Project: Unlinkable Inference\n17:50 - Blind Signatures as Unlinkable Authentication\n20:52 - Secure Inference Proxies\n28:31 - Threat Model in the OA Project\n31:39 - What If People Give Away Information In Their Prompts\n35:58 - OpenClaw, Privacy Nightmare In Agents\n43:00 - The Stories Behind the OA Project\n50:14 - Intelligence Neutrality\n52:22 - Safety Concerns in a World with Private AI Inference\n\nReferences:\nKen Liu’s Home Page: https://ai.stanford.edu/~kzliu/\nThe Open Anonymity Project: https://openanonymity.ai/\nUnlinkable Inference as a User Privacy Architecture: https://openanonymity.ai/blog/unlinkable-inference/\n\nPodcast Links:\nPodcast website: https://augmented-mind.github.io/\nApple Podcasts: https://podcasts.apple.com/us/podcast/augmented-mind-podcast/id1868102170\nSpotify: https://open.spotify.com/show/40KculkYTe2tOpqJm6TAYr?si=PU_UncsMT4mXjVNCRwoXog&nd=1&dlsi=6d9bed7a43d64085\nRSS: https://anchor.fm/s/10dbf5b7c/podcast/rss\n\nAbout the Hosts:\nThe AM Podcast is hosted by Yijia Shao, Shannon Shen, and Michael Ryan, CS PhD students at Stanford University and MIT.\n```\n\n**Youtube:** https://youtu.be/rFyHnK7PGrY\n**Spotify:** https://open.spotify.com/episode/7AR3TkmRG9ofghhbyIjoz8?si=yyySOy0DQhCXI3q0V8HyRw\n**Apple Podcasts:** https://podcasts.apple.com/us/podcast/the-privacy-layer-of-personal-intelligence-with-ken/id1868102170?i=1000765984908\n",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABBGO22Q",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "answer requests currently require OWNER, MEMBER, COLLABORATOR, CONTRIBUTOR access.\n",
+      "createdAt": "2026-05-04T05:51:55Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/31#issuecomment-4368611033",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABBGPeFQ",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /answer check this ",
+      "createdAt": "2026-05-04T05:54:44Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/31#issuecomment-4368621077",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABBGP6AA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Here's what implementing issue #31 (EP04) would require:\n\n**All needed content is present in the issue** except one item — see the blocker below.\n\n---\n\n### Planned changes\n\n**1. `content/episodes/ep04.md`** — new episode page\n\nFrontmatter values from the issue:\n```yaml\ntitle: \"The Privacy Layer of Personal Intelligence with Ken Liu\"\nepisodeId: \"EP04\"\ndate: 2026-05-04        # ← not specified in issue; assuming today\ncoverImage: \"/static/covers/EP04-cover.png\"\nyoutubeUrl: \"https://www.youtube.com/watch?v=rFyHnK7PGrY\"\ntags:\n  - \"Ken Liu\"\n```\n\nBody: description, timestamps (all provided), and References section with the three links from the issue (Ken Liu's homepage, Open Anonymity Project, Unlinkable Inference post).\n\n**2. `content/people/ken-liu.md`** — new guest page (mirrors `woosuk-kwon.md` pattern)\n\nBio: Stanford CS PhD student, founder of The Open Anonymity Project. Links to `https://ai.stanford.edu/~kzliu/` and `https://openanonymity.ai/`.\n\n---\n\n### Blocker\n\n**Cover image is missing.** Every existing episode (`EP00`–`EP03`) has a corresponding `/static/covers/EP0X-cover.png`. The issue does not provide one for EP04. The episode page will render without a cover, but it'll be inconsistent.\n\n**Could someone supply `EP04-cover.png`**, or should the agent proceed without it (and leave a placeholder note)?\n\n---\n\n### Ready to implement\n\nOnce the cover image question is resolved (or if you're OK skipping it for now), I can open a PR with both files. Just confirm and I'll proceed.",
+      "createdAt": "2026-05-04T05:56:59Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/31#issuecomment-4368628224",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABBGQHUw",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /orchestrate ",
+      "createdAt": "2026-05-04T05:58:07Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/31#issuecomment-4368631635",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABBGQUgQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo automation handoff dispatched: `orchestrate` -> `implement` (round 2/5).\n\nmanual orchestrate start on issue; dispatching implement\n\n<!-- sepo-agent-handoff state:dispatched created:1777874354112 base64:aGFuZG9mZjphdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW86MjUzMDM1MjE4NTc6b3JjaGVzdHJhdGU6MzE6aW1wbGVtZW50OjMxOjI -->",
+      "createdAt": "2026-05-04T05:59:12Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/31#issuecomment-4368635009",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABBGQrcg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo implementation finished**\n\n- Branch: `agent/implement-issue-31/claude-25303551553`\n- Pull request: https://github.com/augmented-mind/augmented-mind.github.io/pull/32\n\nCreated two new content files for Episode 4: `content/episodes/ep04.md` with full frontmatter (title, episodeId EP04, date 2026-05-04, YouTube URL, cover image path), timestamps, and references, and `content/people/ken-liu.md` following the existing guest page pattern (woosuk-kwon.md). The episode page links to the guest page via Quartz wiki-link syntax. No cover image was available in the issue, so the frontmatter references `/static/covers/EP04-cover.png` consistently with other episodes.",
+      "createdAt": "2026-05-04T06:00:55Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/31#issuecomment-4368640882",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABBGRq1g",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "NONE",
+      "body": "Here is a cover image @sepo-agent \n\n<img width=\"1920\" height=\"1080\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/97951ce0-50ca-4e2c-9eca-7dec7738d29f\" />",
+      "createdAt": "2026-05-04T06:05:25Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/31#issuecomment-4368657110",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABBGR8Qw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "I triaged this as a `implement` request.\n\nDownload the provided cover image and add it to the EP04 branch (PR #32) as `/static/covers/EP04-cover.png`.\n\nReply with:\n\n```text\n@sepo-agent /approve req-320730\n```\n\nto start the implementation workflow.\n\n<!-- sepo-agent-request base64:eyJyb3V0ZSI6ImltcGxlbWVudCIsInNvdXJjZV9raW5kIjoiaXNzdWVfY29tbWVudCIsInRhcmdldF9raW5kIjoiaXNzdWUiLCJ0YXJnZXRfbnVtYmVyIjozMSwidGFyZ2V0X3VybCI6Imh0dHBzOi8vZ2l0aHViLmNvbS9hdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW8vaXNzdWVzLzMxIiwid29ya2Zsb3ciOiJhZ2VudC1pbXBsZW1lbnQueW1sIiwicmVxdWVzdF9pZCI6InJlcS0zMjA3MzAiLCJyZXF1ZXN0X3RleHQiOiJIZXJlIGlzIGEgY292ZXIgaW1hZ2UgQHNlcG8tYWdlbnQgXG5cbjxpbWcgd2lkdGg9XCIxOTIwXCIgaGVpZ2h0PVwiMTA4MFwiIGFsdD1cIkltYWdlXCIgc3JjPVwiaHR0cHM6Ly9naXRodWIuY29tL3VzZXItYXR0YWNobWVudHMvYXNzZXRzLzk3OTUxY2UwLTUwY2EtNGUyYy05ZWNhLTdkZWM3NzM4ZDI5ZlwiIC8-IiwiaXNzdWVfdGl0bGUiOiJBZGQgRVAwNCBjb3ZlciBpbWFnZSB0byBQUiAjMzIiLCJpc3N1ZV9ib2R5IjoiIyMgR29hbFxuXG5BZGQgdGhlIGNvdmVyIGltYWdlIHByb3ZpZGVkIGluIGlzc3VlICMzMSB0byB0aGUgZXhpc3RpbmcgRXBpc29kZSA0IFBSICgjMzIpLlxuXG5UaGUgaW1hZ2UgVVJMIGZyb20gdGhlIGNvbW1lbnQ6IGBodHRwczovL2dpdGh1Yi5jb20vdXNlci1hdHRhY2htZW50cy9hc3NldHMvOTc5NTFjZTAtNTBjYS00ZTJjLTllY2EtN2RlYzc3MzhkMjlmYFxuXG4jIyBBY2NlcHRhbmNlIENyaXRlcmlhXG5cbi0gWyBdIEltYWdlIGlzIGRvd25sb2FkZWQgYW5kIGNvbW1pdHRlZCBhcyBgL3N0YXRpYy9jb3ZlcnMvRVAwNC1jb3Zlci5wbmdgICgxOTIww5cxMDgwIFBORylcbi0gWyBdIENvbW1pdCBpcyBhZGRlZCB0byB0aGUgZXhpc3RpbmcgYnJhbmNoIGBhZ2VudC9pbXBsZW1lbnQtaXNzdWUtMzEvY2xhdWRlLTI1MzAzNTUxNTUzYCAoUFIgIzMyKVxuLSBbIF0gVGhlIGBjb3ZlckltYWdlYCBmcm9udG1hdHRlciBpbiBgY29udGVudC9lcGlzb2Rlcy9lcDA0Lm1kYCBhbHJlYWR5IHJlZmVyZW5jZXMgYC9zdGF0aWMvY292ZXJzL0VQMDQtY292ZXIucG5nYCDigJQgbm8gZnJvbnRtYXR0ZXIgY2hhbmdlcyBuZWVkZWRcblxuIyMgQ29udGV4dFxuXG5UaGUgYWdlbnQgcHJldmlvdXNseSBjcmVhdGVkIFBSICMzMiBmb3IgRXBpc29kZSA0IGJ1dCBub3RlZCB0aGUgY292ZXIgaW1hZ2Ugd2FzIG1pc3NpbmcuIFRoZSB1c2VyIChYZW5vbk1vbGVjdWxlKSBoYXMgbm93IHN1cHBsaWVkIGl0IHZpYSBhbiBpbWFnZSBhdHRhY2htZW50IGluIGlzc3VlICMzMS4ifQ -->\n\n| Approved by | Action | Tracking |\n|---|---|---|\n| @XenonMolecule | `implement` via `agent-implement.yml` | [approval run](https://github.com/augmented-mind/augmented-mind.github.io/actions/runs/25304085538) |\n\n<!-- sepo-agent-approved -->\n",
+      "createdAt": "2026-05-04T06:06:39Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/31#issuecomment-4368661571",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABBGUN3A",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "NONE",
+      "body": "@sepo-agent /approve req-320730",
+      "createdAt": "2026-05-04T06:16:19Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/31#issuecomment-4368698844",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABBGUtPA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo implementation finished**\n\n- Branch: `agent/implement-issue-31/claude-25304094094`\n- Pull request: https://github.com/augmented-mind/augmented-mind.github.io/pull/33\n- Approval: https://github.com/augmented-mind/augmented-mind.github.io/issues/31#issuecomment-4368698844\n\nDownloaded the EP04 cover image (1920×1080 PNG) from the GitHub user-attachment URL provided by XenonMolecule and placed it at quartz/static/covers/EP04-cover.png, matching the path already referenced in ep04.md frontmatter. Also carried over content/episodes/ep04.md and content/people/ken-liu.md from the previous PR #32 branch so this PR is self-contained.",
+      "createdAt": "2026-05-04T06:18:32Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/31#issuecomment-4368706876",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-05-04T05:50:58Z",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAACUV7FjQ",
+      "name": "enhancement",
+      "description": "New feature or request",
+      "color": "a2eeef"
+    },
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "number": 31,
+  "state": "OPEN",
+  "title": "Episode 4 Release",
+  "updatedAt": "2026-05-04T06:18:32Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/31"
+}

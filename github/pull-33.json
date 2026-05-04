@@ -1,0 +1,48 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n\n- Adds `content/episodes/ep04.md` for EP04 with full frontmatter, timestamps, and a References section linking to Ken Liu's homepage, The Open Anonymity Project, and the Unlinkable Inference blog post.\n- Adds `content/people/ken-liu.md` guest profile following the existing `woosuk-kwon.md` pattern.\n- Adds `quartz/static/covers/EP04-cover.png` (1920×1080 PNG) provided by @XenonMolecule — fills the placeholder referenced in the frontmatter.\n\nCloses #31\n",
+  "closedAt": null,
+  "comments": [],
+  "createdAt": "2026-05-04T06:18:29Z",
+  "files": [
+    {
+      "path": "content/episodes/ep04.md",
+      "additions": 42,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "content/people/ken-liu.md",
+      "additions": 22,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "quartz/static/covers/EP04-cover.png",
+      "additions": 0,
+      "deletions": 0,
+      "changeType": "ADDED"
+    }
+  ],
+  "headRefName": "agent/implement-issue-31/claude-25304094094",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": null,
+  "number": 33,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "OPEN",
+  "title": "feat: add Episode 4 — The Privacy Layer of Personal Intelligence with Ken Liu",
+  "updatedAt": "2026-05-04T06:18:31Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/33"
+}
