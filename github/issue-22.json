@@ -6,7 +6,7 @@
     "name": "Shannon Shen"
   },
   "body": "@sepo-agent /answer \n\ndo you know where you can pull the files from?\nand can the implement agent do it? ",
-  "closedAt": null,
+  "closedAt": "2026-05-04T02:22:47Z",
   "comments": [
     {
       "id": "IC_kwDOQ106188AAAABAwinbw",
@@ -120,8 +120,8 @@
     }
   ],
   "number": 22,
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "Update the .agent from the latest remote",
-  "updatedAt": "2026-04-29T21:04:15Z",
+  "updatedAt": "2026-05-04T02:22:47Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/22"
 }
