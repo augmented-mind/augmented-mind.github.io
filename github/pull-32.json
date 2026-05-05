@@ -5,7 +5,7 @@
   },
   "baseRefName": "main",
   "body": "## Summary\n\n- Adds `content/episodes/ep04.md` for EP04 with full frontmatter, timestamps from the issue, and a References section linking to Ken Liu's homepage, The Open Anonymity Project, and the Unlinkable Inference blog post.\n- Adds `content/people/ken-liu.md` guest profile following the existing `woosuk-kwon.md` pattern, with bio, contributions, and links.\n\n> **Note:** No cover image was provided in the issue. The frontmatter references `/static/covers/EP04-cover.png` (consistent with other episodes) — the image can be added separately when available.\n\nCloses #31\n",
-  "closedAt": null,
+  "closedAt": "2026-05-05T00:21:57Z",
   "comments": [
     {
       "id": "IC_kwDOQ106188AAAABBGQvzQ",
@@ -51,19 +51,83 @@
       "reactionGroups": [],
       "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/32#issuecomment-4368660041",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABBL1_FA",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /fix-pr also include the image here https://github.com/augmented-mind/augmented-mind.github.io/issues/31#issuecomment-4368657110",
+      "createdAt": "2026-05-04T21:08:14Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/32#issuecomment-4374494996",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABBL21rg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo pushed fixes for this PR.** Branch: `agent/implement-issue-31/claude-25303551553`. Requested by @lolipopshock.\n\n- Downloaded `EP04-cover.png` (1920×1080 PNG, 1.7 MB) from the linked GitHub asset and committed it to `quartz/static/covers/`, resolving the broken carousel image.\n- Added `## Key Takeaways` section to `content/episodes/ep04.md` with 6 synthesized bullets covering Unlinkable Inference, Blind Signatures, Secure Inference Proxies, Agent Privacy (OpenClaw), Intelligence Neutrality, and Safety vs. Privacy tradeoffs.\n- Added `guestOffset: 0` to ep04 frontmatter for consistency with EP02/EP03.",
+      "createdAt": "2026-05-04T21:10:37Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/32#issuecomment-4374508974",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABBL5hug",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "Not sure if we were leaving the key takeaways or not for the episodes.  Any thoughts @lolipopshock ?",
+      "createdAt": "2026-05-04T21:17:59Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/32#issuecomment-4374553018",
+      "viewerDidAuthor": false
     }
   ],
   "createdAt": "2026-05-04T06:00:52Z",
   "files": [
     {
       "path": "content/episodes/ep04.md",
-      "additions": 42,
+      "additions": 45,
       "deletions": 0,
       "changeType": "ADDED"
     },
     {
       "path": "content/people/ken-liu.md",
       "additions": 22,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "quartz/static/covers/EP04-cover.png",
+      "additions": 0,
       "deletions": 0,
       "changeType": "ADDED"
     }
@@ -77,9 +141,9 @@
       "color": "0e8a16"
     }
   ],
-  "mergedAt": null,
+  "mergedAt": "2026-05-05T00:21:57Z",
   "number": 32,
-  "reviewDecision": "",
+  "reviewDecision": "APPROVED",
   "reviews": [
     {
       "id": "PRR_kwDOQ1061877ZWDu",
@@ -95,10 +159,25 @@
       "commit": {
         "oid": "9eddcf2ea7d88dee1682e2df19d4bf42038b7baf"
       }
+    },
+    {
+      "id": "PRR_kwDOQ1061877zARR",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "",
+      "submittedAt": "2026-05-05T00:21:26Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "APPROVED",
+      "commit": {
+        "oid": "21645ee9a6d4f3a6f454bcfa8d41b5957a262573"
+      }
     }
   ],
-  "state": "OPEN",
+  "state": "MERGED",
   "title": "feat: add Episode 4 — The Privacy Layer of Personal Intelligence with Ken Liu",
-  "updatedAt": "2026-05-04T06:06:16Z",
+  "updatedAt": "2026-05-05T00:22:15Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/32"
 }

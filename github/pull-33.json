@@ -5,7 +5,7 @@
   },
   "baseRefName": "main",
   "body": "## Summary\n\n- Adds `content/episodes/ep04.md` for EP04 with full frontmatter, timestamps, and a References section linking to Ken Liu's homepage, The Open Anonymity Project, and the Unlinkable Inference blog post.\n- Adds `content/people/ken-liu.md` guest profile following the existing `woosuk-kwon.md` pattern.\n- Adds `quartz/static/covers/EP04-cover.png` (1920×1080 PNG) provided by @XenonMolecule — fills the placeholder referenced in the frontmatter.\n\nCloses #31\n",
-  "closedAt": null,
+  "closedAt": "2026-05-05T00:22:15Z",
   "comments": [],
   "createdAt": "2026-05-04T06:18:29Z",
   "files": [
@@ -41,8 +41,8 @@
   "number": 33,
   "reviewDecision": "",
   "reviews": [],
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "feat: add Episode 4 — The Privacy Layer of Personal Intelligence with Ken Liu",
-  "updatedAt": "2026-05-04T06:18:31Z",
+  "updatedAt": "2026-05-05T00:22:15Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/33"
 }

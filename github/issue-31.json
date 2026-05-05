@@ -6,7 +6,7 @@
     "name": "Michael Ryan"
   },
   "body": "@sepo-agent /answer\n\nCan you update the website to include episode 4?  Here are the links and details!!  Please use episodes 1-3 as examples.\n\n**Title:** The Privacy Layer of Personal Intelligence with Ken Liu | AM Podcast #4\n**Description:** \n\n```\nKen Liu is a Stanford CS PhD student and founder of The Open Anonymity Project. Ken’s pioneering work explores the intersection between language models and data & user privacy.\n\nOutline:\n0:00 - Teaser\n1:08 - Prelude: Introducing Ken Liu\n1:41 - Monologue: The Open Anonymity Project\n3:41 - Ken’s Path to Privacy Research\n6:31 - The Biggest Privacy Concern for LLM Users\n9:39 - Three Perspectives on Tackling AI Privacy\n10:57 - “AI presents a Uniquely Worse Privacy Problem”\n13:44 - The Open Anonymity (OA) Project: Unlinkable Inference\n17:50 - Blind Signatures as Unlinkable Authentication\n20:52 - Secure Inference Proxies\n28:31 - Threat Model in the OA Project\n31:39 - What If People Give Away Information In Their Prompts\n35:58 - OpenClaw, Privacy Nightmare In Agents\n43:00 - The Stories Behind the OA Project\n50:14 - Intelligence Neutrality\n52:22 - Safety Concerns in a World with Private AI Inference\n\nReferences:\nKen Liu’s Home Page: https://ai.stanford.edu/~kzliu/\nThe Open Anonymity Project: https://openanonymity.ai/\nUnlinkable Inference as a User Privacy Architecture: https://openanonymity.ai/blog/unlinkable-inference/\n\nPodcast Links:\nPodcast website: https://augmented-mind.github.io/\nApple Podcasts: https://podcasts.apple.com/us/podcast/augmented-mind-podcast/id1868102170\nSpotify: https://open.spotify.com/show/40KculkYTe2tOpqJm6TAYr?si=PU_UncsMT4mXjVNCRwoXog&nd=1&dlsi=6d9bed7a43d64085\nRSS: https://anchor.fm/s/10dbf5b7c/podcast/rss\n\nAbout the Hosts:\nThe AM Podcast is hosted by Yijia Shao, Shannon Shen, and Michael Ryan, CS PhD students at Stanford University and MIT.\n```\n\n**Youtube:** https://youtu.be/rFyHnK7PGrY\n**Spotify:** https://open.spotify.com/episode/7AR3TkmRG9ofghhbyIjoz8?si=yyySOy0DQhCXI3q0V8HyRw\n**Apple Podcasts:** https://podcasts.apple.com/us/podcast/the-privacy-layer-of-personal-intelligence-with-ken/id1868102170?i=1000765984908\n",
-  "closedAt": null,
+  "closedAt": "2026-05-05T00:21:57Z",
   "comments": [
     {
       "id": "IC_kwDOQ106188AAAABBGO22Q",
@@ -123,7 +123,7 @@
       "author": {
         "login": "XenonMolecule"
       },
-      "authorAssociation": "NONE",
+      "authorAssociation": "CONTRIBUTOR",
       "body": "Here is a cover image @sepo-agent \n\n<img width=\"1920\" height=\"1080\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/97951ce0-50ca-4e2c-9eca-7dec7738d29f\" />",
       "createdAt": "2026-05-04T06:05:25Z",
       "includesCreatedEdit": false,
@@ -160,7 +160,7 @@
       "author": {
         "login": "XenonMolecule"
       },
-      "authorAssociation": "NONE",
+      "authorAssociation": "CONTRIBUTOR",
       "body": "@sepo-agent /approve req-320730",
       "createdAt": "2026-05-04T06:16:19Z",
       "includesCreatedEdit": false,
@@ -209,8 +209,8 @@
     }
   ],
   "number": 31,
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "Episode 4 Release",
-  "updatedAt": "2026-05-04T06:18:32Z",
+  "updatedAt": "2026-05-05T00:21:58Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/31"
 }
