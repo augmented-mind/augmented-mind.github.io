@@ -2,10 +2,14 @@ import { test } from "node:test";
 import { strict as assert } from "node:assert";
 
 import {
+  buildReviewFixPrHandoffContext,
   buildHandoffDedupeKey,
   buildHandoffMarker,
   decideHandoff,
+  defaultFixPrHandoffContext,
   extractReviewConclusion,
+  extractReviewActionItems,
+  formatHandoffMarkerComment,
   getHandoffMarkerState,
   hasHandoffMarker,
   isPendingHandoffMarkerStale,
@@ -57,7 +61,223 @@ test("agent mode validates planner handoff against policy", () => {
   );
 });
 
-test("agent mode leaves handoff context empty when planner omits it", () => {
+test("agent mode supports issue-level child issue delegation", () => {
+  const decision = decideHandoff({
+    automationMode: "agent",
+    sourceAction: "orchestrate",
+    sourceConclusion: "requested",
+    targetKind: "issue",
+    targetNumber: "76",
+    currentRound: 1,
+    maxRounds: 5,
+    plannerDecision: {
+      decision: "delegate_issue",
+      reason: "Split the work into a child task.",
+      childStage: "stage 1",
+      childInstructions: "Implement the first stage.",
+      basePr: "66",
+    },
+  });
+
+  assert.equal(decision.decision, "delegate_issue");
+  assert.equal(decision.nextAction, undefined);
+  assert.equal(decision.targetNumber, "76");
+  assert.equal(decision.childStage, "stage 1");
+  assert.equal(decision.childInstructions, "Implement the first stage.");
+  assert.equal(decision.basePr, "66");
+});
+
+test("agent mode supports issue-level orchestrate handoff to implement", () => {
+  const decision = decideHandoff({
+    automationMode: "agent",
+    sourceAction: "orchestrate",
+    sourceConclusion: "requested",
+    targetKind: "issue",
+    targetNumber: "76",
+    currentRound: 1,
+    maxRounds: 5,
+    plannerDecision: {
+      decision: "handoff",
+      nextAction: "implement",
+      reason: "The current issue is small and self-contained.",
+      baseBranch: "feature-base",
+    },
+  });
+
+  assert.equal(decision.decision, "dispatch");
+  assert.equal(decision.nextAction, "implement");
+  assert.equal(decision.targetNumber, "76");
+  assert.equal(decision.nextRound, 2);
+  assert.match(decision.reason, /agent planner selected implement/);
+  assert.equal(decision.baseBranch, "feature-base");
+});
+
+test("agent mode supports PR-level orchestrate handoff to review or fix-pr", () => {
+  const review = decideHandoff({
+    automationMode: "agent",
+    sourceAction: "orchestrate",
+    sourceConclusion: "requested",
+    targetKind: "pull_request",
+    targetNumber: "66",
+    currentRound: 1,
+    maxRounds: 5,
+    plannerDecision: {
+      decision: "handoff",
+      nextAction: "review",
+      reason: "The request asks for review before any edits.",
+    },
+  });
+  assert.equal(review.decision, "dispatch");
+  assert.equal(review.nextAction, "review");
+  assert.equal(review.targetNumber, "66");
+  assert.match(review.reason, /agent planner selected review/);
+
+  const fix = decideHandoff({
+    automationMode: "agent",
+    sourceAction: "orchestrate",
+    sourceConclusion: "requested",
+    targetKind: "pull_request",
+    targetNumber: "66",
+    currentRound: 1,
+    maxRounds: 5,
+    plannerDecision: {
+      decision: "handoff",
+      nextAction: "fix-pr",
+      reason: "The request explicitly asks to fix the PR.",
+      handoffContext: "Fix the merge conflict only.",
+    },
+  });
+  assert.equal(fix.decision, "dispatch");
+  assert.equal(fix.nextAction, "fix-pr");
+  assert.equal(fix.targetNumber, "66");
+  assert.equal(fix.handoffContext, "Fix the merge conflict only.");
+  assert.match(fix.reason, /agent planner selected fix-pr/);
+});
+
+test("agent mode rejects invalid PR-level orchestrate handoffs", () => {
+  const implement = decideHandoff({
+    automationMode: "agent",
+    sourceAction: "orchestrate",
+    sourceConclusion: "requested",
+    targetKind: "pull_request",
+    targetNumber: "66",
+    currentRound: 1,
+    maxRounds: 5,
+    plannerDecision: {
+      decision: "handoff",
+      nextAction: "implement",
+      reason: "Try to implement from a PR.",
+    },
+  });
+  assert.equal(implement.decision, "stop");
+  assert.match(implement.reason, /only for issue targets/);
+
+  const mixedAnswer = decideHandoff({
+    automationMode: "agent",
+    sourceAction: "orchestrate",
+    sourceConclusion: "requested",
+    targetKind: "pull_request",
+    targetNumber: "66",
+    currentRound: 1,
+    maxRounds: 5,
+    plannerDecision: {
+      decision: "answer",
+      nextAction: "review",
+      reason: "Answer and review.",
+    },
+  });
+  assert.equal(mixedAnswer.decision, "stop");
+  assert.match(mixedAnswer.reason, /answer must not set next_action/);
+
+  const fixWithoutContext = decideHandoff({
+    automationMode: "agent",
+    sourceAction: "orchestrate",
+    sourceConclusion: "requested",
+    targetKind: "pull_request",
+    targetNumber: "66",
+    currentRound: 1,
+    maxRounds: 5,
+    plannerDecision: {
+      decision: "handoff",
+      nextAction: "fix-pr",
+      reason: "Fix the PR.",
+    },
+  });
+  assert.equal(fixWithoutContext.decision, "stop");
+  assert.match(fixWithoutContext.reason, /without handoff_context/);
+});
+
+test("agent mode rejects invalid child issue delegation", () => {
+  const wrongTarget = decideHandoff({
+    automationMode: "agent",
+    sourceAction: "orchestrate",
+    sourceConclusion: "requested",
+    targetKind: "pull_request",
+    targetNumber: "66",
+    currentRound: 1,
+    maxRounds: 5,
+    plannerDecision: {
+      decision: "delegate_issue",
+      reason: "Try from a PR.",
+      childInstructions: "Do it.",
+    },
+  });
+  assert.equal(wrongTarget.decision, "stop");
+  assert.match(wrongTarget.reason, /only from issues/);
+
+  const missingInstructions = decideHandoff({
+    automationMode: "agent",
+    sourceAction: "orchestrate",
+    sourceConclusion: "requested",
+    targetKind: "issue",
+    targetNumber: "76",
+    currentRound: 1,
+    maxRounds: 5,
+    plannerDecision: { decision: "delegate_issue", reason: "No task." },
+  });
+  assert.equal(missingInstructions.decision, "stop");
+  assert.match(missingInstructions.reason, /without child instructions/);
+
+  const mixedCommand = decideHandoff({
+    automationMode: "agent",
+    sourceAction: "orchestrate",
+    sourceConclusion: "requested",
+    targetKind: "issue",
+    targetNumber: "76",
+    currentRound: 1,
+    maxRounds: 5,
+    plannerDecision: {
+      decision: "delegate_issue",
+      nextAction: "review",
+      reason: "Mixed command.",
+      childInstructions: "Do it.",
+    },
+  });
+  assert.equal(mixedCommand.decision, "stop");
+  assert.match(mixedCommand.reason, /must not set next_action/);
+});
+
+test("agent mode rejects issue-level implement handoffs for non-issue targets", () => {
+  const decision = decideHandoff({
+    automationMode: "agent",
+    sourceAction: "orchestrate",
+    sourceConclusion: "requested",
+    targetKind: "pull_request",
+    targetNumber: "76",
+    currentRound: 1,
+    maxRounds: 5,
+    plannerDecision: {
+      decision: "handoff",
+      nextAction: "implement",
+      reason: "Try to implement from a PR.",
+    },
+  });
+
+  assert.equal(decision.decision, "stop");
+  assert.match(decision.reason, /only for issue targets/);
+});
+
+test("agent mode falls back to default fix-pr context when planner omits it", () => {
   const decision = decideHandoff({
     automationMode: "agent",
     sourceAction: "review",
@@ -74,7 +294,7 @@ test("agent mode leaves handoff context empty when planner omits it", () => {
 
   assert.equal(decision.decision, "dispatch");
   assert.equal(decision.nextAction, "fix-pr");
-  assert.equal(decision.handoffContext, undefined);
+  assert.equal(decision.handoffContext, defaultFixPrHandoffContext());
 });
 
 test("agent mode stops invalid or disallowed planner handoffs", () => {
@@ -116,6 +336,27 @@ test("agent mode respects planner stop, invalid planner output, and round budget
   });
   assert.equal(stopped.decision, "stop");
   assert.match(stopped.reason, /agent planner stop/);
+
+  const blocked = decideHandoff({
+    automationMode: "agent",
+    sourceAction: "orchestrate",
+    sourceConclusion: "done",
+    targetKind: "issue",
+    targetNumber: "76",
+    currentRound: 2,
+    maxRounds: 5,
+    plannerDecision: {
+      decision: "blocked",
+      reason: "Need the next child scope.",
+      userMessage: "I need a maintainer decision before continuing.",
+      clarificationRequest: "Should the next child stack on #112?",
+    },
+  });
+  assert.equal(blocked.decision, "stop");
+  assert.equal(blocked.plannerDecisionKind, "blocked");
+  assert.equal(blocked.userMessage, "I need a maintainer decision before continuing.");
+  assert.equal(blocked.clarificationRequest, "Should the next child stack on #112?");
+  assert.match(blocked.reason, /agent planner blocked/);
 
   const invalid = decideHandoff({
     automationMode: "agent",
@@ -197,6 +438,7 @@ test("review verdicts dispatch fix-pr or stop", () => {
     assert.equal(needsFix.decision, "dispatch");
     assert.equal(needsFix.nextAction, "fix-pr");
     assert.equal(needsFix.targetNumber, "99");
+    assert.equal(needsFix.handoffContext, defaultFixPrHandoffContext());
   }
 
   const ship = decideHandoff({
@@ -210,6 +452,22 @@ test("review verdicts dispatch fix-pr or stop", () => {
 
   assert.equal(ship.decision, "stop");
   assert.match(ship.reason, /SHIP/);
+});
+
+test("review fix-pr handoffs preserve derived source context", () => {
+  const decision = decideHandoff({
+    automationMode: "heuristics",
+    sourceAction: "review",
+    sourceConclusion: "minor_issues",
+    sourceHandoffContext: "Fix only the failing fallback test.",
+    targetNumber: "99",
+    currentRound: 2,
+    maxRounds: 5,
+  });
+
+  assert.equal(decision.decision, "dispatch");
+  assert.equal(decision.nextAction, "fix-pr");
+  assert.equal(decision.handoffContext, "Fix only the failing fallback test.");
 });
 
 test("fix-pr success dispatches review until the round budget is exhausted", () => {
@@ -236,6 +494,24 @@ test("fix-pr success dispatches review until the round budget is exhausted", () 
 
   assert.equal(exhausted.decision, "stop");
   assert.match(exhausted.reason, /budget/);
+});
+
+test("fix-pr unsatisfactory conclusions stop without re-review", () => {
+  for (const conclusion of ["no_changes", "failed", "verify_failed"]) {
+    const decision = decideHandoff({
+      automationMode: "heuristics",
+      sourceAction: "fix-pr",
+      sourceConclusion: conclusion,
+      targetNumber: "99",
+      currentRound: 3,
+      maxRounds: 5,
+    });
+
+    assert.equal(decision.decision, "stop");
+    assert.equal(decision.nextAction, undefined);
+    assert.match(decision.reason, new RegExp(`fix-pr concluded ${conclusion}`));
+    assert.match(decision.reason, /must succeed before re-review/);
+  }
 });
 
 test("unsupported actions stop", () => {
@@ -278,6 +554,39 @@ test("handoff dedupe markers are deterministic and detectable", () => {
   assert.equal(getHandoffMarkerState(buildHandoffMarker(key, "failed"), key), "failed");
   assert.equal(getHandoffMarkerState(buildHandoffMarker(key), key), "dispatched");
   assert.equal(hasHandoffMarker("comment body", key), false);
+});
+
+test("handoff marker comments use compact tables and fix-pr task context", () => {
+  const key = buildHandoffDedupeKey({
+    repo: "self-evolving/repo",
+    sourceRunId: "12345",
+    sourceAction: "review",
+    sourceTargetNumber: "128",
+    nextAction: "fix-pr",
+    nextTargetNumber: "128",
+    nextRound: 6,
+  });
+
+  const body = formatHandoffMarkerComment({
+    key,
+    state: "dispatched",
+    sourceAction: "review",
+    nextAction: "fix-pr",
+    targetKind: "pull_request",
+    targetNumber: "128",
+    nextRound: 6,
+    maxRounds: 10,
+    reason: "review verdict is minor_issues; dispatching fix-pr",
+    handoffContext: "Document and test the metadata path fallback.",
+    createdAtMs: 1_000,
+  });
+
+  assert.match(body, /Sepo is dispatching follow-up automation\./);
+  assert.match(body, /\| Source \| Next \| Target \| Round \| Status \|/);
+  assert.match(body, /\| review \| fix-pr \| PR #128 \| 6 \/ 10 \| Dispatched \|/);
+  assert.match(body, /Reason: review verdict is minor_issues; dispatching fix-pr/);
+  assert.match(body, /Task for fix-pr:\nDocument and test the metadata path fallback\./);
+  assert.match(body, /<!-- sepo-agent-handoff state:dispatched created:1000 base64:/);
 });
 
 test("pending handoff markers become stale after the ttl", () => {
@@ -330,8 +639,16 @@ test("parsePlannerDecision reads planner JSON", () => {
     },
   );
   assert.deepEqual(
-    parsePlannerDecision('{"decision":"blocked","reason":"Missing PR."}'),
-    { decision: "blocked", nextAction: undefined, reason: "Missing PR." },
+    parsePlannerDecision(
+      '{"decision":"blocked","reason":"Missing PR.","user_message":"I need the PR number.","clarification_request":"Which PR should I inspect?"}',
+    ),
+    {
+      decision: "blocked",
+      nextAction: undefined,
+      reason: "Missing PR.",
+      userMessage: "I need the PR number.",
+      clarificationRequest: "Which PR should I inspect?",
+    },
   );
   assert.equal(
     parsePlannerDecision(
@@ -339,6 +656,56 @@ test("parsePlannerDecision reads planner JSON", () => {
     )?.handoffContext,
     "camel case works",
   );
+  assert.deepEqual(
+    parsePlannerDecision(
+      '{"decision":"delegate_issue","reason":"Delegate.","child_stage":"Stage One","child_instructions":"Do one thing.","base_pr":"12"}',
+    ),
+    {
+      decision: "delegate_issue",
+      nextAction: undefined,
+      reason: "Delegate.",
+      childStage: "Stage One",
+      childInstructions: "Do one thing.",
+      basePr: "12",
+    },
+  );
   assert.equal(parsePlannerDecision("not json"), null);
+  assert.equal(parsePlannerDecision('{"decision":"deploy","reason":"Ship it."}'), null);
   assert.equal(parsePlannerDecision('{"decision":"handoff","next_action":"deploy"}')?.nextAction, undefined);
+  assert.deepEqual(
+    parsePlannerDecision('{"decision":"answer","reason":"The user asked a question.","user_message":"Use /review for a full pass."}'),
+    {
+      decision: "answer",
+      nextAction: undefined,
+      reason: "The user asked a question.",
+      userMessage: "Use /review for a full pass.",
+    },
+  );
+});
+
+test("review fix-pr context extracts unchecked review synthesis action items", () => {
+  const synthesis = [
+    "## Review",
+    "Summary.",
+    "",
+    "## Action Items",
+    "- [ ] Document and test the metadata path fallback.",
+    "- [x] Already fixed source_ref validation.",
+    "- [ ] Ignore optional INFO polish unless needed.",
+  ].join("\n");
+
+  assert.deepEqual(extractReviewActionItems(synthesis), [
+    "Document and test the metadata path fallback.",
+    "Ignore optional INFO polish unless needed.",
+  ]);
+  assert.equal(
+    buildReviewFixPrHandoffContext(synthesis),
+    [
+      "Address only the latest review synthesis action items:",
+      "- Document and test the metadata path fallback.",
+      "- Ignore optional INFO polish unless needed.",
+      "",
+      "Constraints: Ignore optional INFO notes, metadata-only polish, already-fixed findings, and human-judgment nits unless required by those action items.",
+    ].join("\n"),
+  );
 });
