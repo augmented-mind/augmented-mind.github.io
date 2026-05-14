@@ -5,10 +5,10 @@
   "acpxSessionId": "f8cbe016-96af-44ed-8fc6-582c2e8dcb0d",
   "agentSessionId": "",
   "branch": "",
-  "status": "completed",
-  "resume_status": "resumed",
+  "status": "running",
+  "resume_status": "not_attempted",
   "last_resume_error": "",
-  "resumed_from_session_id": "f8cbe016-96af-44ed-8fc6-582c2e8dcb0d",
+  "resumed_from_session_id": "",
   "session_bundle_backend": "github-artifact",
   "session_bundle_artifact_id": "6981824179",
   "session_bundle_artifact_name": "session-bundle-issue-36-implement-default-c908ce446d49-25827041723",
@@ -17,9 +17,9 @@
   "last_bundle_restore_error": "",
   "forked_from_thread_key": "augmented-mind/augmented-mind.github.io:issue:36:answer:default",
   "forked_from_acpx_session_id": "f8cbe016-96af-44ed-8fc6-582c2e8dcb0d",
-  "last_run_url": "https://github.com/augmented-mind/augmented-mind.github.io/actions/runs/25827041723",
+  "last_run_url": "https://github.com/augmented-mind/augmented-mind.github.io/actions/runs/25888894605",
   "last_comment_url": "",
-  "attempt_count": 1,
+  "attempt_count": 2,
   "created_at": "2026-05-13T21:19:41.113Z",
-  "updated_at": "2026-05-14T22:19:00.663Z"
+  "updated_at": "2026-05-14T22:19:02.836Z"
 }
