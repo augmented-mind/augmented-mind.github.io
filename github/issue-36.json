@@ -1,0 +1,97 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "body": "Check the v0.1.0 release and then update it @sepo-agent /answer",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABCPU8EA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Here's what I found after checking the v0.1.0 release at [`self-evolving/repo`](https://github.com/self-evolving/repo/releases/tag/v0.1.0):\n\n---\n\n## Current state\n\nThis repo's sepo installation predates the v0.1.0 release (installed ~May 4; v0.1.0 published May 12). The `.agent/package.json` already says `\"version\": \"0.1.0\"` but that's the package name/version string — the actual runtime files are from a snapshot before the release was cut.\n\n## What's new in v0.1.0\n\nKey differences vs this repo's current install:\n\n| Area | Change |\n|---|---|\n| `acpx` dependency | `^0.4.0` → `^0.6.1` (Claude auto-permission mode support) |\n| `agent-onboarding.yml` | New first-run onboarding workflow |\n| `agent-project-manager.yml` | New project management workflow |\n| `agent-release-prepare.yml` | New release prep workflow |\n| `agent-update.yml` | **New automated update workflow** (scheduled biweekly, also manually triggerable) |\n| Source files | ~249 tracked files with changes across routing, orchestration, rubrics, inline review cleanup, self-approval, stacked PRs, sub-issues, etc. |\n\n## Upgrade procedure\n\nThe upgrade is a file sync from `self-evolving/repo@v0.1.0`:\n\n1. **Copy `.agent/`** — replace entirely from `self-evolving/repo@v0.1.0` (preserves no repo-specific content there)\n2. **Copy `.github/workflows/agent-*.yml`** — replace all `agent-*.yml` files; **keep `deploy.yml`** (site-specific Quartz workflow)\n3. **Merge `.gitignore`** — ensure `.agent/dist/` and `.agent/node_modules/` remain ignored (already present per memory)\n4. Open and merge the update PR\n\nOnce `agent-update.yml` is installed, future upgrades can be triggered via **Actions → Agent / Update** (manual dispatch) or run automatically on the 1st and 15th of each month from `self-evolving/repo`'s latest stable release.\n\n---\n\nWant me to proceed with implementing this upgrade as a PR?",
+      "createdAt": "2026-05-13T21:13:55Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/36#issuecomment-4445256720",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCPWriw",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /implement  ",
+      "createdAt": "2026-05-13T21:18:25Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/36#issuecomment-4445285259",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCPWruQ",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /implement  ",
+      "createdAt": "2026-05-13T21:18:26Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/36#issuecomment-4445285305",
+      "viewerDidAuthor": false
+    }
+  ],
+  "createdAt": "2026-05-13T21:09:03Z",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "number": 36,
+  "state": "OPEN",
+  "title": "upgrade sepo",
+  "updatedAt": "2026-05-13T21:19:44Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/36"
+}
