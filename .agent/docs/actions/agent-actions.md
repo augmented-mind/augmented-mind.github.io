@@ -13,7 +13,11 @@ Agent actions are route-level behaviors exposed by the `.agent` backend. They ar
 | Skill | `skill` | `.skills/<name>/SKILL.md` | inline skill route through `agent-router.yml` |
 | Dispatch | `dispatch` | `.github/prompts/agent-dispatch.md` | route triage inside `agent-router.yml` |
 
-The orchestrator is now an explicit top-level route. Users start orchestration with `/orchestrate` (or `agent/orchestrate`), and `agent-orchestrator.yml` chooses a first follow-up action from current target status. Workflows launched by the orchestrator carry explicit orchestration context and hand back after post-processing, so the bounded `implement -> review -> fix-pr -> review` loop can continue until a stop condition. Direct `/implement`, `/review`, and `/fix-pr` runs do not carry that context and stay one-shot. Explicit `/orchestrate` starts use deterministic routing in both `heuristics` and `agent` modes today. Planner mode is reserved for action-originated handoff envelopes and still validates results against runtime policy before dispatch. Planner handoffs can carry `handoff_context`; `fix-pr` receives that context as explicit initial steering for the automated fix pass.
+The orchestrator is now an explicit top-level route. Users start orchestration with `/orchestrate` (or `agent/orchestrate`), and `agent-orchestrator.yml` chooses follow-up work from current target state. Workflows launched by the orchestrator carry explicit orchestration context and hand back after post-processing, so the bounded `implement -> review -> fix-pr -> review` loop can continue until a stop condition. Direct `/implement`, `/review`, and `/fix-pr` runs do not carry that context and stay one-shot. In `heuristics` mode, explicit PR `/orchestrate` starts use deterministic status routing. In `agent` mode, issue and PR `/orchestrate` starts invoke the planner. For small self-contained issue work, the planner can hand off directly to `implement` on the current issue. For PR work, the planner can choose `review`, `fix-pr`, `answer`, or stop/block; runtime policy validates that PR starts dispatch only `review` or `fix-pr`. For meta-orchestration, child work uses the internal `delegate_issue` decision to create, reuse, or adopt a child issue that then runs the normal `/orchestrate` flow. `delegate_issue` is not a public route and is not part of `AgentAction`. Planner handoffs can carry `handoff_context`; `fix-pr` receives that context as explicit initial steering for the automated fix pass.
+
+Implementation runs can create stacked PRs by receiving either `base_branch` or
+`base_pr`. `base_pr` resolves to the open same-repository PR head branch; when
+neither input is set, implementations branch from the repository default branch.
 
 ## Consumption model
 
@@ -41,6 +45,21 @@ named `agent-action-<short-slug>.yml`. Generated workflows use native
 `run-agent-task`). GitHub does not expire scheduled workflows automatically, so
 generated scheduled workflows use `.github/actions/check-agent-action-expiration`
 and skip provider setup/agent execution once expired.
+
+The built-in `agent-update.yml` workflow is the default recurring maintenance
+path for Sepo itself. It runs near-biweekly, resolves the update source to the
+latest published stable Sepo release tag, calls the existing `update-agent`
+skill, and opens an update PR only when the target repository differs from that
+source. Manual dispatch can pass `source_ref` to test `main`, a branch, or a
+specific tag. If no release exists yet, the workflow falls back to `main` and
+records that fallback in the run summary. A pre-runtime pending-PR resolver
+adopts an open same-repository `agent/update-agent-infra-*` PR by preparing its
+branch as the update target while keeping workflow runtime code on the default
+branch, then instructing the update skill to update that PR instead of opening a
+duplicate. Set `AGENT_AUTO_UPDATE=false` to disable scheduled update checks
+while keeping manual dispatch available; the canonical `self-evolving/repo`
+source repository should use that setting instead of relying on a workflow-level
+repository special case.
 
 ## Self-documenting pattern
 

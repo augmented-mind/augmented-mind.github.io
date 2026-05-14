@@ -166,9 +166,18 @@ jobs:
           TARGET_NUMBER: ${{ env.PR_NUMBER }}
         run: node .agent/dist/cli/add-label.js
 
+      - name: Resolve task timeout
+        if: steps.pr.outputs.cross_repo != 'true' && steps.pr.outputs.pr_state == 'OPEN'
+        id: task_timeout
+        env:
+          AGENT_TASK_TIMEOUT_POLICY: ${{ vars.AGENT_TASK_TIMEOUT_POLICY || '' }}
+          ROUTE: fix-pr
+        run: node .agent/dist/cli/resolve-task-timeout.js
+
       - name: Run agent
         if: steps.pr.outputs.cross_repo != 'true' && steps.pr.outputs.pr_state == 'OPEN'
         id: agent
+        timeout-minutes: ${{ fromJson(steps.task_timeout.outputs.minutes || '30') }}
         uses: ./.github/actions/run-agent-task
         with:
           agent: ${{ steps.provider.outputs.provider }}
@@ -251,12 +260,13 @@ jobs:
       - name: Post status comment
         if: always() && steps.pr.outputs.cross_repo != 'true' && steps.pr.outputs.pr_state == 'OPEN'
         env:
+          AGENT_COLLAPSE_OLD_REVIEWS: ${{ vars.AGENT_COLLAPSE_OLD_REVIEWS }}
           APPROVAL_COMMENT_URL: ${{ inputs.approval_comment_url }}
           BRANCH: ${{ steps.pr.outputs.head_ref }}
           COMMENT_TARGET: pr
           GH_TOKEN: ${{ steps.auth.outputs.token }}
           PR_NUMBER: ${{ env.PR_NUMBER }}
-          REQUESTED_BY: ${{ inputs.requested_by || github.actor }}
+          REQUESTED_BY: ${{ inputs.orchestration_enabled == 'true' && (vars.AGENT_HANDLE || '@sepo-agent') || inputs.requested_by || github.actor }}
           RESPONSE_FILE: ${{ steps.agent.outputs.response_file }}
           RESUME_STATUS: ${{ steps.agent.outputs.resume_status }}
           ROUTE: fix-pr
@@ -267,12 +277,14 @@ jobs:
       - name: Post unsupported status
         if: steps.pr.outputs.cross_repo == 'true' || steps.pr.outputs.pr_state != 'OPEN'
         env:
+          AGENT_COLLAPSE_OLD_REVIEWS: ${{ vars.AGENT_COLLAPSE_OLD_REVIEWS }}
+          APPROVAL_COMMENT_URL: ${{ inputs.approval_comment_url }}
+          COMMENT_TARGET: pr
           GH_TOKEN: ${{ steps.auth.outputs.token }}
-        run: |
-          gh pr comment "${PR_NUMBER}" --body "$(printf '%s\n' \
-            '**Sepo could not update this PR automatically.**' \
-            '' \
-            'PR fix runs currently support open same-repository pull requests only.')"
+          ROUTE: fix-pr
+          STATUS: unsupported
+          TARGET_NUMBER: ${{ env.PR_NUMBER }}
+        run: node .agent/dist/cli/post-comment.js
 
       - name: Orchestrate automation handoff
         if: >-
