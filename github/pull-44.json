@@ -1,0 +1,227 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "baseRefName": "agent/implement-issue-40/claude-25903281071",
+  "body": "## Summary\n\n- Adds `.github/workflows/agent-caption-update.yml`: manually-triggered `workflow_dispatch` that downloads YouTube EN auto-captions via yt-dlp, converts VTT → markdown, translates EN → ZH via Claude API, commits both caption files, and opens a PR\n- Adds `.agent/scripts/vtt-to-md.js`: strips VTT metadata/inline tags, deduplicates YouTube's sliding-window caption overlaps, outputs clean paragraph markdown\n- Adds `.agent/scripts/translate-caption.js`: chunks English markdown and translates to Simplified Chinese using `claude-haiku-4-5-20251001` via Anthropic SDK\n- Adds `@anthropic-ai/sdk@^0.39.0` to `.agent/package.json`\n\n## Test plan\n\n- [ ] Trigger `agent-caption-update` workflow with a known YouTube episode URL and an `episode_id` (e.g. `ep01`)\n- [ ] Verify `content/captions/ep01.en.md` contains clean readable prose (no VTT tags or timestamps)\n- [ ] Verify `content/captions/ep01.zh.md` contains Simplified Chinese translation with paragraph breaks preserved\n- [ ] Verify a new branch `caption/ep01` is created and a PR is opened against `main`\n\nCloses #43\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABCfPfoA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| implement | review | PR #44 | 3 / 40 | Dispatched |\n\nReason: implementation succeeded; dispatching review\n\n<!-- sepo-agent-handoff state:dispatched created:1778866889464 base64:aGFuZG9mZjphdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW86MjU5MzIxNjU1OTI6aW1wbGVtZW50OjQzOnJldmlldzo0NDoz -->",
+      "createdAt": "2026-05-15T17:41:30Z",
+      "includesCreatedEdit": true,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/44#issuecomment-4461944736",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCfQP4Q",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Now I have all the context needed. No rubrics are configured (`RUBRICS_AVAILABLE=false`, consistent with prior reviews). I'll report N/A and include informational findings.\n\n## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| N/A | N/A | 0 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| — | — | not applicable | N/A | No rubrics configured for this repository (`agent/rubrics` branch is absent) |\n\n## Notes\n\n- No rubrics are active for this repo; rubric scoring is N/A. All findings below are informational, derived from the issue spec and implementation diff.\n- The implementation satisfies every stated requirement in issue #43: `workflow_dispatch`-only trigger, correct inputs (`episode_id` / `youtube_url`), VTT → markdown conversion, Claude-based translation, branch + PR creation, files placed under `.agent/scripts/`.\n\n## Findings\n\n- **INFO:** `vtt-to-md.js` sliding-window deduplication is correctly handled — the `appendNew` function finds the longest suffix/prefix overlap to avoid duplicating YouTube's rolling-window captions. Logic looks sound.\n- **INFO:** `translate-caption.js` uses `claude-haiku-4-5-20251001` as specified in the issue (cost-appropriate for batch translation). No prompt caching (`cache_control`) is used — adding it for the fixed system prompt string could reduce translation costs on large transcripts but is not a requirement.\n- **INFO:** Workflow uses `set -euo pipefail` in every `run` block — good defensive practice against silent failures.\n- **INFO:** VTT file location is handled with two fallback `ls` attempts (`*.en.vtt` then `*.vtt`) — handles yt-dlp output naming variations.\n- **INFO:** `ANTHROPIC_API_KEY` must be set as a repository Actions secret before the workflow can run; no README or workflow-level note documents this requirement.\n- **INFO:** PR is intended to stack on top of PR #41 (caption-infra), which adds `Transcript.tsx` and `content/captions/.gitkeep`. The workflow commits to `content/captions/<episode_id>.{en,zh}.md`, which aligns with the infra established in #41. The stacking dependency is correct.\n- **INFO:** The `Translate to Chinese` step calls the API serially per chunk (no parallelism). For long episodes this is acceptable; parallelizing could speed it up but is out of scope.\n\n## Final Rubric Verdict\n\nN/A",
+      "createdAt": "2026-05-15T17:43:26Z",
+      "includesCreatedEdit": false,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/44#issuecomment-4461957089",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCfSjKA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\nThree inline comments posted. Now producing the synthesis.\n\n## Summary of PR/Issue\n\nPR #44 delivers the automated caption pipeline described in issue #43: a manually-triggered `workflow_dispatch` workflow that downloads YouTube auto-captions via yt-dlp, converts the VTT format to clean paragraph markdown, translates EN → ZH via the Claude API (Haiku), commits both files under `content/captions/`, and opens a PR. Two new scripts are introduced under `.agent/scripts/`: `vtt-to-md.js` for VTT parsing/deduplication and `translate-caption.js` for chunked translation. This is the second stage of a two-part caption plan (the first stage, PR #41, adds the `Transcript.tsx` component and the `content/captions/` directory).\n\n## Review\n\nThe overall design is sound and the implementation satisfies every requirement in issue #43. However, one unambiguous security vulnerability and two correctness bugs require fixes before merge.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Command injection in `run:` steps | BLOCKING | All four `run:` steps embed `${{ inputs.* }}` directly in shell code; the Actions template engine substitutes these before the shell sees them, enabling arbitrary command execution via a crafted `youtube_url` or `episode_id`. |\n| `vtt-to-md.js` remainder offset bug | WARNING | `sentences.join(' ').length` diverges from the actual regex offset after `.trim()`; `fullText.slice()` can overlap the last sentence or miss trailing text, producing garbled output. |\n| Missing type guard on API response | WARNING | `msg.content[0].text` in `translate-caption.js` is accessed without checking `block.type`; a non-`text` response silently writes `\"undefined\"` into the translated file. |\n| `pip install yt-dlp` fails on Ubuntu 24.04 | WARNING | Ubuntu 24.04 (current `ubuntu-latest`) enforces PEP 668; a bare `pip install` will fail. Use `pipx install yt-dlp` or add `--break-system-packages`. |\n| No idempotency on re-run | WARNING | Re-running with the same `episode_id` fails at `git checkout -b` (branch exists) and `gh pr create` (PR already exists). The failure is noisy rather than silent, but the UX is poor; a guard or documented limitation is needed. |\n| `episode_id` path traversal | INFO | Used as a path component without validation; values like `../../.env` write outside `content/captions/`. Low risk in `workflow_dispatch`-only context, but a one-line regex check would close it. |\n| No prompt caching in translate script | INFO | System prompt is fixed but not marked `cache_control: ephemeral`; adding it would reduce cost and latency for long transcripts. |\n| No retry on transient API errors | INFO | A single `502` or rate-limit error aborts translation mid-run; exponential backoff would improve UX for multi-chunk episodes. |\n| `@anthropic-ai/sdk@0.39.0` ships legacy `node-fetch` | INFO | Version ≥ 0.40.0 drops `node-fetch` in favour of native `fetch`, shrinking the lockfile and removing deprecated transitive deps. |\n\n## Progress\n\n- Rubrics review (already posted as PR comment) confirmed the implementation satisfies all requirements from issue #43.\n- Both reviewers agree the VTT sliding-window deduplication logic (`appendNew`) is correct.\n- The `set -euo pipefail` usage and yt-dlp VTT filename fallback logic are sound.\n- The stacking dependency on PR #41 (caption-infra) is correctly identified and aligns with the file paths used.\n- No existing inline comments were present before this synthesis; three new inline comments were posted (see Progress below).\n\n## Issue Details\n\n<details>\n<summary>Command injection in `run:` steps</summary>\n\n**Cause:** GitHub Actions substitutes `${{ inputs.* }}` into the `run:` shell script as raw text before the shell executes it. Any value containing `\"` or `$()` escapes the double-quote context and runs as shell code in the runner.\n\n**Candidate solutions:**\n1. **(Preferred)** Assign inputs to `env:` variables and reference them as `$ENV_VAR` in the shell. This matches the pattern already used in `agent-implement.yml`.\n2. Add an allowlist validation step at the top of the job that rejects inputs not matching `^[a-z0-9_-]+$` (for `episode_id`) and a URL regex (for `youtube_url`), then pass through `env:`.\n\n```yaml\n- name: Download EN auto-captions\n  env:\n    YOUTUBE_URL: ${{ inputs.youtube_url }}\n    EPISODE_ID: ${{ inputs.episode_id }}\n  run: |\n    set -euo pipefail\n    yt-dlp ... \"$YOUTUBE_URL\"\n```\n\nAll four `run:` steps using `${{ inputs.* }}` need this treatment: Download (line 48), Convert (line 64), Translate (lines 72–73), and Create branch (lines 83–89).\n\n</details>\n\n<details>\n<summary>vtt-to-md.js remainder offset bug</summary>\n\n**Cause:** Lines 88–89 reconstruct a string from trimmed sentences and use its `.length` as a byte offset into `fullText`. Because `.trim()` strips whitespace and `.join(' ')` adds exactly one space, the reconstructed length diverges from the actual regex cursor position.\n\n**Candidate solutions:**\nTrack `sentenceRe.lastIndex` directly:\n```js\nlet lastIndex = 0;\nwhile ((match = sentenceRe.exec(fullText)) !== null) {\n  const s = match[0].trim();\n  if (s) { sentences.push(s); lastIndex = sentenceRe.lastIndex; }\n}\nconst remainder = fullText.slice(lastIndex).trim();\n```\n\n</details>\n\n<details>\n<summary>Missing type guard on API response</summary>\n\n**Cause:** `translate-caption.js` line 56 accesses `msg.content[0].text` without verifying `block.type === 'text'`. If the API returns a `tool_use` or other block type, `.text` is `undefined` and is silently stringified into the output file.\n\n**Candidate solutions:**\n```js\nconst block = msg.content[0];\nif (block.type !== 'text') throw new Error(`Unexpected block type: ${block.type}`);\nreturn block.text;\n```\n\n</details>\n\n<details>\n<summary>pip install yt-dlp fails on Ubuntu 24.04</summary>\n\n**Cause:** Ubuntu 24.04 (current `ubuntu-latest`) enforces PEP 668, marking the system Python as externally managed. Bare `pip install` exits with an error about the externally-managed environment.\n\n**Candidate solutions:**\n- `pipx install yt-dlp` (preferred; `pipx` is pre-installed on GitHub runners, adds binary to PATH)\n- `pip install yt-dlp --break-system-packages` (works but suppresses the safeguard)\n\n</details>\n\n<details>\n<summary>No idempotency on re-run</summary>\n\n**Cause:** `git checkout -b \"$BRANCH\"` fails if the branch already exists. `gh pr create` fails if a PR for that head already exists. Both fail loudly, so data isn't corrupted, but re-triggering the workflow after a partial failure requires manual branch cleanup.\n\n**Candidate solutions:**\n- Check for branch/PR existence before creating: `git ls-remote --heads origin \"$BRANCH\"` and `gh pr list --head \"$BRANCH\"`.\n- Force-recreate the branch (`git checkout -B`).\n- At minimum, document this limitation in the workflow-level comment or README.\n\n</details>\n\n## Recommended Next Step\n\n`FIX_PR`: The command injection vulnerability and two correctness bugs are concrete, well-scoped, and safe for an automated fix-pr pass — all three fixes are mechanical, do not require design decisions, and are confined to three files.\n\n## Final Verdict\n\n`NEEDS_REWORK`\n\n## Action Items\n\n- [ ] Move all `${{ inputs.youtube_url }}` and `${{ inputs.episode_id }}` uses into `env:` variables in all four `run:` steps of `agent-caption-update.yml` (lines 38–50, 52–64, 66–73, 75–89)\n- [ ] Fix `vtt-to-md.js` remainder calculation: replace `sentences.join(' ').length` offset with `sentenceRe.lastIndex` tracking (lines 88–90)\n- [ ] Add type guard in `translate-caption.js` before accessing `msg.content[0].text` (line 56)\n- [ ] Replace `pip install yt-dlp` with `pipx install yt-dlp` in the Install yt-dlp step (line 36)\n- [ ] Add idempotency guard or documented limitation for re-runs with the same `episode_id`",
+      "createdAt": "2026-05-15T17:49:22Z",
+      "includesCreatedEdit": false,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/44#issuecomment-4461994792",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCfSsQQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| review | fix-pr | PR #44 | 4 / 40 | Dispatched |\n\nReason: review verdict is needs_rework; dispatching fix-pr\n\nTask for fix-pr:\nAddress only the latest review synthesis action items:\n- Move all `${{ inputs.youtube_url }}` and `${{ inputs.episode_id }}` uses into `env:` variables in all four `run:` steps of `agent-caption-update.yml` (lines 38–50, 52–64, 66–73, 75–89)\n- Fix `vtt-to-md.js` remainder calculation: replace `sentences.join(' ').length` offset with `sentenceRe.lastIndex` tracking (lines 88–90)\n- Add type guard in `translate-caption.js` before accessing `msg.content[0].text` (line 56)\n- Replace `pip install yt-dlp` with `pipx install yt-dlp` in the Install yt-dlp step (line 36)\n- Add idempotency guard or documented limitation for re-runs with the same `episode_id`\n\nConstraints: Ignore optional INFO notes, metadata-only polish, already-fixed findings, and human-judgment nits unless required by those action items.\n\n<!-- sepo-agent-handoff state:dispatched created:1778867386769 base64:aGFuZG9mZjphdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW86MjU5MzI0MTQ1ODY6cmV2aWV3OjQ0OmZpeF9wcjo0NDo0 -->",
+      "createdAt": "2026-05-15T17:49:47Z",
+      "includesCreatedEdit": true,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/44#issuecomment-4461997121",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCfUDkQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo pushed fixes for this PR.** Branch: `agent/implement-issue-43/claude-25932165592`. Requested by @sepo-agent.\n\n<!-- sepo-agent-fix-pr-status -->\n\n- **Security (command injection):** Moved all `${{ inputs.youtube_url }}` and `${{ inputs.episode_id }}` references into `env:` blocks across all five `run:` steps (Download, Convert, Translate, Create branch, Open PR); shell scripts now reference safe `$YOUTUBE_URL` / `$EPISODE_ID` env vars\n- **Bug fix (`vtt-to-md.js`):** Replaced `sentences.join(' ').length` remainder offset with `sentenceRe.lastIndex` tracking so trailing unpunctuated text is sliced correctly\n- **Bug fix (`translate-caption.js`):** Added type guard before `msg.content[0].text` — throws on unexpected block types instead of silently writing `undefined`\n- **Compatibility:** Changed `pip install yt-dlp` to `pipx install yt-dlp` to work on Ubuntu 24.04 (PEP 668)\n- **Idempotency:** `git checkout -b` → `git checkout -B` + `git push --force` so re-runs don't fail on existing branch; Open PR step checks for existing open PR via `gh pr list` and skips `gh pr create` if one already exists",
+      "createdAt": "2026-05-15T17:53:25Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/44#issuecomment-4462019473",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCfUMDQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| fix-pr | review | PR #44 | 5 / 40 | Dispatched |\n\nReason: PR fixes succeeded; dispatching review\n\n<!-- sepo-agent-handoff state:dispatched created:1778867624630 base64:aGFuZG9mZjphdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW86MjU5MzI3OTM3MDI6Zml4X3ByOjQ0OnJldmlldzo0NDo1 -->",
+      "createdAt": "2026-05-15T17:53:45Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/44#issuecomment-4462021645",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCfUvqg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "I now have all the context needed. No rubrics branch is configured (empty `ls-remote` output). This is review round 5, post fix-pr pass. Here is the rubrics review output:\n\n---\n\n## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| N/A | N/A | 0 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| — | — | not applicable | N/A | No rubrics configured for this repository (`agent/rubrics` branch is absent) |\n\n## Notes\n\n- No rubrics are active for this repo; rubric scoring is N/A. All findings below are informational, derived from the fix-pr pass applied in round 4.\n- All five action items from the round-3 review synthesis have been resolved: command injection fixed, `vtt-to-md.js` remainder offset fixed, `translate-caption.js` type guard added, `pip` → `pipx`, and idempotency guard in place.\n\n## Findings\n\n- **INFO:** All four `run:` steps that used `${{ inputs.* }}` inline have been migrated to `env:` variables (`YOUTUBE_URL`, `EPISODE_ID`) — command injection surface is closed.\n- **INFO:** `vtt-to-md.js` now tracks `sentenceRe.lastIndex` directly; the `fullText.slice(lastIndex)` remainder is correctly captured.\n- **INFO:** `translate-caption.js` guards `msg.content[0].type` before accessing `.text`; unexpected block types throw rather than silently write `\"undefined\"`.\n- **INFO:** `pipx install yt-dlp` replaces the PEP 668-violating `pip install` — workflow is compatible with `ubuntu-latest` (Ubuntu 24.04).\n- **INFO:** Idempotency: `git checkout -B` force-recreates the branch; `git push --force` succeeds on re-runs; `gh pr list` check prevents duplicate PR creation.\n- **INFO:** `episode_id` path traversal (e.g. `../../.env`) was flagged INFO in round 3 and remains unaddressed — acceptable given `workflow_dispatch`-only trigger with no external actors, but a one-line regex guard would close it completely.\n- **INFO:** `@anthropic-ai/sdk@0.39.0` ships legacy `node-fetch` transitive deps. Version ≥ 0.40.0 drops them. Not a correctness issue.\n\n## Final Rubric Verdict\n\nN/A",
+      "createdAt": "2026-05-15T17:55:17Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/44#issuecomment-4462030762",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCfW_jw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\n\nPR #44 delivers the automated caption pipeline described in issue #43: a `workflow_dispatch`-only GitHub Actions workflow (`agent-caption-update.yml`) that downloads YouTube EN auto-captions via yt-dlp, converts VTT to clean paragraph markdown, translates EN → ZH via Claude Haiku, commits both files under `content/captions/`, and opens a PR. Two new helper scripts (`vtt-to-md.js`, `translate-caption.js`) are added under `.agent/scripts/`. This is the second stage of a two-part caption plan — the first stage (PR #41) adds the `Transcript.tsx` component and the `content/captions/` directory.\n\n## Review\n\nRound-5 post-fix-pr review. All five BLOCKING/WARNING action items from the round-3 `NEEDS_REWORK` verdict are confirmed addressed in the current head. The remaining findings are INFO-level and appropriate for follow-up issues rather than blocking merge.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| No `stop_reason` guard in translate-caption.js | INFO | If the API returns `stop_reason: 'max_tokens'`, `block.text` is silently truncated and written to the output file; a one-liner guard would surface this as an error instead. |\n| `episode_id` path traversal still unvalidated | INFO | A value like `../../secrets/env` would write files outside `content/captions/`; low risk given `workflow_dispatch`-only trigger with no external actors, but a one-line regex guard closes it. |\n| No prompt caching in translate-caption.js | INFO | The fixed `SYSTEM_PROMPT` is not marked `cache_control: { type: 'ephemeral' }`; adding it would reduce cost and latency on multi-chunk episodes. |\n| `@anthropic-ai/sdk@0.39.0` ships legacy deps | INFO | Version 0.39.0 pulls in `node-fetch`, `abort-controller`, and `form-data-encoder`; SDK ≥ 0.40.0 drops these in favour of native `fetch`. Not a correctness issue. |\n\n## Progress\n\n- **Command injection (BLOCKING):** All five `run:` steps that used `${{ inputs.* }}` inline now assign inputs to `env:` variables (`YOUTUBE_URL`, `EPISODE_ID`) — surface fully closed.\n- **vtt-to-md.js remainder offset (WARNING):** `sentences.join(' ').length` replaced with `sentenceRe.lastIndex` tracking — slice is now correct.\n- **translate-caption.js type guard (WARNING):** `block.type !== 'text'` guard added; unexpected block types throw instead of silently writing `\"undefined\"`.\n- **pip install / PEP 668 (WARNING):** `pip install yt-dlp` → `pipx install yt-dlp` — compatible with Ubuntu 24.04.\n- **Idempotency (WARNING):** `git checkout -B` + `git push --force` + `gh pr list` check before `gh pr create` — re-runs no longer fail loudly on existing branch/PR.\n- **Inline review threads:** Three same-agent threads (command injection on `agent-caption-update.yml`, offset bug on `vtt-to-md.js`, type guard on `translate-caption.js`) resolved — all confirmed fixed in fix-pr pass.\n\n## Issue Details\n\n<details>\n<summary>No `stop_reason` guard in translate-caption.js</summary>\n\n**Cause:** The type guard correctly rejects unexpected block types, but `msg.stop_reason` is never checked. If the API truncates a chunk mid-sentence (`stop_reason: 'max_tokens'`), `block.text` contains partial output with no error thrown or logged.\n\n**Candidate solutions:**\n```js\nif (msg.stop_reason !== 'end_turn') throw new Error(`Unexpected stop reason: ${msg.stop_reason}`);\n```\nAdd this immediately after the type guard. For 800-word chunks with `max_tokens: 4096` the risk is low in practice, but the guard is one line.\n\n</details>\n\n<details>\n<summary>`episode_id` path traversal still unvalidated</summary>\n\n**Cause:** `EPISODE_ID` is now safely passed via `env:` (no command injection risk), but it is used directly as a path component (`content/captions/$EPISODE_ID.en.md`). A value like `../../.env` writes outside the intended directory.\n\n**Candidate solutions:**\n```bash\necho \"$EPISODE_ID\" | grep -qE '^[a-z0-9_-]+$' || { echo \"Invalid episode_id\" >&2; exit 1; }\n```\nAdd as the first line of any `run:` step that uses `$EPISODE_ID` as a path.\n\n**Comments:** Risk is limited to authorized users with write access (`workflow_dispatch`-only). Acceptable to defer to a follow-up.\n\n</details>\n\n<details>\n<summary>No prompt caching in translate-caption.js</summary>\n\n**Cause:** `SYSTEM_PROMPT` is a module-level constant used in every `anthropic.messages.create()` call, but the `system:` parameter is passed as a plain string with no `cache_control` field. The SDK supports `cache_control: { type: 'ephemeral' }` on the system prompt to cache it across per-chunk requests.\n\n**Candidate solutions:**\n```js\nsystem: [{ type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }],\n```\nReplace the current `system: SYSTEM_PROMPT` argument. Reduces cost and latency proportional to episode length.\n\n</details>\n\n<details>\n<summary>`@anthropic-ai/sdk@0.39.0` ships legacy deps</summary>\n\n**Cause:** SDK 0.39.0 depends on `node-fetch@^2.6.7`, `abort-controller`, and `form-data-encoder`, which are unnecessary on Node 22 (native `fetch` available). SDK ≥ 0.40.0 dropped these.\n\n**Candidate solutions:** Bump `@anthropic-ai/sdk` to `^0.40.0` in `.agent/package.json` and run `npm install`. No API changes required.\n\n</details>\n\n## Recommended Next Step\n\n`NO_AUTOMATED_ACTION`: No unresolved BLOCKING or WARNING findings remain; all INFO findings are optional optimizations or low-risk deferrals appropriate for follow-up issues.\n\n## Final Verdict\n\n`SHIP`\n\n## Action Items\n\n- [ ] (Optional) Add `stop_reason` guard in `translate-caption.js` after the type guard: `if (msg.stop_reason !== 'end_turn') throw new Error(...)`\n- [ ] (Optional) Add `episode_id` allowlist validation (`^[a-z0-9_-]+$`) to guard against path traversal\n- [ ] (Optional) Add `cache_control: { type: 'ephemeral' }` to the `system:` parameter in `translate-caption.js` to enable prompt caching across per-chunk calls\n- [ ] (Optional) Upgrade `@anthropic-ai/sdk` to `^0.40.0` to drop legacy `node-fetch` transitive deps",
+      "createdAt": "2026-05-15T18:01:28Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/44#issuecomment-4462067599",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-05-15T17:41:06Z",
+  "files": [
+    {
+      "path": ".agent/package-lock.json",
+      "additions": 421,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/package.json",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/scripts/translate-caption.js",
+      "additions": 81,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/scripts/vtt-to-md.js",
+      "additions": 108,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".github/workflows/agent-caption-update.yml",
+      "additions": 122,
+      "deletions": 0,
+      "changeType": "ADDED"
+    }
+  ],
+  "headRefName": "agent/implement-issue-43/claude-25932165592",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": null,
+  "number": 44,
+  "reviewDecision": "",
+  "reviews": [
+    {
+      "id": "PRR_kwDOQ106188AAAABAE88Vg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-05-15T17:48:11Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "eb36c6acf31dc86c29c26bdc83c874df1549808d"
+      }
+    },
+    {
+      "id": "PRR_kwDOQ106188AAAABAE8_YA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-05-15T17:48:20Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "eb36c6acf31dc86c29c26bdc83c874df1549808d"
+      }
+    },
+    {
+      "id": "PRR_kwDOQ106188AAAABAE9CEA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-05-15T17:48:27Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "eb36c6acf31dc86c29c26bdc83c874df1549808d"
+      }
+    }
+  ],
+  "state": "OPEN",
+  "title": "feat: add caption download and translation workflow (#43)",
+  "updatedAt": "2026-05-15T18:01:29Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/44"
+}

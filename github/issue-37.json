@@ -132,6 +132,79 @@
       "reactionGroups": [],
       "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/37#issuecomment-4457578845",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCfMLoQ",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /orchestrate -- the first issue is finished; let's work on the next one and stack on top. ",
+      "createdAt": "2026-05-15T17:32:54Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/37#issuecomment-4461890465",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCfNSiw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is starting a focused child task for this orchestration.\n\n| Child task | Focus | Parent issue | Status |\n| --- | --- | --- | --- |\n| #43 | caption-workflow | #37 | Running |\n\nI'll report back here when the child task finishes.\n\n<!-- sepo-sub-orchestrator-child parent:37 stage:caption-workflow child:43 -->",
+      "createdAt": "2026-05-15T17:35:46Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/37#issuecomment-4461908619",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCfXK4A",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Child task completed.\n\n| Child task | PR | Outcome | Parent round | Next step |\n| --- | --- | --- | --- | --- |\n| #43 | #44 | Ready to ship | 2 / 40 | Resuming parent orchestration |\n\nSummary: review verdict is SHIP\n\n<!-- sepo-sub-orchestrator-report child:43 resume:dispatched -->",
+      "createdAt": "2026-05-15T18:01:56Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/37#issuecomment-4462070496",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCfXwcA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo orchestration stopped after `orchestrate` concluded `done`.\n\n- Source action: `orchestrate`\n- Source conclusion: `done`\n- Target: `issue #37`\n- Round: `2/40`\n- Reason: agent planner stop: Both planned child stages (caption-infra #40 → PR #41, caption-workflow #43 → PR #44) have finished with SHIP verdicts. The two-stacked-PR plan from issue #37 is fully implemented and reviewed. No further automated action is warranted; merging the stacked PRs is a human step.\n- Source run ID: `25932973514`\n\nNo follow-up workflow was dispatched. Inspect the source action status comment and workflow logs before retrying or continuing manually.\n\n<!-- sepo-agent-orchestrate-stop -->",
+      "createdAt": "2026-05-15T18:03:21Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/37#issuecomment-4462080112",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-05-13T21:11:44Z",
@@ -146,6 +219,6 @@
   "number": 37,
   "state": "OPEN",
   "title": "Should we include captions in this repo or a separate one?",
-  "updatedAt": "2026-05-15T06:39:22Z",
+  "updatedAt": "2026-05-15T18:03:21Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/37"
 }

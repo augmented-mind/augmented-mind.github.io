@@ -76,8 +76,8 @@
       "body": "**Sepo pushed fixes for this PR.** Branch: `agent/implement-issue-40/claude-25903281071`. Requested by @sepo-agent.\n\n<!-- sepo-agent-fix-pr-status -->\n\n- Fixed `renderContent` split: `.split(/\\n\\n+/)` → `.split(/\\n+/)` (`Transcript.tsx` line 29) so single-newline-separated lines from `hast-util-to-string` are correctly split into paragraphs\n- Fixed `renderContent` escaping: `.map((p) => <p>{p}</p>)` → `.map((p) => <p dangerouslySetInnerHTML={{ __html: p }} />)` (`Transcript.tsx` line 32) to avoid double HTML-entity encoding of pre-escaped `file.data.text`\n- Added ARIA tab semantics: `role=\"tablist\"` on `.transcript-tab-bar`, `role=\"tab\"` + `aria-selected` + `aria-controls` on each button, `role=\"tabpanel\"` + `id` on each panel, and `aria-selected` toggle in `afterDOMLoaded` script\n- Guarded caption files from site index: added `\"captions\"` to `ignorePatterns` in `quartz.config.ts`",
       "createdAt": "2026-05-15T06:28:02Z",
       "includesCreatedEdit": false,
-      "isMinimized": false,
-      "minimizedReason": "",
+      "isMinimized": true,
+      "minimizedReason": "outdated",
       "reactionGroups": [],
       "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/41#issuecomment-4457509416",
       "viewerDidAuthor": true
@@ -91,8 +91,8 @@
       "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| fix-pr | review | PR #41 | 5 / 5 | Dispatched |\n\nReason: PR fixes succeeded; dispatching review\n\n<!-- sepo-agent-handoff state:dispatched created:1778826498121 base64:aGFuZG9mZjphdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW86MjU5MDM4MzkyMTg6Zml4X3ByOjQxOnJldmlldzo0MTo1 -->",
       "createdAt": "2026-05-15T06:28:18Z",
       "includesCreatedEdit": true,
-      "isMinimized": false,
-      "minimizedReason": "",
+      "isMinimized": true,
+      "minimizedReason": "outdated",
       "reactionGroups": [],
       "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/41#issuecomment-4457511339",
       "viewerDidAuthor": true
@@ -106,8 +106,8 @@
       "body": "I have everything I need. `RUBRICS_AVAILABLE=false` — no rubrics are configured. This is round 5 (post-fix-pr re-review). I'll confirm all prior blocking/warning items were resolved and report N/A.\n\n## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| N/A | N/A | 0 |\n\nNo active rubrics are configured for this repository (`RUBRICS_AVAILABLE=false`, `RUBRICS_DIR` unset). Nothing to score against.\n\n---\n\n## Notes\n\n- This is the round 5 re-review after `fix-pr` applied all four action items from the round 3 synthesis. All BLOCKING and WARNING findings have been resolved in the current diff.\n- No rubric-specific follow-up needed. The two INFO observations from round 3 (dead-code dark-mode override and hand-rolled `pathToSlug`) remain but were correctly left as non-actionable; they do not warrant a further fix-pr cycle.\n\n---\n\n## Findings\n\n- **INFO (resolved — BLOCKING):** `renderContent` split is now `.split(/\\n+/)` — single-newline paragraphs from `hast-util-to-string` will split correctly.\n- **INFO (resolved — BLOCKING):** `renderContent` now uses `dangerouslySetInnerHTML={{ __html: p }}` — double HTML-entity escaping eliminated.\n- **INFO (resolved — WARNING):** Full ARIA tab semantics applied: `role=\"tablist\"` on `.transcript-tab-bar`, `role=\"tab\"` + `aria-selected` + `aria-controls` on each button, `role=\"tabpanel\"` + matching `id` on each panel, and `aria-selected` toggle in `afterDOMLoaded` script.\n- **INFO (resolved — WARNING):** `\"captions\"` added to `ignorePatterns` in `quartz.config.ts` — caption files will not appear in site search, sitemap, or RSS.\n- **INFO:** `:root[saved-theme=\"dark\"] .transcript { border-color: var(--lightgray) }` is still a no-op (same value as the default rule). Left correctly as cosmetic debt; does not affect correctness.\n- **INFO:** `pathToSlug` is still hand-rolled. Low urgency; paths are machine-generated and the logic is correct for the `/captions/ep<n>.<lang>.md` pattern.\n\n---\n\n## Final Rubric Verdict\n\nN/A",
       "createdAt": "2026-05-15T06:29:38Z",
       "includesCreatedEdit": false,
-      "isMinimized": false,
-      "minimizedReason": "",
+      "isMinimized": true,
+      "minimizedReason": "outdated",
       "reactionGroups": [],
       "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/41#issuecomment-4457518841",
       "viewerDidAuthor": true
@@ -121,10 +121,188 @@
       "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\n\nPR #41 adds the first half of a bilingual caption system for the Augmented Mind podcast site (closes #40). It introduces `Transcript.tsx`, a collapsible `<details>` component that reads `captionEn`/`captionZh` frontmatter paths at Quartz build time, resolves them against `allFiles`, and renders a tab-switched EN/ZH UI. The component is registered in `quartz.layout.ts` behind the existing `isEpisodePage` guard, exported cleanly from `index.ts`, and a `content/captions/.gitkeep` placeholder is added for the forthcoming caption-workflow PR. This is the round 5 re-review after a fix-pr pass addressed four prior action items.\n\n## Review\n\nThree of four round-4 action items were correctly resolved, but the fix for the index-pollution warning introduced a new blocking defect: adding `\"captions\"` to `ignorePatterns` prevents caption files from ever appearing in `allFiles`, making the `Transcript` component permanently render nothing. The fix is a one-line revert.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| `ignorePatterns: [\"captions\"]` silently breaks Transcript | BLOCKING | Caption files excluded at the glob stage never reach `allFiles`; `findText` always returns `null` and the component renders nothing for any episode with caption frontmatter set. |\n| Incomplete ARIA tab pattern | INFO | `tabindex=\"0\"` on each `role=\"tabpanel\"` and `aria-labelledby` pointing to the controlling tab `id` are missing per WAI-ARIA APG; usable but short of the full pattern. |\n| Dead-code dark-mode CSS override | INFO | `:root[saved-theme=\"dark\"] .transcript { border-color: var(--lightgray) }` duplicates the default rule value; CSS custom properties already resolve to palette values automatically. |\n| Hand-rolled `pathToSlug` | INFO | `path.replace(/^\\//, \"\").replace(/\\.md$/, \"\")` duplicates Quartz's `simplifySlug(slugifyFilePath(path))`; low urgency since paths are machine-generated and the logic is correct. |\n\n## Progress\n\n- **Fixed (was BLOCKING):** `renderContent` split changed from `.split(/\\n\\n+/)` to `.split(/\\n+/)` — correctly handles single-newline `hast-util-to-string` output.\n- **Fixed (was BLOCKING):** `renderContent` escaping changed from `<p>{p}</p>` to `dangerouslySetInnerHTML={{ __html: p }}` — eliminates double HTML-entity encoding.\n- **Fixed (was WARNING):** Full ARIA tab semantics applied: `role=\"tablist\"` on `.transcript-tab-bar`, `role=\"tab\"` + `aria-selected` + `aria-controls` on buttons, `role=\"tabpanel\"` + matching `id` on panels, `aria-selected` toggled in `afterDOMLoaded` script.\n- **Reviewer disagreement (resolved in synthesis):** The rubrics reviewer marked all four round-4 action items as resolved including the `ignorePatterns` addition. The claude reviewer correctly identified this as a new BLOCKING — `ignorePatterns` is applied at the glob stage, before `allFiles` is assembled, so caption files excluded here are invisible to `findText`. The claude reviewer's analysis is correct.\n- Resolved prior inline review thread on `Transcript.tsx` (split/escaping bugs — now fixed).\n- Posted new inline comment on [`quartz.config.ts` line 20](https://github.com/augmented-mind/augmented-mind.github.io/pull/41#discussion_r3246345583) flagging the BLOCKING `ignorePatterns` issue.\n\n## Issue Details\n\n<details>\n<summary><code>ignorePatterns: [\"captions\"]</code> silently breaks Transcript</summary>\n\n**Cause:** `ignorePatterns` is consumed by `quartz/build.ts:74`'s glob stage — files matching the pattern are never read, transformed, or included in `allFiles`. `Transcript.tsx`'s `findText` searches `allFiles` for a matching slug and returns `null` when not found. With caption files excluded, `findText` always returns `null`, the `if (!enText && !zhText) return null` guard always fires, and the component renders nothing silently regardless of frontmatter. `draft: true` has the same architectural incompatibility: `RemoveDrafts` runs before the emitter assembles `allFiles` (`contentPage.tsx:77`).\n\n**Candidate solutions:**\n- **Correct fix (minimal):** Remove `\"captions\"` from `ignorePatterns` in `quartz.config.ts`. The directory currently contains only `.gitkeep` — no indexable content — so there is no actual index pollution to guard against yet.\n- **Future-proof fix (caption-workflow PR):** When real caption files land, use a `ContentIndex`-level path filter (if available) or a custom Quartz filter plugin that passes caption files to `allFiles` for component lookups while suppressing their emission as standalone pages.\n\n**Comments:** The round-4 synthesis listed index exclusion as a WARNING that \"can be addressed in the caption-workflow PR.\" The fix-pr agent addressed it preemptively but chose an approach that is architecturally incompatible with `allFiles`-based cross-file reads. The correct action was to leave `ignorePatterns` unchanged.\n\n</details>\n\n## Recommended Next Step\n\n`FIX_PR` — the blocking issue is a single-line revert in `quartz.config.ts` (`\"captions\"` removed from `ignorePatterns`); it is concrete, safe to automate, and unambiguous.\n\n## Final Verdict\n\n**NEEDS_REWORK**\n\n## Action Items\n\n- [ ] Remove `\"captions\"` from `ignorePatterns` in `quartz.config.ts` line 20 — revert the addition introduced by the fix-pr pass so caption files are visible to `allFiles` and `Transcript.tsx` can render them",
       "createdAt": "2026-05-15T06:36:35Z",
       "includesCreatedEdit": false,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/41#issuecomment-4457555571",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCe255w",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /orchestrate ",
+      "createdAt": "2026-05-15T16:35:43Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/41#issuecomment-4461541863",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCe3t-w",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| orchestrate | fix-pr | PR #41 | 2 / 40 | Dispatched |\n\nReason: agent planner selected fix-pr: Round 5 review found a new BLOCKING defect introduced by the fix-pr pass: adding 'captions' to ignorePatterns in quartz.config.ts prevents caption files from ever reaching allFiles, making Transcript.tsx silently render nothing. The fix is a confirmed single-line revert. New orchestration chain triggered by lolipopshock to continue.\n\nTask for fix-pr:\nApply exactly one fix to quartz.config.ts line 20: remove \"captions\" from the ignorePatterns array so it reads [\"private\", \"templates\", \".obsidian\"] — reverting the addition made by the previous fix-pr pass. This restores caption file visibility to allFiles, which Transcript.tsx depends on for cross-file lookups via findText. Do NOT add draft: true frontmatter or any other index exclusion approach; the correct long-term solution (ContentIndex-level filter or custom plugin) is deferred to the caption-workflow PR. Do not touch Transcript.tsx, quartz.layout.ts, index.ts, or content/captions/.gitkeep — those are correct. Do not make any unrelated changes.\n\n<!-- sepo-agent-handoff state:dispatched created:1778863075672 base64:aGFuZG9mZjphdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW86MjU5Mjk0MDI0NTA6b3JjaGVzdHJhdGU6NDE6Zml4X3ByOjQxOjI -->",
+      "createdAt": "2026-05-15T16:37:56Z",
+      "includesCreatedEdit": true,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/41#issuecomment-4461555195",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCe4Fiw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo pushed fixes for this PR.** Branch: `agent/implement-issue-40/claude-25903281071`. Requested by @sepo-agent.\n\n<!-- sepo-agent-fix-pr-status -->\n\n- Reverted `\"captions\"` from `ignorePatterns` in `quartz.config.ts` — adding it excluded caption files from Quartz's build pipeline entirely, breaking `allFiles` lookup that `Transcript.tsx`'s `findText` depends on\n- Index/search exclusion for caption files is deferred to the caption-workflow PR (ContentIndex-level filter or `draft: true` frontmatter)",
+      "createdAt": "2026-05-15T16:39:00Z",
+      "includesCreatedEdit": false,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/41#issuecomment-4461561227",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCe4sjA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| fix-pr | review | PR #41 | 3 / 40 | Dispatched |\n\nReason: agent planner selected review: fix-pr succeeded: reverted 'captions' from ignorePatterns in quartz.config.ts, restoring caption file visibility to allFiles. This was the sole BLOCKING item from the round-5 synthesis. Dispatching review to confirm the revert is correct and no new issues were introduced.\n\n<!-- sepo-agent-handoff state:dispatched created:1778863236681 base64:aGFuZG9mZjphdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW86MjU5Mjk1MDE1MjU6Zml4X3ByOjQxOnJldmlldzo0MToz -->",
+      "createdAt": "2026-05-15T16:40:37Z",
+      "includesCreatedEdit": true,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/41#issuecomment-4461571212",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCe5udw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Now I have the complete picture. Let me compile the review.\n\n**PR State Summary:**\n- Commit 1 (`ee36eea`): Initial Transcript.tsx implementation\n- Commit 2 (`2c77295`): Fixed split/escaping/ARIA, added `\"captions\"` to `ignorePatterns` (introduced new BLOCKING)\n- Commit 3 (`84d935d`): Reverted `ignorePatterns` — caption files are now visible to `allFiles` again\n\nCurrent branch HEAD is clean: no BLOCKING or WARNING issues remain. No rubrics are configured (`RUBRICS_AVAILABLE=false` per prior rounds).\n\n---\n\n## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| N/A | N/A | 0 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| — | (none configured) | not applicable | N/A | No rubric definitions found; `RUBRICS_AVAILABLE=false` across all prior rounds |\n\n## Notes\n\n- No rubrics are configured for this repository; nothing to score against. To enable rubric scoring on future PRs, initialize the rubrics branch via the rubrics CLI or `agent-rubrics-review` workflow.\n- This is a post-fix re-review after three commit rounds on the branch. All prior BLOCKING and WARNING findings are resolved in the current HEAD (`84d935d`).\n\n## Findings\n\n- **INFO (resolved — BLOCKING, round 3):** `renderContent` now uses `.split(/\\n+/)` — correctly handles single-newline `hast-util-to-string` output.\n- **INFO (resolved — BLOCKING, round 3):** `renderContent` uses `dangerouslySetInnerHTML={{ __html: p }}` — double HTML-entity escaping eliminated.\n- **INFO (resolved — WARNING, round 3):** Full ARIA tab semantics applied: `role=\"tablist\"` on `.transcript-tab-bar`; `role=\"tab\"` + `aria-selected` + `aria-controls` on buttons; `role=\"tabpanel\"` + matching `id` on panels; `aria-selected` toggled in `afterDOMLoaded` script.\n- **INFO (resolved — BLOCKING, round 5):** `\"captions\"` was removed from `ignorePatterns` via commit `84d935d` — caption files will be visible to `allFiles` and `Transcript.tsx` will render them correctly.\n- **INFO:** `:root[saved-theme=\"dark\"] .transcript { border-color: var(--lightgray) }` is still a no-op (same value as default rule). Cosmetic debt only; does not affect correctness or dark-mode rendering.\n- **INFO:** `pathToSlug` is still hand-rolled (`replace(/^\\//, \"\").replace(/\\.md$/, \"\")`). Low urgency — paths are machine-generated and the logic is correct for the `/captions/ep<n>.<lang>.md` pattern.\n- **INFO:** Caption files not yet guarded from site index/search/RSS (no `draft: true` frontmatter or path exclusion). The `.gitkeep` placeholder adds no indexable content; this convention must be enforced in the caption-workflow PR before real caption files land.\n- **INFO:** `tabindex=\"0\"` on `role=\"tabpanel\"` elements and `aria-labelledby` pointing to controlling tab `id`s are absent per WAI-ARIA APG full pattern. The current implementation is functional and screen-reader navigable, but short of the complete tab widget pattern.\n\n## Final Rubric Verdict\n\nN/A",
+      "createdAt": "2026-05-15T16:43:25Z",
+      "includesCreatedEdit": false,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/41#issuecomment-4461588087",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCe79Tg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\n\n- PR #41 adds `quartz/components/Transcript.tsx`: a collapsible `<details>` block that renders episode captions with an EN/ZH language tab toggle.\n- Caption files are resolved at build time via `allFiles` lookup using `captionEn`/`captionZh` frontmatter paths — no runtime fetch needed.\n- The component opts-in gracefully: it renders nothing when neither frontmatter field is set and shows the tab bar only when both languages exist.\n- This is the infrastructure half of the caption system; the caption-workflow PR (GH Actions download + translate) is still pending.\n- The PR went through three commits: initial implementation → fix pass (addressed two prior BLOCKINGs) → revert of an `ignorePatterns` addition that was itself a BLOCKING finding.\n\n## Review\n\nBoth prior BLOCKING findings are fully resolved in the current HEAD. Two WARNING-level issues remain in the `afterDOMLoaded` inline script: missing SPA cleanup registration and an incomplete ARIA keyboard navigation pattern.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Missing `window.addCleanup` in `afterDOMLoaded` | WARNING | Tab click listeners are not registered with the Quartz SPA cleanup contract, breaking the established pattern and leaving abandoned listeners on navigation. |\n| ARIA tab widget keyboard-inaccessible | WARNING | `role=\"tablist\"` / `role=\"tab\"` are declared correctly, but `tabindex` management and `ArrowRight`/`ArrowLeft` key handling are absent — keyboard-only users cannot switch transcript languages. |\n| Caption files unguarded from index/search/RSS | INFO | No `draft: true` or path-scoped exclusion on caption files; must be enforced in the caption-workflow PR before real caption files land. |\n| Hardcoded panel IDs | INFO | `id=\"panel-en\"` / `id=\"panel-zh\"` would collide if more than one `Transcript` were ever rendered per page. Not a concern today. |\n| Dark-mode CSS rule is a no-op | INFO | `:root[saved-theme=\"dark\"] .transcript { border-color: var(--lightgray) }` duplicates the default value; cosmetic debt only. |\n\n## Progress\n\n- **RESOLVED (BLOCKING):** `renderContent` split bug (`/\\n\\n+/` → `/\\n+/`) and double HTML-entity escaping fixed in commit `2c77295` via `dangerouslySetInnerHTML`.\n- **RESOLVED (BLOCKING):** `ignorePatterns: [\"captions\"]` addition (which silently broke `allFiles` lookup) reverted in commit `84d935d`.\n- **RESOLVED (WARNING, prior round):** Full ARIA tab semantics applied — `role=\"tablist\"`, `role=\"tab\"`, `aria-selected`, `aria-controls`, `role=\"tabpanel\"`.\n- **Thread resolved:** Stale `quartz.config.ts` thread (`PRRT_kwDOQ106186CRtIw`) on the `ignorePatterns` finding was unresolved in the UI despite the revert; resolved now.\n\n## Issue Details\n\n<details>\n<summary>Missing `window.addCleanup` in `afterDOMLoaded`</summary>\n\n**Cause:** The `afterDOMLoaded` script attaches click listeners to each `.transcript-tab` element inside an arrow function passed to `tab.addEventListener`, but never calls `window.addCleanup`. Every other Quartz component that registers DOM listeners follows the SPA cleanup contract: `spa.inline.ts` (lines 84–86) calls all registered cleanup functions before replacing the DOM on navigation.\n\n**Candidate solutions:**\n```js\n// Hoist handler so it can be referenced in cleanup\nconst handler = () => {\n  // existing click body\n}\ntab.addEventListener(\"click\", handler)\nwindow.addCleanup(() => tab.removeEventListener(\"click\", handler))\n```\n\n**Comments:** In practice, listeners on replaced DOM nodes are GC'd anyway — this is not a functional memory leak today, but it breaks the codebase contract and will mislead contributors who copy the pattern.\n\n</details>\n\n<details>\n<summary>ARIA tab widget keyboard-inaccessible</summary>\n\n**Cause:** The [WAI-ARIA Tabs pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/) requires `tabindex=\"0\"` on the active tab and `tabindex=\"-1\"` on inactive tabs, plus `ArrowRight`/`ArrowLeft` key events on the tab bar to move focus. Without this, keyboard-only users can reach the tab bar via Tab but cannot switch languages without a mouse — affecting transcript comprehension.\n\n**Candidate solutions:**\n\nIn JSX, add initial `tabIndex` props:\n```tsx\n<button role=\"tab\" aria-selected=\"true\" tabIndex={0} ...>EN</button>\n<button role=\"tab\" aria-selected=\"false\" tabIndex={-1} ...>ZH</button>\n```\n\nIn `afterDOMLoaded`, add arrow-key handler (and toggle `tabindex` in the click handler):\n```js\nconst keyHandler = (e) => {\n  const tabs = [...bar.querySelectorAll(\".transcript-tab\")]\n  const idx = tabs.indexOf(document.activeElement)\n  if (e.key === \"ArrowRight\" && idx < tabs.length - 1) tabs[idx + 1].focus()\n  if (e.key === \"ArrowLeft\" && idx > 0) tabs[idx - 1].focus()\n}\nbar.addEventListener(\"keydown\", keyHandler)\nwindow.addCleanup(() => bar.removeEventListener(\"keydown\", keyHandler))\n```\n\n</details>\n\n<details>\n<summary>Caption files unguarded from index/search/RSS</summary>\n\n**Cause:** Caption markdown files have no `draft: true` frontmatter and are not excluded from `ContentIndex` configuration. The current `.gitkeep` placeholder adds no indexable content, but real caption files (populated by the caption-workflow PR) will appear in search results, sitemaps, and RSS feeds unless a guard is put in place.\n\n**Candidate solutions:** Add a path-scoped filter in `ContentIndex` configuration in the caption-workflow PR, or attach `draft: true` to all caption file templates.\n\n**Comments:** This is explicitly a future-PR concern and the PR description already calls it out. No action needed here.\n\n</details>\n\n## Progress — Inline Actions\n\n- **Resolved thread** `PRRT_kwDOQ106186CRtIw` (`quartz.config.ts`, `ignorePatterns`) — concern was addressed by the revert in commit `84d935d`; thread was viewer-resolvable and authored entirely by the same agent account.\n- **Posted inline comment** at [`Transcript.tsx:163`](https://github.com/augmented-mind/augmented-mind.github.io/pull/41#discussion_r3249666340) — `window.addCleanup` missing from tab click listener registration.\n- **Posted inline comment** at [`Transcript.tsx:42`](https://github.com/augmented-mind/augmented-mind.github.io/pull/41#discussion_r3249667461) — ARIA keyboard navigation (`tabindex` management, `ArrowRight`/`ArrowLeft`) absent from tab widget.\n\n## Recommended Next Step\n\n`FIX_PR` — both WARNING findings are concrete, mechanical, and localized to `Transcript.tsx`'s `afterDOMLoaded` block and JSX tab buttons; safe for an automated fix pass.\n\n## Final Verdict\n\n**MINOR_ISSUES**\n\n## Action Items\n\n- [ ] Add `window.addCleanup(() => tab.removeEventListener(\"click\", handler))` for each tab click listener in `Transcript.afterDOMLoaded` ([`Transcript.tsx:163`](https://github.com/augmented-mind/augmented-mind.github.io/pull/41#discussion_r3249666340))\n- [ ] Add `tabIndex={0}` / `tabIndex={-1}` to active/inactive tab buttons in JSX and toggle `tabindex` in the click handler ([`Transcript.tsx:42`](https://github.com/augmented-mind/augmented-mind.github.io/pull/41#discussion_r3249667461))\n- [ ] Add `ArrowRight`/`ArrowLeft` keyboard handler on the tab bar in `afterDOMLoaded`, registered with `window.addCleanup` ([`Transcript.tsx:42`](https://github.com/augmented-mind/augmented-mind.github.io/pull/41#discussion_r3249667461))",
+      "createdAt": "2026-05-15T16:49:33Z",
+      "includesCreatedEdit": false,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/41#issuecomment-4461624654",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCe8Vag",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| review | fix-pr | PR #41 | 4 / 40 | Dispatched |\n\nReason: agent planner selected fix-pr: Review concluded minor_issues with three concrete, automatable code changes in Transcript.tsx: event listener cleanup, tabIndex management, and ArrowLeft/ArrowRight keyboard navigation. All are safe branch changes well within the round budget.\n\nTask for fix-pr:\nAddress only these three findings in Transcript.tsx:\n1. In `afterDOMLoaded`, for each tab click listener, register cleanup: `window.addCleanup(() => tab.removeEventListener('click', handler))` (see Transcript.tsx:163)\n2. In the JSX tab button render, add `tabIndex={0}` to the active tab and `tabIndex={-1}` to inactive tabs; in the click handler, toggle `tabindex` accordingly (see Transcript.tsx:42)\n3. In `afterDOMLoaded`, add an `ArrowRight`/`ArrowLeft` keydown handler on the tab bar container, registered via `window.addCleanup` (see Transcript.tsx:42)\n\nConstraints: Do not touch unrelated code. Ignore INFO notes, metadata-only changes, already-fixed findings, and style nits.\n\n<!-- sepo-agent-handoff state:dispatched created:1778863836058 base64:aGFuZG9mZjphdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW86MjU5Mjk2MjgxMDE6cmV2aWV3OjQxOmZpeF9wcjo0MTo0 -->",
+      "createdAt": "2026-05-15T16:50:36Z",
+      "includesCreatedEdit": true,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/41#issuecomment-4461630826",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCe829A",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo pushed fixes for this PR.** Branch: `agent/implement-issue-40/claude-25903281071`. Requested by @sepo-agent.\n\n<!-- sepo-agent-fix-pr-status -->\n\n- Added `tabIndex={0}` / `tabIndex={-1}` to active/inactive tab buttons in JSX; click handler now also toggles `tabindex` attribute to keep roving focus in sync\n- Extracted click handler to named `handler` variable and registered `window.addCleanup(() => tab.removeEventListener('click', handler))` for each tab\n- Added `ArrowRight`/`ArrowLeft` keydown handler on each tab bar with `window.addCleanup` teardown; wraps around between tabs and shifts focus to the activated tab",
+      "createdAt": "2026-05-15T16:52:03Z",
+      "includesCreatedEdit": false,
       "isMinimized": false,
       "minimizedReason": "",
       "reactionGroups": [],
-      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/41#issuecomment-4457555571",
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/41#issuecomment-4461639412",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCe9gKg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| fix-pr | review | PR #41 | 5 / 40 | Dispatched |\n\nReason: agent planner selected review: fix-pr succeeded: reverted 'captions' from ignorePatterns in quartz.config.ts, which was a blocking defect preventing caption files from reaching allFiles. Review should confirm the revert is correct, the prior fixes (split/escaping) are intact, and the PR is ready to merge.\n\n<!-- sepo-agent-handoff state:dispatched created:1778864028570 base64:aGFuZG9mZjphdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW86MjU5MzAwODU1MjM6Zml4X3ByOjQxOnJldmlldzo0MTo1 -->",
+      "createdAt": "2026-05-15T16:53:49Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/41#issuecomment-4461649962",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCe-MPQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "I have sufficient context. No rubrics are configured (`RUBRICS_AVAILABLE=false`), consistent with all prior reviews on this repo. I'll provide N/A with informational findings from the diff.\n\n## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| N/A | N/A | 0 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| — | — | not applicable | N/A | No rubrics are configured on `agent/rubrics` for this repository |\n\n## Notes\n\n- No active rubrics are configured for this repository (`RUBRICS_DIR` is empty, `RUBRICS_AVAILABLE=false`); this has been the consistent state across all prior reviews (PR #32, PR #41 rounds 3–5).\n- The implementation is substantively complete: `Transcript.tsx` renders a collapsible EN/ZH tab toggle, wires into `quartz.layout.ts` via `ConditionalRender`, exports cleanly from `index.ts`, and gracefully no-ops when neither `captionEn` nor `captionZh` frontmatter fields are set.\n- No rubric-specific follow-up needed.\n\n## Findings\n\n- **INFO:** `dangerouslySetInnerHTML={{ __html: p }}` in `renderContent` renders paragraph text as raw HTML. Caption files are Quartz-processed markdown (trusted internal content), so this is low-risk in practice — but worth noting if the caption pipeline ever accepts external input.\n- **INFO:** `id=\"panel-en\"` / `id=\"panel-zh\"` are static. Safe for current use (one Transcript per episode page), but would collide if the component were ever rendered more than once per page.\n- **INFO:** `window.addCleanup` in `afterDOMLoaded` is a Quartz SPA lifecycle API — correct usage pattern consistent with other components in this codebase.\n\n## Final Rubric Verdict\n\nN/A",
+      "createdAt": "2026-05-15T16:55:29Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/41#issuecomment-4461661245",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCe_2Mw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\nBoth threads resolved. Now producing the unified synthesis.\n\n---\n\n## Summary of PR/Issue\n\nPR #41 adds build-time transcript support for the podcast site: a new `Transcript.tsx` Quartz component that reads caption markdown files pointed to by `captionEn`/`captionZh` frontmatter fields via `allFiles` lookup, and renders a collapsible `<details>` block with an optional EN/ZH language tab toggle. The design is static-build-native (no runtime fetch, no new plugin), fully opt-in, and gracefully no-ops when neither frontmatter field is set. Caption files are expected to be populated by the upcoming caption-workflow PR (issue #37). This is round 3 of the PR; two prior BLOCKING and two prior WARNING findings have all been resolved across the iteration history.\n\n## Review\n\nAll prior BLOCKING and WARNING issues are confirmed fixed in the current head commit (`82cf46f619d`). The four remaining findings are INFO-level polish that can land in a follow-up without blocking merge.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| `pathToSlug` vs. `slugifyFilePath` divergence | INFO | Custom regex strips only leading `/` and `.md`; caption files with spaces, `&`, or `%` in the name will silently return `null` from `findText`. Low probability with the established `ep01.en.md` convention. |\n| No-op dark-mode CSS override | INFO | `:root[saved-theme=\"dark\"] .transcript { border-color: var(--lightgray); }` repeats the same variable already used in the base rule — has no visual effect. |\n| Missing `aria-labelledby` on tabpanels | INFO | WAI-ARIA Tabs pattern recommends each `role=\"tabpanel\"` be labelled by its tab via `aria-labelledby`; tab `<button>` elements have no `id`. The higher-priority requirements (`tabIndex`, arrow-key navigation, `window.addCleanup`) are correctly implemented. |\n| No `max-height` on `.transcript-body` | INFO | Long episode captions will expand the page without bound. A `max-height` + `overflow-y: auto` on `.transcript-body` would constrain the block. |\n| Static panel IDs (`panel-en` / `panel-zh`) | INFO | IDs are document-unique only when one Transcript is rendered per page — safe for current use, brittle if the component is ever reused on the same page. |\n\n## Progress\n\n- **BLOCKING resolved (round 2):** `renderContent` split pattern (`\\n\\n+` → `\\n+`) and double HTML-entity escaping (added `dangerouslySetInnerHTML`) — thread `PRRT_kwDOQ106186CRlaY` already resolved.\n- **BLOCKING resolved (round 2):** `ignorePatterns: [\"captions\"]` silently voided `findText`; `\"captions\"` removed — thread `PRRT_kwDOQ106186CRtIw` already resolved.\n- **WARNING resolved (round 3):** Tab click listeners now properly use hoisted handlers and `window.addCleanup` — thread `PRRT_kwDOQ106186Ca9tM` resolved in this synthesis pass.\n- **WARNING resolved (round 3):** ARIA keyboard navigation added (`tabIndex={0}`/`tabIndex={-1}` in JSX, `ArrowLeft`/`ArrowRight` in `afterDOMLoaded`, `window.addCleanup` on keyHandler) — thread `PRRT_kwDOQ106186Ca953` resolved in this synthesis pass.\n- No rubrics are configured on this repository; rubrics reviewer provided supplementary observations only.\n\n## Issue Details\n\n<details>\n<summary><code>pathToSlug</code> vs. <code>slugifyFilePath</code> divergence</summary>\n\n**Cause:** `pathToSlug` in `Transcript.tsx` strips only the leading `/` and `.md` suffix. Quartz's `slugifyFilePath` (`path.ts:72`) additionally normalises spaces → `-`, `&` → `-and-`, `%` → `-percent`. If the slug stored in `allFiles` for a caption file was derived via `slugifyFilePath`, it will not match the raw-path-derived key and `findText` will silently return `null`.\n\n**Candidate solutions:** Replace the custom regex with a call to `slugifyFilePath` imported from `quartz/util/path.ts`, matching exactly how Quartz derives slugs at ingest time.\n\n**Comments:** Low real-world risk with the established `ep01.en.md` naming convention, but a one-line fix closes the gap entirely.\n\n</details>\n\n<details>\n<summary>No-op dark-mode CSS override</summary>\n\n**Cause:** The base `.transcript` rule sets `border-color: var(--lightgray)`. The dark-mode override repeats the same value, so toggling the theme has no effect on that property.\n\n**Candidate solutions:** Remove the override entirely, or replace with a contrasting value (e.g., `var(--gray)`) if stronger border contrast is desired in dark mode.\n\n</details>\n\n<details>\n<summary>Missing <code>aria-labelledby</code> on tabpanels</summary>\n\n**Cause:** Tab `<button>` elements have no `id` attribute, making the `aria-labelledby` association on `role=\"tabpanel\"` impossible to declare.\n\n**Candidate solutions:** Add `id=\"tab-en\"` / `id=\"tab-zh\"` to the button elements and `aria-labelledby=\"tab-en\"` / `aria-labelledby=\"tab-zh\"` to the corresponding `<div role=\"tabpanel\">` elements. Two-line change in `Transcript.tsx`.\n\n</details>\n\n<details>\n<summary>No <code>max-height</code> on <code>.transcript-body</code></summary>\n\n**Cause:** `.transcript-body` has no height constraint. Episode transcripts can be several thousand words; the full text will expand the page without any scrollable region.\n\n**Candidate solutions:** Add `max-height: 32rem; overflow-y: auto;` to `.transcript-body` in the component's CSS block. Adjust the value to taste; the important thing is bounding the expansion before the first real caption file lands.\n\n</details>\n\n<details>\n<summary>Static panel IDs (<code>panel-en</code> / <code>panel-zh</code>)</summary>\n\n**Cause:** IDs are hardcoded strings rather than derived from a per-instance key. If `Transcript` is ever rendered more than once per page, IDs collide and `aria-controls` wiring breaks silently.\n\n**Candidate solutions:** For now, a `// single Transcript per page assumed` comment documents the constraint without requiring structural changes. A proper fix would generate IDs from a counter or a unique episode slug prop.\n\n</details>\n\n## Recommended Next Step\n\n`NO_AUTOMATED_ACTION` — no unresolved actionable work remains; all findings are INFO-level polish suitable for a follow-up PR.\n\n## Final Verdict\n\n**SHIP**\n\n## Action Items\n\n- [ ] (optional) Replace `pathToSlug` regex with `slugifyFilePath` from `quartz/util/path.ts` to close the silent-null edge case for exotic filenames\n- [ ] (optional) Add `aria-labelledby` to tabpanels and matching `id` to tab buttons for full WAI-ARIA Tabs compliance\n- [ ] (optional) Add `max-height` + `overflow-y: auto` to `.transcript-body` before the first real caption file is added\n- [ ] (optional) Remove or correct the no-op dark-mode CSS override on `.transcript`\n\n---\n\n**Progress note:** Resolved two previously open same-agent inline threads (`PRRT_kwDOQ106186Ca9tM`, `PRRT_kwDOQ106186Ca953`) — both confirmed fixed in current head commit.",
+      "createdAt": "2026-05-15T17:00:09Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/41#issuecomment-4461688371",
       "viewerDidAuthor": true
     }
   ],
@@ -137,12 +315,6 @@
       "changeType": "ADDED"
     },
     {
-      "path": "quartz.config.ts",
-      "additions": 1,
-      "deletions": 1,
-      "changeType": "MODIFIED"
-    },
-    {
       "path": "quartz.layout.ts",
       "additions": 5,
       "deletions": 0,
@@ -150,7 +322,7 @@
     },
     {
       "path": "quartz/components/Transcript.tsx",
-      "additions": 181,
+      "additions": 197,
       "deletions": 0,
       "changeType": "ADDED"
     },
@@ -203,10 +375,40 @@
       "commit": {
         "oid": "2c77295ef43e426dccc902efbe09884edb24d290"
       }
+    },
+    {
+      "id": "PRR_kwDOQ106188AAAABAEopKg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-05-15T16:48:02Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "84d935db0de1fe492fea79adaa65496346903ce6"
+      }
+    },
+    {
+      "id": "PRR_kwDOQ106188AAAABAEoufw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-05-15T16:48:17Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "84d935db0de1fe492fea79adaa65496346903ce6"
+      }
     }
   ],
   "state": "OPEN",
   "title": "feat: add Transcript component for episode caption rendering (#40)",
-  "updatedAt": "2026-05-15T06:36:35Z",
+  "updatedAt": "2026-05-15T17:00:10Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/41"
 }
