@@ -39,10 +39,10 @@ export default (() => {
         {hasBoth ? (
           <div class="transcript-langs">
             <div class="transcript-tab-bar" role="tablist">
-              <button role="tab" aria-selected="true" aria-controls="panel-en" class="transcript-tab active" data-tab="en">
+              <button role="tab" aria-selected="true" aria-controls="panel-en" class="transcript-tab active" data-tab="en" tabIndex={0}>
                 EN
               </button>
-              <button role="tab" aria-selected="false" aria-controls="panel-zh" class="transcript-tab" data-tab="zh">
+              <button role="tab" aria-selected="false" aria-controls="panel-zh" class="transcript-tab" data-tab="zh" tabIndex={-1}>
                 ZH
               </button>
             </div>
@@ -160,20 +160,36 @@ export default (() => {
   Transcript.afterDOMLoaded = `
 document.querySelectorAll(".transcript-tab-bar").forEach((bar) => {
   bar.querySelectorAll(".transcript-tab").forEach((tab) => {
-    tab.addEventListener("click", () => {
+    const handler = () => {
       const container = bar.closest(".transcript-langs")
       const lang = tab.getAttribute("data-tab")
       bar.querySelectorAll(".transcript-tab").forEach((t) => {
         t.classList.remove("active")
         t.setAttribute("aria-selected", "false")
+        t.setAttribute("tabindex", "-1")
       })
       tab.classList.add("active")
       tab.setAttribute("aria-selected", "true")
+      tab.setAttribute("tabindex", "0")
       container.querySelectorAll(".transcript-panel").forEach((panel) => {
         panel.classList.toggle("hidden", panel.getAttribute("data-panel") !== lang)
       })
-    })
+    }
+    tab.addEventListener("click", handler)
+    window.addCleanup(() => tab.removeEventListener("click", handler))
   })
+
+  const keyHandler = (e) => {
+    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return
+    const tabs = Array.from(bar.querySelectorAll(".transcript-tab"))
+    const activeIndex = tabs.findIndex((t) => t.getAttribute("aria-selected") === "true")
+    const dir = e.key === "ArrowRight" ? 1 : -1
+    const nextIndex = (activeIndex + dir + tabs.length) % tabs.length
+    tabs[nextIndex].click()
+    tabs[nextIndex].focus()
+  }
+  bar.addEventListener("keydown", keyHandler)
+  window.addCleanup(() => bar.removeEventListener("keydown", keyHandler))
 })
 `
 
