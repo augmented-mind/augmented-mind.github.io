@@ -26,6 +26,7 @@ import Flex from "./Flex"
 import ConditionalRender from "./ConditionalRender"
 import SubscribeLinks from "./SubscribeLinks"
 import GuestSuggestion from "./GuestSuggestion"
+import Transcript from "./Transcript"
 
 export {
   ArticleTitle,
@@ -56,4 +57,5 @@ export {
   ConditionalRender,
   SubscribeLinks,
   GuestSuggestion,
+  Transcript,
 }
