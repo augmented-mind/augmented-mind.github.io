@@ -1,15 +1,17 @@
 import { extractJsonObject } from "./response.js";
 
 export type AgentAction = "implement" | "review" | "fix-pr";
-export type HandoffDecisionKind = "dispatch" | "stop" | "skip";
+export type HandoffDecisionKind = "dispatch" | "delegate_issue" | "stop" | "skip";
 export type AutomationMode = "disabled" | "heuristics" | "agent";
 export type HandoffMarkerState = "pending" | "dispatched" | "failed";
-export type PlannerDecisionKind = "handoff" | "stop" | "blocked";
+export type PlannerDecisionKind = "handoff" | "delegate_issue" | "answer" | "stop" | "blocked";
 
 export interface HandoffInput {
   automationMode: string;
   sourceAction: string;
   sourceConclusion: string;
+  sourceHandoffContext?: string;
+  targetKind?: string;
   targetNumber: string;
   nextTargetNumber?: string;
   currentRound: number;
@@ -24,6 +26,14 @@ export interface HandoffDecision {
   reason: string;
   nextRound: number;
   handoffContext?: string;
+  plannerDecisionKind?: PlannerDecisionKind;
+  userMessage?: string;
+  clarificationRequest?: string;
+  childStage?: string;
+  childInstructions?: string;
+  childIssueNumber?: string;
+  baseBranch?: string;
+  basePr?: string;
 }
 
 export interface HandoffDedupeInput {
@@ -46,10 +56,32 @@ export interface PlannerDecision {
   nextAction?: AgentAction;
   reason: string;
   handoffContext?: string;
+  userMessage?: string;
+  clarificationRequest?: string;
+  childStage?: string;
+  childInstructions?: string;
+  childIssueNumber?: string;
+  baseBranch?: string;
+  basePr?: string;
 }
 
 const REVIEW_TO_FIX_PR = new Set(["minor_issues", "needs_rework", "changes_requested"]);
+const PLANNER_DECISION_KINDS: Partial<Record<string, PlannerDecisionKind>> = {
+  handoff: "handoff",
+  delegate_issue: "delegate_issue",
+  answer: "answer",
+  stop: "stop",
+  blocked: "blocked",
+};
 const HANDOFF_MARKER_PREFIX = "sepo-agent-handoff";
+const DEFAULT_FIX_PR_HANDOFF_CONTEXT = [
+  "Address only the latest unresolved review synthesis action items.",
+  "Ignore optional INFO notes, metadata-only polish, already-fixed findings, and human-judgment nits unless required by the selected fix.",
+].join(" ");
+const ANY_HANDOFF_MARKER_RE = new RegExp(
+  `<!--\\s*${HANDOFF_MARKER_PREFIX}(?:\\s+state:(pending|dispatched|failed))?(?:\\s+created:(\\d+))?\\s+base64:[A-Za-z0-9_-]+\\s*-->`,
+  "i",
+);
 
 function normalizeToken(value: string): string {
   return value.trim().toLowerCase().replace(/[\s-]+/g, "_");
@@ -92,6 +124,84 @@ export function normalizeConclusion(value: string): string {
   return normalized || "unknown";
 }
 
+export function formatMarkdownTableCell(value: string | number): string {
+  return String(value)
+    .replace(/\r?\n/g, " ")
+    .replace(/\|/g, "\\|")
+    .trim() || " ";
+}
+
+export function formatTransposedMarkdownTable(headers: string[], values: Array<string | number>): string[] {
+  return [
+    `| ${headers.map(formatMarkdownTableCell).join(" | ")} |`,
+    `| ${headers.map(() => "---").join(" | ")} |`,
+    `| ${values.map(formatMarkdownTableCell).join(" | ")} |`,
+  ];
+}
+
+export function defaultFixPrHandoffContext(): string {
+  return DEFAULT_FIX_PR_HANDOFF_CONTEXT;
+}
+
+function extractMarkdownSection(markdown: string, heading: string): string {
+  const lines = String(markdown || "").split(/\r?\n/);
+  const wanted = normalizeToken(heading);
+  const section: string[] = [];
+  let inSection = false;
+  for (const line of lines) {
+    const headingMatch = line.match(/^##\s+(.+?)\s*$/);
+    if (headingMatch) {
+      if (inSection) break;
+      inSection = normalizeToken(headingMatch[1]) === wanted;
+      continue;
+    }
+    if (inSection) section.push(line);
+  }
+  return section.join("\n").trim();
+}
+
+function normalizeReviewActionItem(line: string): string {
+  return line
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+export function extractReviewActionItems(markdown: string): string[] {
+  const section = extractMarkdownSection(markdown, "Action Items");
+  if (!section) return [];
+  const items: string[] = [];
+  for (const line of section.split(/\r?\n/)) {
+    const checkbox = line.match(/^\s*[-*]\s+\[([ xX])\]\s+(.+?)\s*$/);
+    if (checkbox) {
+      if (checkbox[1].trim()) continue;
+      const item = normalizeReviewActionItem(checkbox[2]);
+      if (item) items.push(item);
+      continue;
+    }
+    const bullet = line.match(/^\s*[-*]\s+(.+?)\s*$/);
+    if (bullet) {
+      const item = normalizeReviewActionItem(bullet[1]);
+      if (item) items.push(item);
+    }
+  }
+  return items;
+}
+
+export function buildReviewFixPrHandoffContext(markdown: string): string {
+  const items = extractReviewActionItems(markdown).slice(0, 5);
+  if (!items.length) return defaultFixPrHandoffContext();
+  return [
+    "Address only the latest review synthesis action items:",
+    ...items.map((item) => `- ${item}`),
+    "",
+    "Constraints: Ignore optional INFO notes, metadata-only polish, already-fixed findings, and human-judgment nits unless required by those action items.",
+  ].join("\n");
+}
+
+function resolveFixPrHandoffContext(input: HandoffInput): string {
+  return String(input.sourceHandoffContext || "").trim() || defaultFixPrHandoffContext();
+}
+
 function normalizeAgentAction(value: string): AgentAction | null {
   const normalized = normalizeToken(value);
   if (normalized === "implement") return "implement";
@@ -114,18 +224,25 @@ export function parsePlannerDecision(raw: string): PlannerDecision | null {
 
   const record = parsed as Record<string, unknown>;
   const decisionToken = normalizeToken(String(record.decision || ""));
-  const decision: PlannerDecisionKind | null = decisionToken === "handoff"
-    ? "handoff"
-    : decisionToken === "stop"
-      ? "stop"
-      : decisionToken === "blocked"
-        ? "blocked"
-        : null;
+  const decision = PLANNER_DECISION_KINDS[decisionToken];
   if (!decision) return null;
 
   const nextAction = normalizeAgentAction(String(record.next_action ?? record.nextAction ?? ""));
   const reason = String(record.reason || "").trim();
   const handoffContext = String(record.handoff_context ?? record.handoffContext ?? "").trim();
+  const userMessage = String(record.user_message ?? record.userMessage ?? "").trim();
+  const clarificationRequest = String(
+    record.clarification_request ?? record.clarificationRequest ?? "",
+  ).trim();
+  const childStage = String(record.child_stage ?? record.childStage ?? record.stage ?? "").trim();
+  const childInstructions = String(
+    record.child_instructions ?? record.childInstructions ?? record.task_instructions ?? record.taskInstructions ?? "",
+  ).trim();
+  const childIssueNumber = String(
+    record.child_issue_number ?? record.childIssueNumber ?? record.target_issue_number ?? record.targetIssueNumber ?? "",
+  ).trim();
+  const baseBranch = String(record.base_branch ?? record.baseBranch ?? "").trim();
+  const basePr = String(record.base_pr ?? record.basePr ?? "").trim();
   const plannerDecision: PlannerDecision = {
     decision,
     nextAction: nextAction || undefined,
@@ -134,6 +251,13 @@ export function parsePlannerDecision(raw: string): PlannerDecision | null {
   if (handoffContext) {
     plannerDecision.handoffContext = handoffContext;
   }
+  if (userMessage) plannerDecision.userMessage = userMessage;
+  if (clarificationRequest) plannerDecision.clarificationRequest = clarificationRequest;
+  if (childStage) plannerDecision.childStage = childStage;
+  if (childInstructions) plannerDecision.childInstructions = childInstructions;
+  if (childIssueNumber) plannerDecision.childIssueNumber = childIssueNumber;
+  if (baseBranch) plannerDecision.baseBranch = baseBranch;
+  if (basePr) plannerDecision.basePr = basePr;
   return plannerDecision;
 }
 
@@ -198,6 +322,24 @@ export function hasHandoffMarker(body: string, key: string): boolean {
   return parseHandoffMarker(body, key) !== null;
 }
 
+export function parseAnyHandoffMarker(body: string): HandoffMarkerInfo | null {
+  const match = String(body || "").match(ANY_HANDOFF_MARKER_RE);
+  if (!match) return null;
+  const rawState = String(match[1] || "dispatched").toLowerCase();
+  const state: HandoffMarkerState = rawState === "pending" || rawState === "failed"
+    ? rawState
+    : "dispatched";
+  const createdAtMs = match[2] ? Number.parseInt(match[2], 10) : NaN;
+  return {
+    state,
+    createdAtMs: Number.isFinite(createdAtMs) && createdAtMs > 0 ? createdAtMs : null,
+  };
+}
+
+export function hasAnyHandoffMarker(body: string): boolean {
+  return parseAnyHandoffMarker(body) !== null;
+}
+
 export function isPendingHandoffMarkerStale(
   marker: HandoffMarkerInfo,
   nowMs: number,
@@ -213,9 +355,12 @@ export function formatHandoffMarkerComment(args: {
   state?: HandoffMarkerState;
   sourceAction: string;
   nextAction: string;
+  targetKind?: string;
+  targetNumber?: string | number;
   nextRound: number;
   maxRounds: number;
   reason: string;
+  handoffContext?: string;
   error?: string;
   createdAtMs?: number;
 }): string {
@@ -225,14 +370,36 @@ export function formatHandoffMarkerComment(args: {
     : state === "failed"
       ? "failed"
       : "dispatched";
+  const statusLabel = status.charAt(0).toUpperCase() + status.slice(1);
+  const normalizedTargetKind = normalizeToken(args.targetKind || "");
+  const targetLabel = args.targetNumber
+    ? `${normalizedTargetKind === "issue" ? "Issue" : "PR"} #${args.targetNumber}`
+    : "Unknown";
   const lines = [
-    `Sepo automation handoff ${status}: \`${args.sourceAction}\` -> \`${args.nextAction}\` (round ${args.nextRound}/${args.maxRounds}).`,
+    status === "failed"
+      ? "Sepo could not dispatch follow-up automation."
+      : status === "pending"
+        ? "Sepo is preparing follow-up automation."
+        : "Sepo is dispatching follow-up automation.",
     "",
-    args.reason,
+    ...formatTransposedMarkdownTable(
+      ["Source", "Next", "Target", "Round", "Status"],
+      [args.sourceAction, args.nextAction, targetLabel, `${args.nextRound} / ${args.maxRounds}`, statusLabel],
+    ),
+    "",
+    `Reason: ${args.reason}`,
   ];
 
+  if (normalizeToken(args.nextAction) === "fix_pr") {
+    lines.push(
+      "",
+      "Task for fix-pr:",
+      String(args.handoffContext || "").trim() || defaultFixPrHandoffContext(),
+    );
+  }
+
   if (args.error) {
-    lines.push("", `Error: ${args.error}`);
+    lines.push("", `Dispatch error: ${args.error}`);
   }
 
   lines.push("", buildHandoffMarker(args.key, state, args.createdAtMs));
@@ -263,7 +430,11 @@ function decideHeuristicHandoff(input: HandoffInput): HandoffDecision {
 
   if (sourceAction === "fix_pr") {
     if (conclusion !== "success") {
-      return { decision: "stop", reason: `fix-pr concluded ${conclusion}`, nextRound };
+      return {
+        decision: "stop",
+        reason: `fix-pr concluded ${conclusion}; no automatic handoff was dispatched because fix-pr must succeed before re-review`,
+        nextRound,
+      };
     }
     return {
       decision: "dispatch",
@@ -285,6 +456,7 @@ function decideHeuristicHandoff(input: HandoffInput): HandoffDecision {
         targetNumber: nextTarget,
         reason: `review verdict is ${conclusion}; dispatching fix-pr`,
         nextRound,
+        handoffContext: resolveFixPrHandoffContext(input),
       };
     }
     return { decision: "stop", reason: `review verdict ${conclusion} has no handoff`, nextRound };
@@ -304,10 +476,105 @@ function decideAgentHandoff(input: HandoffInput): HandoffDecision {
       decision: "stop",
       reason: `agent planner ${plannerDecision.decision}: ${plannerDecision.reason}`,
       nextRound,
+      plannerDecisionKind: plannerDecision.decision,
+      userMessage: plannerDecision.userMessage,
+      clarificationRequest: plannerDecision.clarificationRequest,
+    };
+  }
+  if (plannerDecision.decision === "answer") {
+    if (plannerDecision.nextAction) {
+      return { decision: "stop", reason: "answer must not set next_action", nextRound };
+    }
+    return {
+      decision: "stop",
+      reason: `agent planner answered: ${plannerDecision.reason}`,
+      nextRound,
+      plannerDecisionKind: "answer",
+      userMessage: plannerDecision.userMessage || plannerDecision.handoffContext,
+    };
+  }
+  if (plannerDecision.decision === "delegate_issue") {
+    const sourceAction = normalizeToken(input.sourceAction);
+    const targetKind = normalizeToken(input.targetKind || "");
+    if (plannerDecision.nextAction) {
+      return { decision: "stop", reason: "delegate_issue must not set next_action", nextRound };
+    }
+    if (sourceAction !== "orchestrate") {
+      return { decision: "stop", reason: "delegate_issue is only allowed from meta orchestration", nextRound };
+    }
+    if (targetKind && targetKind !== "issue") {
+      return { decision: "stop", reason: "meta orchestration can delegate child issues only from issues", nextRound };
+    }
+    if (plannerDecision.baseBranch && plannerDecision.basePr) {
+      return { decision: "stop", reason: "agent planner set both base_branch and base_pr", nextRound };
+    }
+    if (!plannerDecision.childIssueNumber && !plannerDecision.childInstructions && !plannerDecision.handoffContext) {
+      return {
+        decision: "stop",
+        reason: "agent planner requested child issue delegation without child instructions or existing issue",
+        nextRound,
+      };
+    }
+    return {
+      decision: "delegate_issue",
+      reason: `agent planner selected child issue delegation: ${plannerDecision.reason}`,
+      nextRound,
+      targetNumber: plannerDecision.childIssueNumber || input.targetNumber,
+      handoffContext: plannerDecision.handoffContext,
+      childStage: plannerDecision.childStage || `stage-${nextRound - 1}`,
+      childInstructions: plannerDecision.childInstructions || plannerDecision.handoffContext,
+      childIssueNumber: plannerDecision.childIssueNumber,
+      baseBranch: plannerDecision.baseBranch,
+      basePr: plannerDecision.basePr,
     };
   }
   if (!plannerDecision.nextAction) {
     return { decision: "stop", reason: "agent planner requested handoff without next_action", nextRound };
+  }
+
+  const sourceAction = normalizeToken(input.sourceAction);
+  const targetKind = normalizeToken(input.targetKind || "");
+  if (sourceAction === "orchestrate" && plannerDecision.nextAction === "implement") {
+    if (targetKind && targetKind !== "issue") {
+      return { decision: "stop", reason: "issue orchestration can dispatch implement only for issue targets", nextRound };
+    }
+    if (plannerDecision.baseBranch && plannerDecision.basePr) {
+      return { decision: "stop", reason: "agent planner set both base_branch and base_pr", nextRound };
+    }
+    return {
+      decision: "dispatch",
+      nextAction: "implement",
+      targetNumber: input.targetNumber,
+      reason: `agent planner selected implement: ${plannerDecision.reason}`,
+      nextRound,
+      handoffContext: plannerDecision.handoffContext,
+      baseBranch: plannerDecision.baseBranch,
+      basePr: plannerDecision.basePr,
+    };
+  }
+  if (sourceAction === "orchestrate" && targetKind === "pull_request") {
+    if (plannerDecision.nextAction === "review" || plannerDecision.nextAction === "fix-pr") {
+      if (plannerDecision.nextAction === "fix-pr" && !plannerDecision.handoffContext) {
+        return {
+          decision: "stop",
+          reason: "agent planner selected fix-pr for PR orchestration without handoff_context",
+          nextRound,
+        };
+      }
+      return {
+        decision: "dispatch",
+        nextAction: plannerDecision.nextAction,
+        targetNumber: input.targetNumber,
+        reason: `agent planner selected ${plannerDecision.nextAction}: ${plannerDecision.reason}`,
+        nextRound,
+        handoffContext: plannerDecision.handoffContext,
+      };
+    }
+    return {
+      decision: "stop",
+      reason: `agent planner requested ${plannerDecision.nextAction}, but PR orchestration can dispatch only review or fix-pr`,
+      nextRound,
+    };
   }
 
   const allowed = decideHeuristicHandoff(input);
@@ -329,7 +596,7 @@ function decideAgentHandoff(input: HandoffInput): HandoffDecision {
   return {
     ...allowed,
     reason: `agent planner selected ${allowed.nextAction}: ${plannerDecision.reason}`,
-    handoffContext: plannerDecision.handoffContext,
+    handoffContext: plannerDecision.handoffContext || allowed.handoffContext,
   };
 }
 

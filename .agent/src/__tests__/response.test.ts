@@ -133,12 +133,24 @@ test("formatFixPrComment formats success", () => {
     requestedBy: "alice",
   });
   assert.match(body, /pushed fixes/);
+  assert.match(body, /<!-- sepo-agent-fix-pr-status -->/);
   assert.match(body, /@alice/);
+});
+
+test("formatFixPrComment accepts preformatted agent handles", () => {
+  const body = formatFixPrComment({
+    status: "success",
+    branch: "feat/my-branch",
+    requestedBy: "@sepo-agent",
+  });
+  assert.match(body, /Requested by @sepo-agent\./);
+  assert.doesNotMatch(body, /@@sepo-agent/);
 });
 
 test("formatFixPrComment formats unsupported", () => {
   const body = formatFixPrComment({ status: "unsupported" });
   assert.match(body, /could not update this PR/);
+  assert.match(body, /<!-- sepo-agent-fix-pr-status -->/);
 });
 
 // --- formatReviewComment ---
@@ -162,10 +174,11 @@ test("formatRubricsUpdateComment reports committed updates with summary", () => 
     rubricsRef: "agent/rubrics",
     rubricsCommitted: true,
     runSucceeded: true,
+    repoSlug: "self-evolving/repo",
     summary: "Added docs sync rubric.",
   });
   assert.match(body, /Rubrics Update/);
-  assert.match(body, /Updated `agent\/rubrics` from PR #286/);
+  assert.match(body, /Updated \[`agent\/rubrics`\]\(https:\/\/github\.com\/self-evolving\/repo\/tree\/agent\/rubrics\) from PR #286/);
   assert.match(body, /Added docs sync rubric/);
 });
 
@@ -175,10 +188,21 @@ test("formatRubricsUpdateComment reports no changes", () => {
     rubricsRef: "agent/rubrics",
     rubricsCommitted: false,
     runSucceeded: true,
+    repoSlug: "self-evolving/repo",
     summary: "no rubric changes",
   });
-  assert.match(body, /No changes were committed to `agent\/rubrics` from PR #286/);
+  assert.match(body, /No changes were committed to \[`agent\/rubrics`\]\(https:\/\/github\.com\/self-evolving\/repo\/tree\/agent\/rubrics\) from PR #286/);
   assert.match(body, /no rubric changes/);
+});
+
+test("formatRubricsUpdateComment falls back to code ref without repo slug", () => {
+  const body = formatRubricsUpdateComment({
+    prNumber: "286",
+    rubricsRef: "agent/rubrics",
+    rubricsCommitted: false,
+    runSucceeded: true,
+  });
+  assert.match(body, /No changes were committed to `agent\/rubrics` from PR #286/);
 });
 
 test("formatRubricsUpdateComment reports failed runs", () => {
