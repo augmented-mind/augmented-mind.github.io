@@ -26,10 +26,10 @@ export default (() => {
     const renderContent = (text: string) => (
       <div class="transcript-body">
         {text
-          .split(/\n\n+/)
+          .split(/\n+/)
           .map((p) => p.trim())
           .filter(Boolean)
-          .map((p) => <p>{p}</p>)}
+          .map((p) => <p dangerouslySetInnerHTML={{ __html: p }} />)}
       </div>
     )
 
@@ -38,18 +38,18 @@ export default (() => {
         <summary>Transcript</summary>
         {hasBoth ? (
           <div class="transcript-langs">
-            <div class="transcript-tab-bar">
-              <button class="transcript-tab active" data-tab="en">
+            <div class="transcript-tab-bar" role="tablist">
+              <button role="tab" aria-selected="true" aria-controls="panel-en" class="transcript-tab active" data-tab="en">
                 EN
               </button>
-              <button class="transcript-tab" data-tab="zh">
+              <button role="tab" aria-selected="false" aria-controls="panel-zh" class="transcript-tab" data-tab="zh">
                 ZH
               </button>
             </div>
-            <div class="transcript-panel" data-panel="en">
+            <div id="panel-en" role="tabpanel" class="transcript-panel" data-panel="en">
               {renderContent(enText!)}
             </div>
-            <div class="transcript-panel hidden" data-panel="zh">
+            <div id="panel-zh" role="tabpanel" class="transcript-panel hidden" data-panel="zh">
               {renderContent(zhText!)}
             </div>
           </div>
@@ -163,8 +163,12 @@ document.querySelectorAll(".transcript-tab-bar").forEach((bar) => {
     tab.addEventListener("click", () => {
       const container = bar.closest(".transcript-langs")
       const lang = tab.getAttribute("data-tab")
-      bar.querySelectorAll(".transcript-tab").forEach((t) => t.classList.remove("active"))
+      bar.querySelectorAll(".transcript-tab").forEach((t) => {
+        t.classList.remove("active")
+        t.setAttribute("aria-selected", "false")
+      })
       tab.classList.add("active")
+      tab.setAttribute("aria-selected", "true")
       container.querySelectorAll(".transcript-panel").forEach((panel) => {
         panel.classList.toggle("hidden", panel.getAttribute("data-panel") !== lang)
       })
