@@ -1,0 +1,69 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "body": "Parent issue: #37\n\nStage: caption-infra\n\n## Task\n\nImplement the caption rendering infrastructure for the Augmented Mind podcast site.\n\n## Goal\nAdd a collapsible Transcript component that episode pages can optionally display when captionEn and/or captionZh frontmatter fields are set.\n\n## Files to create/modify\n\n### 1. `quartz/components/Transcript.tsx` (new)\n- A Quartz component that reads `captionEn` and `captionZh` from the current page's frontmatter\n- Renders a `<details>` block with `<summary>Transcript</summary>` below the video\n- If both EN and ZH captions exist, show language toggle tabs (EN / ZH); if only one exists, show it directly\n- Caption files are markdown files stored at paths like `/captions/ep00.en.md` — the component should read their content at build time using Quartz's resource system (similar to how other components access file content)\n- Use clean paragraph text rendering (no VTT timestamps)\n- Style: use existing CSS variables (e.g. var(--light), var(--secondary)) for consistency; dark mode compatible\n\n### 2. `quartz/components/index.ts`\n- Export `Transcript` alongside existing component exports\n\n### 3. `quartz.layout.ts`\n- Import and register `Transcript` in the episode page layout's `afterBody` slot\n- Condition: only render on episode pages (check the existing `isEpisodePage` helper or equivalent pattern already used for the YouTube embed / episode header)\n\n### 4. `content/captions/.gitkeep` (new)\n- Empty placeholder file to create the captions directory in git\n\n## Frontmatter convention (document via code comments)\nEpisode markdown files may include:\n```yaml\ncaptionEn: /captions/ep00.en.md\ncaptionZh: /captions/ep00.zh.md\n```\nNo existing episode files need to be modified — this is opt-in.\n\n## Constraints\n- Follow the existing Quartz component pattern (look at Content.tsx, Header.tsx, etc. for reference)\n- Do not modify any existing episode .md files\n- The component must gracefully do nothing when neither captionEn nor captionZh is present in frontmatter\n- The parent issue is #37\n\n<!-- sepo-sub-orchestrator parent:37 stage:caption-infra state:blocked parent_round:2 -->",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABCa35vg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| orchestrate | delegate_issue | Issue #40 | 2 / 5 | Dispatched |\n\nReason: agent planner selected child issue delegation: User approved the two-stacked-PR plan. No child issues exist yet. Delegate Issue A (caption-infra) first: Transcript.tsx component + content/captions/ directory. Issue B (caption-workflow) will stack on Issue A's PR after it completes.\n\n<!-- sepo-agent-handoff state:dispatched created:1778825343431 base64:aGFuZG9mZjphdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW86MjU5MDMxOTcyMDU6b3JjaGVzdHJhdGU6Mzc6ZGVsZWdhdGVfaXNzdWU6NDA6Mg -->",
+      "createdAt": "2026-05-15T06:09:03Z",
+      "includesCreatedEdit": true,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/40#issuecomment-4457363902",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCa3_5Q",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| orchestrate | implement | Issue #40 | 2 / 5 | Dispatched |\n\nReason: manual orchestrate start on issue; dispatching implement\n\n<!-- sepo-agent-handoff state:dispatched created:1778825359379 base64:aGFuZG9mZjphdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW86MjU5MDMxOTcyMDU6b3JjaGVzdHJhdGU6NDA6aW1wbGVtZW50OjQwOjI -->",
+      "createdAt": "2026-05-15T06:09:19Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/40#issuecomment-4457365477",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCa6Q0w",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo implementation finished**\n\n- Branch: `agent/implement-issue-40/claude-25903281071`\n- Pull request: https://github.com/augmented-mind/augmented-mind.github.io/pull/41\n\nImplemented caption rendering infrastructure (Issue #40). Created `quartz/components/Transcript.tsx` — a Quartz component that reads `captionEn` and `captionZh` paths from episode frontmatter, looks up the corresponding files in `allFiles` at build time, and renders a `<details>` block with EN/ZH language tab toggle (client-side JS) when both exist, or a single content block when only one is present. Added the export to `quartz/components/index.ts` and registered `Component.Transcript()` in `quartz.layout.ts` `sharedPageComponents.afterBody` behind the existing `isEpisodePage` guard (positioned before Comments). Created `content/captions/.gitkeep` to track the captions directory. Verified no new TypeScript errors are introduced in `quartz.layout.ts`; all errors in `Transcript.tsx` are pre-existing environment issues affecting every component in the repo.",
+      "createdAt": "2026-05-15T06:15:22Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/40#issuecomment-4457402579",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-05-15T06:09:00Z",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "number": 40,
+  "state": "OPEN",
+  "title": "Sub-orchestrator: caption-infra",
+  "updatedAt": "2026-05-15T06:37:05Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/40"
+}

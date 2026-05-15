@@ -6,7 +6,7 @@
     "name": "Shannon Shen"
   },
   "body": "Check the v0.1.0 release and then update it @sepo-agent /answer",
-  "closedAt": null,
+  "closedAt": "2026-05-15T05:53:22Z",
   "comments": [
     {
       "id": "IC_kwDOQ106188AAAABCPU8EA",
@@ -118,8 +118,8 @@
     }
   ],
   "number": 36,
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "upgrade sepo",
-  "updatedAt": "2026-05-14T22:18:58Z",
+  "updatedAt": "2026-05-15T05:53:22Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/36"
 }

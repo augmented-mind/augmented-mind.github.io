@@ -59,6 +59,79 @@
       "reactionGroups": [],
       "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/37#issuecomment-4445331662",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCa3I8Q",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "> Here's the full plan:\n> \n> ## Plan\n> \n> ### Overview\n> \n> Two stacked issues → two stacked PRs:\n> \n> * **Issue A** (`caption-infra`): Quartz component + storage schema → PR A (base: `main`)\n> * **Issue B** (`caption-workflow`): GitHub Actions download+translate workflow → PR B (base: PR A's branch)\n> \n> Both go through the standard `agent-implement` route. PR B uses `session_fork_from_thread_key` to inherit PR A's branch context.\n> \n> ### Issue A — Caption rendering infrastructure\n> \n> **Files touched:**\n> \n> * [`quartz/components/Transcript.tsx`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/) _(new)_ — collapsible transcript block with EN/ZH tab toggle; reads caption content passed from layout\n> * [`quartz/components/index.ts`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/index.ts) — export `Transcript`\n> * [`quartz.layout.ts`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz.layout.ts) — register `Transcript` in the episode page `afterBody` slot (conditional on `isEpisodePage`)\n> * Episode frontmatter schema (convention, no code change): add optional `captionEn` and `captionZh` fields pointing to paths like `/captions/ep00.en.md`\n> * `content/captions/` directory with a placeholder `.gitkeep`\n> \n> **Component behavior:**\n> \n> * Reads `captionEn` / `captionZh` from frontmatter\n> * Fetches caption content at build time (as a Quartz transformer or static import)\n> * Renders as a `<details>` block below the video with a \"Transcript\" summary and EN/ZH language tabs if both exist\n> \n> ### Issue B — Caption update workflow\n> \n> **Files touched:**\n> \n> * `.github/workflows/agent-caption-update.yml` _(new)_ — `workflow_dispatch` with inputs `episode_id` and `youtube_url`\n> * `.agent/scripts/vtt-to-md.js` _(new)_ — strips VTT timing markup, outputs clean paragraph markdown\n> \n> **Workflow steps:**\n> \n> ```\n> 1. Install yt-dlp\n> 2. Download EN auto-captions → ep<id>.en.vtt\n> 3. Run vtt-to-md.js → content/captions/ep<id>.en.md\n> 4. Commit to branch caption/<id>/en → create PR A (base: main)\n> 5. Call Anthropic API (node script) to translate EN md → ZH md\n> 6. Commit ZH to same branch (or branch caption/<id>/zh based on /en)\n> 7. Create PR B (base: caption/<id>/en branch)\n> ```\n> \n> Step 5 uses a small Node.js script with `@anthropic-ai/sdk` (already available in the agent runtime) — chunk the markdown by paragraph, translate with `claude-opus-4-6`, reassemble.\n> \n> ### Stacking mechanism\n> \n> PR B is created with `--base caption/<id>/en` so it automatically includes all EN caption infra. When PR A merges, PR B's base auto-updates to `main`. This mirrors how the orchestrator chains `implement → review → fix-pr` via `next_target_number`.\n> \n> **Ready to proceed?** I'll create both issues now and dispatch `agent-implement` for Issue A, with Issue B dispatched after (stacked on A's branch). One question: should the `Transcript` component render the raw paragraph text, or should it preserve timestamp markers from the VTT (e.g. clickable timestamps that seek the embedded YouTube player)?\n\n@sepo-agent /orchestrate ",
+      "createdAt": "2026-05-15T06:06:37Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/37#issuecomment-4457351409",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCa35LA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is starting a focused child task for this orchestration.\n\n| Child task | Focus | Parent issue | Status |\n| --- | --- | --- | --- |\n| #40 | caption-infra | #37 | Running |\n\nI'll report back here when the child task finishes.\n\n<!-- sepo-sub-orchestrator-child parent:37 stage:caption-infra child:40 -->",
+      "createdAt": "2026-05-15T06:09:01Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/37#issuecomment-4457363756",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCbDzuQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Child task completed.\n\n| Child task | PR | Outcome | Parent round | Next step |\n| --- | --- | --- | --- | --- |\n| #40 | #41 | Blocked | 2 / 5 | Resuming parent orchestration |\n\nSummary: automation round budget exhausted\n\n<!-- sepo-sub-orchestrator-report child:40 resume:dispatched -->",
+      "createdAt": "2026-05-15T06:37:02Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/37#issuecomment-4457558969",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCbFBXQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo orchestration stopped after `orchestrate` concluded `blocked`.\n\n- Source action: `orchestrate`\n- Source conclusion: `blocked`\n- Target: `issue #37`\n- Round: `2/5`\n- Reason: child issue delegation failed: child issue #40 is stage caption-infra, not stage-2\n- Source run ID: `25903910524`\n\nNo follow-up workflow was dispatched. Inspect the source action status comment and workflow logs before retrying or continuing manually.\n\n<!-- sepo-agent-orchestrate-stop -->",
+      "createdAt": "2026-05-15T06:39:22Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/37#issuecomment-4457578845",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-05-13T21:11:44Z",
@@ -73,6 +146,6 @@
   "number": 37,
   "state": "OPEN",
   "title": "Should we include captions in this repo or a separate one?",
-  "updatedAt": "2026-05-13T21:26:13Z",
+  "updatedAt": "2026-05-15T06:39:22Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/37"
 }
