@@ -53,7 +53,9 @@ async function translateChunk(chunk) {
     system: SYSTEM_PROMPT,
     messages: [{ role: 'user', content: chunk }],
   });
-  return msg.content[0].text;
+  const block = msg.content[0];
+  if (block.type !== 'text') throw new Error(`Unexpected block type: ${block.type}`);
+  return block.text;
 }
 
 async function main() {

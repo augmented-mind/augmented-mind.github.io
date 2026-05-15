@@ -79,14 +79,14 @@ const fullText = words.join(' ');
 const sentenceRe = /[^.!?]+[.!?]+(?:\s|$)/g;
 const sentences = [];
 let match;
+let lastIndex = 0;
 while ((match = sentenceRe.exec(fullText)) !== null) {
   const s = match[0].trim();
-  if (s) sentences.push(s);
+  if (s) { sentences.push(s); lastIndex = sentenceRe.lastIndex; }
 }
 
 // Catch any trailing text without terminal punctuation
-const lastMatch = sentences.join(' ');
-const remainder = fullText.slice(lastMatch.length).trim();
+const remainder = fullText.slice(lastIndex).trim();
 if (remainder) sentences.push(remainder);
 
 const SENTENCES_PER_PARA = 5;
