@@ -304,6 +304,80 @@
       "reactionGroups": [],
       "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/41#issuecomment-4461688371",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCl8uiw",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /answer why do we have .md as the caption file? shouldn't we do srt ? ",
+      "createdAt": "2026-05-17T02:44:51Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/41#issuecomment-4468977291",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCl867Q",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "The `.md` choice was intentional, driven by two constraints:\n\n**1. Quartz only processes Markdown in its build graph**\n\nThe `Transcript.tsx` component reads captions via `allFiles.find((f) => f.slug === slug)` — this is Quartz's build-time file collection, which only contains `.md` files it has processed. A `.srt` file placed in `content/captions/` would be invisible to that lookup. Supporting `.srt` would require either a runtime `fetch()` call (breaking the static SSG approach) or a custom Quartz plugin to ingest non-Markdown files into the build graph.\n\n**2. The feature is a readable text transcript, not synchronized video captions**\n\nThe issue spec ([#40](https://github.com/augmented-mind/augmented-mind.github.io/issues/40)) explicitly calls for *\"clean paragraph text rendering (no VTT timestamps)\"*. SRT files carry timestamp blocks like:\n```\n1\n00:00:01,000 --> 00:00:04,000\nHello, this is the first subtitle.\n```\nThose timestamps would either need to be stripped (losing any sync value) or rendered as noise. The current collapsible `<details>` block is about reading the full transcript — not cue-synced display.\n\n---\n\n**If you do want time-synchronized captions** (e.g., captions that appear over the video player as it plays), that's a different feature: you'd pass the `.srt`/`.vtt` file directly to the `<video>` or YouTube embed element via a `<track>` tag, bypassing Quartz's file system entirely. That could be a follow-up to the caption-workflow PR.\n\nFor now, `.md` is the right format for the static transcript use case. If the goal shifts toward cue-synced captions, let me know and we can scope that separately.",
+      "createdAt": "2026-05-17T02:46:34Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/41#issuecomment-4468980461",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCl9DUw",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /answer going to the bare minimum: \r\n1. we just want to have caption file being stored somewhere (and manage it) \r\n2.if e can have it rendered with the text that's even better; but optional. ",
+      "createdAt": "2026-05-17T02:47:47Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/41#issuecomment-4468982611",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCl9OmQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Good news: **PR #41 already covers both requirements as-is.**\n\n**1. Storage & management** — `content/captions/` lives in this repo. Caption files are versioned alongside episode content, and adding/updating them is just a normal PR. The `.gitkeep` in PR #41 creates the directory.\n\n**2. Optional text rendering** — `Transcript.tsx` renders the caption text in a collapsible block if `captionEn`/`captionZh` is set in the episode frontmatter. If those fields are absent, the component renders nothing. Opt-in per episode, zero overhead for episodes without captions.\n\nThe `.md` format serves both goals — Quartz can read it at build time (no runtime fetch needed), and the text renders cleanly without any timestamp noise. If you later want synchronized video captions, `.srt`/`.vtt` can be added to the `<track>` element of the video embed independently.\n\n**Bottom line**: merge PR #41 as-is, then the caption-workflow PR (issue B from #37) can handle the automation to generate and commit those `.md` files from YouTube. Nothing needs to change in the current implementation.",
+      "createdAt": "2026-05-17T02:49:30Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/41#issuecomment-4468985497",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-05-15T06:15:18Z",
@@ -409,6 +483,6 @@
   ],
   "state": "OPEN",
   "title": "feat: add Transcript component for episode caption rendering (#40)",
-  "updatedAt": "2026-05-15T17:00:10Z",
+  "updatedAt": "2026-05-17T02:49:30Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/41"
 }
