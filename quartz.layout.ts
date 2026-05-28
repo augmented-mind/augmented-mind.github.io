@@ -22,6 +22,15 @@ const episodesCarousel = Component.EpisodeCarousel({
   linkToMore: "episodes/" as SimpleSlug,
 })
 
+// Landing page live streams carousel (horizontal cards with images)
+const liveStreamsCarousel = Component.EpisodeCarousel({
+  title: "Live Streams",
+  limit: 20,
+  showTags: false,
+  filter: (f) => f.slug!.startsWith("live-streams/") && f.slug! !== "live-streams/index",
+  linkToMore: false,
+})
+
 // Subscribe links for podcast platforms
 const subscribeLinks = Component.SubscribeLinks({
   rss: "https://anchor.fm/s/10dbf5b7c/podcast/rss",
@@ -58,6 +67,11 @@ export const sharedPageComponents: SharedLayout = {
     // Show episodes carousel on index page (in center content area)
     Component.ConditionalRender({
       component: episodesCarousel,
+      condition: (page) => page.fileData.slug === "index",
+    }),
+    // Show live streams carousel on index page (in center content area)
+    Component.ConditionalRender({
+      component: liveStreamsCarousel,
       condition: (page) => page.fileData.slug === "index",
     }),
     Component.ConditionalRender({
