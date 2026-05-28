@@ -1,0 +1,41 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "body": "Right now we have a podcast series section for different series \n\nCan we add a new section for live streams \n\nAnd we can add this image as the first one. \n\n<img width=\"1792\" height=\"1080\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/321e04f5-18a2-4ce1-893f-1d49efe8f8d5\" />\n\n@sepo-agent let's think about the best way to do it? ",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABEEZ0yQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "I triaged this as a `implement` request.\n\nSepo will add a new Live Streams section to the website, modeled after the existing podcast series section, with the provided image as the first entry.\n\nReply with:\n\n```text\n@sepo-agent /approve req-2c517d\n```\n\nto start the implementation workflow.\n\n<!-- sepo-agent-request base64:eyJyb3V0ZSI6ImltcGxlbWVudCIsInNvdXJjZV9raW5kIjoiaXNzdWUiLCJ0YXJnZXRfa2luZCI6Imlzc3VlIiwidGFyZ2V0X251bWJlciI6NDgsInRhcmdldF91cmwiOiJodHRwczovL2dpdGh1Yi5jb20vYXVnbWVudGVkLW1pbmQvYXVnbWVudGVkLW1pbmQuZ2l0aHViLmlvL2lzc3Vlcy80OCIsIndvcmtmbG93IjoiYWdlbnQtaW1wbGVtZW50LnltbCIsInJlcXVlc3RfaWQiOiJyZXEtMmM1MTdkIiwicmVxdWVzdF90ZXh0IjoiRGVzaWduIGEgbmV3IHNlY3Rpb24gb24gb3VyIHdlYnNpdGU6XG5cblJpZ2h0IG5vdyB3ZSBoYXZlIGEgcG9kY2FzdCBzZXJpZXMgc2VjdGlvbiBmb3IgZGlmZmVyZW50IHNlcmllcyBcblxuQ2FuIHdlIGFkZCBhIG5ldyBzZWN0aW9uIGZvciBsaXZlIHN0cmVhbXMgXG5cbkFuZCB3ZSBjYW4gYWRkIHRoaXMgaW1hZ2UgYXMgdGhlIGZpcnN0IG9uZS4gXG5cbjxpbWcgd2lkdGg9XCIxNzkyXCIgaGVpZ2h0PVwiMTA4MFwiIGFsdD1cIkltYWdlXCIgc3JjPVwiaHR0cHM6Ly9naXRodWIuY29tL3VzZXItYXR0YWNobWVudHMvYXNzZXRzLzMyMWUwNGY1LTE4YTItNGNlMS04OTNmLTFkNDllZmU4ZjhkNVwiIC8-XG5cbkBzZXBvLWFnZW50IGxldCdzIHRoaW5rIGFib3V0IHRoZSBiZXN0IHdheSB0byBkbyBpdD8gIiwiaXNzdWVfdGl0bGUiOiJBZGQgTGl2ZSBTdHJlYW1zIHNlY3Rpb24gdG8gd2Vic2l0ZSIsImlzc3VlX2JvZHkiOiIjIyBHb2FsXG5cbkFkZCBhIG5ldyAqKkxpdmUgU3RyZWFtcyoqIHNlY3Rpb24gdG8gdGhlIHdlYnNpdGUsIHNpbWlsYXIgaW4gc3RydWN0dXJlIHRvIHRoZSBleGlzdGluZyBwb2RjYXN0IHNlcmllcyBzZWN0aW9uLlxuXG4jIyBDb250ZXh0XG5cblRoZSBzaXRlIGN1cnJlbnRseSBoYXMgYSBwb2RjYXN0IHNlcmllcyBzZWN0aW9uIHRoYXQgZGlzcGxheXMgZGlmZmVyZW50IHNlcmllcy4gVGhlIHVzZXIgd2FudHMgYSBwYXJhbGxlbCBzZWN0aW9uIGZvciBsaXZlIHN0cmVhbXMsIHdpdGggdGhlIGZpcnN0IGVudHJ5IHVzaW5nIHRoZSBpbWFnZSBwcm92aWRlZCBpbiBpc3N1ZSAjNDg6XG5cbiFbTGl2ZSBTdHJlYW0gSW1hZ2VdKGh0dHBzOi8vZ2l0aHViLmNvbS91c2VyLWF0dGFjaG1lbnRzL2Fzc2V0cy8zMjFlMDRmNS0xOGEyLTRjZTEtODkzZi0xZDQ5ZWZlOGY4ZDUpXG5cbiMjIEFjY2VwdGFuY2UgQ3JpdGVyaWFcblxuLSBbIF0gQSBuZXcgXCJMaXZlIFN0cmVhbXNcIiBzZWN0aW9uIGlzIGFkZGVkIHRvIHRoZSB3ZWJzaXRlLCB2aXN1YWxseSBjb25zaXN0ZW50IHdpdGggdGhlIHBvZGNhc3Qgc2VyaWVzIHNlY3Rpb25cbi0gWyBdIFRoZSBzZWN0aW9uIGluY2x1ZGVzIHRoZSBwcm92aWRlZCBpbWFnZSBhcyB0aGUgZmlyc3QgbGl2ZSBzdHJlYW0gZW50cnlcbi0gWyBdIFRoZSBlbnRyeSBoYXMgYXBwcm9wcmlhdGUgcGxhY2Vob2xkZXIgbWV0YWRhdGEgKHRpdGxlLCBkYXRlLCBkZXNjcmlwdGlvbikgdGhhdCBjYW4gYmUgdXBkYXRlZCBsYXRlclxuLSBbIF0gVGhlIHNlY3Rpb24gaXMgZGF0YS1kcml2ZW4gKGUuZy4sIHVzZXMgYSBjb25maWcvZGF0YSBmaWxlKSBzbyBmdXR1cmUgbGl2ZSBzdHJlYW1zIGNhbiBiZSBhZGRlZCBlYXNpbHlcbi0gWyBdIFRoZSBsYXlvdXQgaXMgcmVzcG9uc2l2ZSBhbmQgbWF0Y2hlcyB0aGUgZXhpc3Rpbmcgc2l0ZSBkZXNpZ24ifQ -->\n",
+      "createdAt": "2026-05-28T20:39:02Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/48#issuecomment-4568020169",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-05-28T20:37:59Z",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "number": 48,
+  "state": "OPEN",
+  "title": "Design a new section on our website:",
+  "updatedAt": "2026-05-28T20:39:03Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/48"
+}
