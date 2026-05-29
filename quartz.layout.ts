@@ -28,7 +28,7 @@ const liveStreamsCarousel = Component.EpisodeCarousel({
   limit: 20,
   showTags: false,
   filter: (f) => f.slug!.startsWith("live-streams/") && f.slug! !== "live-streams/index",
-  linkToMore: false,
+  linkToMore: "live-streams/" as SimpleSlug,
 })
 
 // Subscribe links for podcast platforms
