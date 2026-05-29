@@ -83,3 +83,35 @@ jobs:
 
               throw error;
             }
+
+  teardown-preview:
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      startsWith(github.event.pull_request.head.ref, 'agent/implement-issue-')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Resolve GitHub auth
+        id: auth
+        uses: ./.github/actions/resolve-github-auth
+        with:
+          app_id: ${{ secrets.AGENT_APP_ID }}
+          app_private_key: ${{ secrets.AGENT_APP_PRIVATE_KEY }}
+          pat: ${{ secrets.AGENT_PAT }}
+          fallback_token: ${{ github.token }}
+
+      - name: Teardown surge preview
+        continue-on-error: true
+        env:
+          SURGE_LOGIN: ${{ secrets.SURGE_LOGIN }}
+          SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          if [[ "$HEAD_REF" =~ implement-issue-([0-9]+) ]]; then
+            ISSUE_N="${BASH_REMATCH[1]}"
+            npx surge teardown "augmented-mind-preview-${ISSUE_N}.surge.sh" --token "$SURGE_TOKEN"
+          fi

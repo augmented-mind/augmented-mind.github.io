@@ -32,6 +32,7 @@ const prUrl = process.env.PR_URL || "";
 const requestedBy = process.env.REQUESTED_BY || "";
 const approvalCommentUrl = process.env.APPROVAL_COMMENT_URL || "";
 const resumeStatus = process.env.RESUME_STATUS || "";
+const previewUrl = process.env.PREVIEW_URL || "";
 const repo = process.env.GITHUB_REPOSITORY || "";
 const collapseOldReviews = !["false", "0", "no", "off"].includes(
   (process.env.AGENT_COLLAPSE_OLD_REVIEWS || "").trim().toLowerCase(),
@@ -56,6 +57,7 @@ if (route === "review") {
     status,
     summary,
     branch,
+    previewUrl: previewUrl || undefined,
     requestedBy: requestedBy || undefined,
     approvalCommentUrl: approvalCommentUrl || undefined,
   });
@@ -69,6 +71,7 @@ if (route === "review") {
     summary: parsed.summary,
     branch: branch || undefined,
     prUrl: prUrl || undefined,
+    previewUrl: previewUrl || undefined,
     approvalCommentUrl: approvalCommentUrl || undefined,
   });
 }
