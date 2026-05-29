@@ -101,6 +101,7 @@ on:
 permissions:
   actions: write
   contents: write
+  issues: read
   pull-requests: write
   id-token: write # required for GitHub Actions OIDC broker exchange
 

@@ -90,20 +90,6 @@ jobs:
       startsWith(github.event.pull_request.head.ref, 'agent/implement-issue-')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-          persist-credentials: false
-
-      - name: Resolve GitHub auth
-        id: auth
-        uses: ./.github/actions/resolve-github-auth
-        with:
-          app_id: ${{ secrets.AGENT_APP_ID }}
-          app_private_key: ${{ secrets.AGENT_APP_PRIVATE_KEY }}
-          pat: ${{ secrets.AGENT_PAT }}
-          fallback_token: ${{ github.token }}
-
       - name: Teardown surge preview
         continue-on-error: true
         env:
