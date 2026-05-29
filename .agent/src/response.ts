@@ -35,6 +35,7 @@ export interface StatusCommentData {
   summary?: string;
   branch?: string;
   prUrl?: string;
+  previewUrl?: string;
   requestedBy?: string;
   approvalCommentUrl?: string;
 }
@@ -51,6 +52,7 @@ export function formatImplementComment(data: StatusCommentData): string {
       const lines = ["**Sepo implementation finished**", ""];
       if (data.branch) lines.push(`- Branch: \`${data.branch}\``);
       if (data.prUrl) lines.push(`- Pull request: ${data.prUrl}`);
+      if (data.previewUrl) lines.push(`- Preview: ${data.previewUrl}`);
       if (data.approvalCommentUrl) lines.push(`- Approval: ${data.approvalCommentUrl}`);
       lines.push("", data.summary ?? "");
       return lines.join("\n");
@@ -90,7 +92,10 @@ export function formatFixPrComment(data: StatusCommentData): string {
       const requestedBy = data.requestedBy ? formatMention(data.requestedBy) : "";
       if (requestedBy) line += ` Requested by ${requestedBy}.`;
       if (data.approvalCommentUrl) line += ` Approval: ${data.approvalCommentUrl}.`;
-      return [line, "", marker, "", data.summary ?? ""].join("\n");
+      const successLines = [line, "", marker, ""];
+      if (data.previewUrl) successLines.push(`Preview: ${data.previewUrl}`, "");
+      successLines.push(data.summary ?? "");
+      return successLines.join("\n");
     }
     case "no_changes":
       return [
