@@ -10,3 +10,4 @@
 - Sepo infra at v0.1.0; new workflows active: agent-update, agent-onboarding, agent-project-manager, agent-release-prepare
 - Quartz ignorePatterns and draft:true both exclude files before allFiles is built — components doing allFiles cross-file lookups (e.g. Transcript.tsx) must NOT use either to suppress caption files from the index; use ContentIndex-level path filtering instead.
 - Live Streams section: content/live-streams/ dir, ls*.md files, EpisodeCarousel with contentType filter in quartz.layout.ts — pattern for future non-episode content types.
+- Surge.sh previews: adding 'preview' label to an issue triggers deploy to augmented-mind-preview-<N>.surge.sh; teardown fires on PR close. Requires SURGE_LOGIN + SURGE_TOKEN secrets.
