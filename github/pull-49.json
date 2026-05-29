@@ -1,0 +1,54 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n\n- Adds a new **Live Streams** section to the homepage, visually consistent with the existing Episodes carousel\n- Creates `content/live-streams/` as a data-driven directory — new live streams are added by dropping a new `.md` file in this folder\n- First entry `ls01.md` uses the cover image from issue #48, saved as `quartz/static/covers/LS01-cover.png`\n- Reuses the existing `EpisodeCarousel` component with a `live-streams/` path filter (no new component needed)\n\n## Test plan\n\n- [ ] Homepage shows \"Live Streams\" carousel below \"Episodes\" carousel\n- [ ] LS01 card displays the provided cover image\n- [ ] Adding a new `.md` file to `content/live-streams/` causes it to appear in the carousel\n- [ ] Dark mode and mobile layout look correct\n\nCloses #48\n",
+  "closedAt": null,
+  "comments": [],
+  "createdAt": "2026-05-28T21:05:58Z",
+  "files": [
+    {
+      "path": "content/live-streams/index.md",
+      "additions": 5,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "content/live-streams/ls01.md",
+      "additions": 9,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "quartz.layout.ts",
+      "additions": 14,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/static/covers/LS01-cover.png",
+      "additions": 0,
+      "deletions": 0,
+      "changeType": "ADDED"
+    }
+  ],
+  "headRefName": "agent/implement-issue-48/claude-26602129570",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": null,
+  "number": 49,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "OPEN",
+  "title": "Add Live Streams section to website homepage",
+  "updatedAt": "2026-05-28T21:06:00Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/49"
+}
