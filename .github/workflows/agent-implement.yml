@@ -297,11 +297,12 @@ jobs:
         run: node .agent/dist/cli/add-label.js
 
       - name: Deploy preview
-        if: steps.commit.outputs.committed == 'true' && env.DEPLOY_PREVIEW == 'true'
+        if: steps.commit.outputs.committed == 'true' && env.DEPLOY_PREVIEW == 'true' && steps.pr.outputs.pr_number != ''
         continue-on-error: true
         env:
           SURGE_LOGIN: ${{ secrets.SURGE_LOGIN }}
           SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
+          PR_NUMBER: ${{ steps.pr.outputs.pr_number }}
         run: |
           set -euo pipefail
           if [[ -z "$SURGE_LOGIN" || -z "$SURGE_TOKEN" ]]; then
@@ -310,7 +311,7 @@ jobs:
           fi
           npm ci
           npx quartz build
-          PREVIEW_DOMAIN="augmented-mind-preview-${ISSUE_NUMBER}.surge.sh"
+          PREVIEW_DOMAIN="augmented-mind-preview-${PR_NUMBER}.surge.sh"
           npx surge ./public "$PREVIEW_DOMAIN" --token "$SURGE_TOKEN"
           echo "PREVIEW_URL=https://${PREVIEW_DOMAIN}" >> "$GITHUB_ENV"
 
