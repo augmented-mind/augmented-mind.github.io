@@ -101,6 +101,7 @@ on:
 permissions:
   actions: write
   contents: write
+  issues: read
   pull-requests: write
   id-token: write # required for GitHub Actions OIDC broker exchange
 
@@ -154,6 +155,24 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           PR_NUMBER: ${{ env.PR_NUMBER }}
         run: node .agent/dist/cli/checkout-pr.js
+
+      - name: Check preview label from branch
+        continue-on-error: true
+        if: steps.pr.outputs.cross_repo != 'true' && steps.pr.outputs.pr_state == 'OPEN'
+        env:
+          GH_TOKEN: ${{ steps.auth.outputs.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          HEAD_REF: ${{ steps.pr.outputs.head_ref }}
+        run: |
+          set -euo pipefail
+          if [[ "$HEAD_REF" =~ implement-issue-([0-9]+) ]]; then
+            ISSUE_N="${BASH_REMATCH[1]}"
+            LABELS=$(gh issue view "$ISSUE_N" --repo "$GITHUB_REPOSITORY" --json labels --jq '.labels[].name' 2>/dev/null || echo "")
+            if echo "$LABELS" | grep -qx "preview"; then
+              echo "DEPLOY_PREVIEW=true" >> "$GITHUB_ENV"
+              echo "PREVIEW_ISSUE_N=${ISSUE_N}" >> "$GITHUB_ENV"
+            fi
+          fi
 
       - name: Label target pull request
         if: vars.AGENT_STATUS_LABEL_ENABLED == 'true' && steps.pr.outputs.cross_repo != 'true' && steps.pr.outputs.pr_state == 'OPEN'
@@ -257,6 +276,20 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: node .agent/dist/cli/push-pr-head.js
 
+      - name: Deploy preview
+        if: (steps.commit.outputs.committed == 'true' || steps.push-head.outcome == 'success') && env.DEPLOY_PREVIEW == 'true'
+        continue-on-error: true
+        env:
+          SURGE_LOGIN: ${{ secrets.SURGE_LOGIN }}
+          SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
+        run: |
+          set -euo pipefail
+          npm ci
+          npx quartz build
+          PREVIEW_DOMAIN="augmented-mind-preview-${PREVIEW_ISSUE_N}.surge.sh"
+          npx surge ./public "$PREVIEW_DOMAIN" --token "$SURGE_TOKEN"
+          echo "PREVIEW_URL=https://${PREVIEW_DOMAIN}" >> "$GITHUB_ENV"
+
       - name: Post status comment
         if: always() && steps.pr.outputs.cross_repo != 'true' && steps.pr.outputs.pr_state == 'OPEN'
         env:
@@ -266,6 +299,7 @@ jobs:
           COMMENT_TARGET: pr
           GH_TOKEN: ${{ steps.auth.outputs.token }}
           PR_NUMBER: ${{ env.PR_NUMBER }}
+          PREVIEW_URL: ${{ env.PREVIEW_URL }}
           REQUESTED_BY: ${{ inputs.orchestration_enabled == 'true' && (vars.AGENT_HANDLE || '@sepo-agent') || inputs.requested_by || github.actor }}
           RESPONSE_FILE: ${{ steps.agent.outputs.response_file }}
           RESUME_STATUS: ${{ steps.agent.outputs.resume_status }}
