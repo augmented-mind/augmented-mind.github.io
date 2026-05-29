@@ -127,6 +127,7 @@ concurrency:
 jobs:
   implement:
     runs-on: ${{ fromJson(inputs.runs_on || vars.AGENT_RUNS_ON || '["ubuntu-latest"]') }}
+    environment: preview
     env:
       ISSUE_NUMBER: ${{ inputs.issue_number }}
       IMPLEMENTATION_ROUTE: ${{ inputs.implementation_route || 'implement' }}
@@ -303,6 +304,10 @@ jobs:
           SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
         run: |
           set -euo pipefail
+          if [[ -z "$SURGE_LOGIN" || -z "$SURGE_TOKEN" ]]; then
+            echo "::error::Surge credentials are empty; skipping deployment."
+            exit 1
+          fi
           npm ci
           npx quartz build
           PREVIEW_DOMAIN="augmented-mind-preview-${ISSUE_NUMBER}.surge.sh"
