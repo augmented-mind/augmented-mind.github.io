@@ -68,11 +68,17 @@
       "name": "agent",
       "description": "Handled by the agent",
       "color": "0e8a16"
+    },
+    {
+      "id": "LA_kwDOQ106188AAAAClP46Lw",
+      "name": "preview",
+      "description": "",
+      "color": "31B16D"
     }
   ],
   "number": 48,
   "state": "OPEN",
   "title": "Design a new section on our website:",
-  "updatedAt": "2026-05-28T21:06:01Z",
+  "updatedAt": "2026-05-29T18:46:29Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/48"
 }

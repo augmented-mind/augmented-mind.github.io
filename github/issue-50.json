@@ -6,7 +6,7 @@
     "name": "Shannon Shen"
   },
   "body": "@sepo-agent \n\n1. For the implement request, can we improve the workflow such that the agent can provide some screenshot so we can validate it directly\n2. or can we just have a \"fake deployment\" somewhere even? ",
-  "closedAt": null,
+  "closedAt": "2026-05-29T18:20:31Z",
   "comments": [
     {
       "id": "IC_kwDOQ106188AAAABEFaW2w",
@@ -111,6 +111,138 @@
       "reactionGroups": [],
       "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/50#issuecomment-4569214923",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABENwh7g",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /answer also we should do proper cleanups after the PR got merged right? we should remove the temporary link ",
+      "createdAt": "2026-05-29T17:08:35Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/50#issuecomment-4577829358",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABENxXrQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Yes — cleanup is already part of the plan from the previous thread. Here's how it would work specifically:\n\n**Where**: `agent-branch-cleanup.yml` — it already triggers on `pull_request_target: types: [closed]` for all agent branches, making it the natural home.\n\n**How**: Extract the issue number from the branch name, then call `surge teardown`:\n\n```bash\n# Branch name pattern: agent/implement-issue-${N}/${provider}-${runId}\nISSUE_N=$(echo \"${{ github.event.pull_request.head.ref }}\" | grep -oP 'implement-issue-\\K[0-9]+')\nnpx surge teardown \"augmented-mind-preview-${ISSUE_N}.surge.sh\" --token \"$SURGE_TOKEN\"\n```\n\n**One thing to note**: the current cleanup job is gated on `merged == true`, so it only runs when the PR is merged. For surge teardown, we'd want it to run on **any close** (merge OR decline) — no reason to keep the preview URL alive for a rejected PR.\n\nThe cleanest approach is a **second job** in `agent-branch-cleanup.yml` (`teardown-preview`) with a looser `if` condition:\n- `startsWith(head.ref, 'agent/implement-issue-')` — only for implement runs, not every agent branch\n- No `merged == true` check — fires on both merge and close\n- Needs `SURGE_LOGIN` + `SURGE_TOKEN` secrets wired in (the cleanup workflow currently only has the GitHub auth secrets)\n\nSo the full list of changes is confirmed: `agent-implement.yml` (label check + build + deploy), `.agent/src/response.ts` + `post-comment.ts` (surface the URL), `.agent/dist/` rebuild, and `agent-branch-cleanup.yml` (teardown job). Ready to implement whenever you are.",
+      "createdAt": "2026-05-29T17:10:29Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/50#issuecomment-4577843117",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABENyoVQ",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "oh interesting. one more question: if we conduct fix-pr in the same branch, should we allow the new version to be deployed as well? \n\n@sepo-agent /answer ",
+      "createdAt": "2026-05-29T17:13:24Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/50#issuecomment-4577863765",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABENzkYA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Yes — and it actually fits naturally.** Here's the reasoning:\n\nFix-pr works on the **same branch** as the original implement. If that branch has a preview deployed, it's now stale the moment fix-pr commits new changes. Anyone who opened the preview URL to spot an issue will be confused if it doesn't reflect the fix.\n\n### How it would work in `agent-fix-pr.yml`\n\nThe fix-pr workflow has `steps.pr.outputs.head_ref` (the branch name), but no `issue_number` input. The issue number has to be extracted from the branch name:\n\n```bash\nBRANCH=\"${{ steps.pr.outputs.head_ref }}\"\nif [[ \"$BRANCH\" =~ implement-issue-([0-9]+) ]]; then\n  ISSUE_N=\"${BASH_REMATCH[1]}\"\n  # check preview label on issue $ISSUE_N, then deploy\nfi\n```\n\nThis naturally handles the case where fix-pr runs on a **non-implement branch** (e.g. a `create-action` branch) — the regex doesn't match, so the step is skipped entirely with no label check needed.\n\n### Condition stack for the deploy step\n\n```\nif: steps.commit.outcome == 'success'       # only if changes were actually committed\n    && BRANCH matches implement-issue-${N}   # only implement branches\n    && issue N has preview label             # same gate as implement\n```\n\nNo changes → no redeploy (correct: same state, no point redeploying).\n\n### Where the URL appears\n\nFix-pr posts its comment to the **PR** (not the issue). The preview URL appearing in the PR comment is actually *better placement* for fix-pr than for implement — reviewers are already watching the PR when they trigger a fix, so surfacing the updated preview URL right there closes the loop.\n\n### Summary of additions to `agent-fix-pr.yml`\n\nTwo steps after \"Commit and push to PR branch\":\n1. Extract issue number from branch name + check `preview` label → set `DEPLOY_PREVIEW` + `ISSUE_N`\n2. Build + surge deploy (gated on `DEPLOY_PREVIEW == true`) → set `PREVIEW_URL`\n\nThen pass `PREVIEW_URL` to \"Post status comment\" (same pattern as implement).\n\nThis keeps the fix-pr additions symmetric with implement — same gate, same URL, same comment injection pattern.",
+      "createdAt": "2026-05-29T17:15:34Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/50#issuecomment-4577879136",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEN4A3A",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /orchestrate Let's implement this! ",
+      "createdAt": "2026-05-29T17:25:30Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/50#issuecomment-4577951964",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEN5AvA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| orchestrate | implement | Issue #50 | 2 / 40 | Dispatched |\n\nReason: agent planner selected implement: User explicitly asked to implement the Surge.sh PR preview deployment plan, which was fully designed across the issue thread. All design decisions are resolved.\n\n<!-- sepo-agent-handoff state:dispatched created:1780075656714 base64:aGFuZG9mZjphdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW86MjY2NTE5MzE2ODQ6b3JjaGVzdHJhdGU6NTA6aW1wbGVtZW50OjUwOjI -->",
+      "createdAt": "2026-05-29T17:27:37Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/50#issuecomment-4577968316",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEN8DeA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo implementation finished**\n\n- Branch: `agent/implement-issue-50/claude-26652028729`\n- Pull request: https://github.com/augmented-mind/augmented-mind.github.io/pull/52\n\nImplemented Surge.sh PR preview deployment across 5 files. In agent-implement.yml: added 'Check preview label' step that gates deployment on a 'preview' issue label, and 'Deploy preview' step that runs npm ci + npx quartz build + npx surge after a successful commit, setting PREVIEW_URL in the env. In agent-fix-pr.yml: added symmetric steps that extract the issue number from the branch name before checking the label, so fix-pr runs on implement branches also redeploy. In agent-branch-cleanup.yml: added a second 'teardown-preview' job that fires on any PR close (not just merge) for implement-issue branches and calls npx surge teardown. In response.ts: added previewUrl optional field to StatusCommentData, surfaced in both formatImplementComment and formatFixPrComment success cases. In post-comment.ts: reads PREVIEW_URL env and passes it through. TypeScript compiled cleanly with npm run build.",
+      "createdAt": "2026-05-29T17:33:09Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/50#issuecomment-4578018168",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-05-28T23:09:01Z",
@@ -123,8 +255,8 @@
     }
   ],
   "number": 50,
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "Implement with hosting / screenshots?",
-  "updatedAt": "2026-05-28T23:42:25Z",
+  "updatedAt": "2026-05-29T18:20:31Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/50"
 }

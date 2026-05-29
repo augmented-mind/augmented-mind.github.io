@@ -1,0 +1,255 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n\n- Adds a `preview` label gate: adding the `preview` label to any issue triggers a Surge.sh deployment after the agent commits changes\n- `agent-implement.yml`: check label → build (`npm ci` + `npx quartz build`) → deploy to `augmented-mind-preview-<N>.surge.sh` → surface URL in the Sepo status comment\n- `agent-fix-pr.yml`: symmetric support — extracts the issue number from the branch name, checks the same label, and redeploys after fix-pr commits so the preview stays current\n- `agent-branch-cleanup.yml`: new `teardown-preview` job fires on any PR close (merge or decline) and calls `npx surge teardown` to clean up stale previews\n- `response.ts` + `post-comment.ts`: `previewUrl` field added to `StatusCommentData`; rendered as `- Preview: <url>` in the implement comment and `Preview: <url>` in the fix-pr comment\n\n## Setup required\n\nAdd two repo secrets before first use:\n- `SURGE_LOGIN` — your Surge account email\n- `SURGE_TOKEN` — token from `npx surge token` (requires `npm install -g surge` + `surge login`)\n\n## Test plan\n\n- [ ] Add `preview` label to a test issue, trigger `/implement`, verify preview URL appears in the Sepo comment\n- [ ] Trigger `/fix-pr` on the resulting PR, verify the preview URL is updated in the PR comment\n- [ ] Merge or close the PR, verify the `teardown-preview` job runs and the URL goes dark\n- [ ] Trigger `/implement` on an issue without the `preview` label, verify no surge steps run\n\nCloses #50\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n",
+  "closedAt": "2026-05-29T18:20:30Z",
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABEN8xVw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| implement | review | PR #52 | 3 / 40 | Dispatched |\n\nReason: agent planner selected review: implement succeeded and produced PR #52 with the Surge.sh preview deployment feature. Handing off to review to validate correctness of the workflow changes across agent-implement.yml, agent-fix-pr.yml, agent-branch-cleanup.yml, response.ts, and post-comment.ts.\n\n<!-- sepo-agent-handoff state:dispatched created:1780076064718 base64:aGFuZG9mZjphdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW86MjY2NTIwMjg3Mjk6aW1wbGVtZW50OjUwOnJldmlldzo1Mjoz -->",
+      "createdAt": "2026-05-29T17:34:25Z",
+      "includesCreatedEdit": true,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/52#issuecomment-4578029911",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEN9nkA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "`RUBRICS_AVAILABLE=false` — the `agent/rubrics` branch has not been initialized for this repository. No rubrics are mounted.\n\n---\n\n## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| N/A | N/A | 0 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| — | — | not applicable | N/A | No rubrics branch (`agent/rubrics`) exists for this repository. |\n\n## Notes\n\n- The `agent/rubrics` branch has not been initialized (`RUBRICS_AVAILABLE=false`, `RUBRICS_DIR` is empty). No active rubrics were available to score this PR against.\n- To enable rubric-based review, run **Agent / Rubrics / Initialization** (`agent-rubrics-initialization.yml`) via `workflow_dispatch`. Once the branch is seeded, future review runs will score PRs against any active rubrics whose `applies_to` includes `review`.\n- No rubric-specific follow-up needed — the implementation itself (Surge.sh preview deployments for implement/fix-pr runs) matches the plan agreed in issue #50 with no design deviations.\n\n## Findings\n\n- **INFO:** Rubrics system not yet initialized for this repository. This is expected for a fresh install — not a defect in PR #52.\n\n## Final Rubric Verdict\n\nN/A",
+      "createdAt": "2026-05-29T17:35:52Z",
+      "includesCreatedEdit": false,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/52#issuecomment-4578043792",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEOBeWA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\n\nPR #52 adds label-gated Surge.sh preview deployments to the agent automation pipeline. When an issue has the `preview` label, running `/implement` builds the Quartz site and deploys to `augmented-mind-preview-<N>.surge.sh`, surfacing the URL in the Sepo status comment. The `fix-pr` workflow mirrors this behavior, redeploying after commits. A new `teardown-preview` job in `agent-branch-cleanup.yml` fires on PR close and calls `surge teardown` to clean up stale previews. The `StatusCommentData` interface and both comment formatters are extended with an optional `previewUrl` field. Two secrets (`SURGE_LOGIN`, `SURGE_TOKEN`) are required before first use.\n\n## Review\n\nThe feature is correct and complete — the label gate, per-issue URL scheme, symmetric implement/fix-pr coverage, and teardown-on-close all match the plan agreed in issue #50. Two workflow issues should be fixed before the label sees regular use: an unnecessary checkout+auth step in teardown, and a missing `issues: read` permission in fix-pr that causes a silent failure with the `github.token` fallback.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Unused auth in `teardown-preview` | WARNING | `checkout@v4` and `resolve-github-auth` are present but `steps.auth.outputs.token` is never used; only `SURGE_LOGIN`/`SURGE_TOKEN` are needed. |\n| Missing `issues: read` in `agent-fix-pr.yml` | WARNING | The new label-check step calls `gh issue view` but the workflow's `permissions` block lacks `issues: read`; with the `github.token` fallback this fails silently and no preview is deployed. |\n| Uncached `npm ci` in deploy steps | INFO | Both deploy steps run `npm ci` without a cache layer, adding ~30–60 s per preview run. |\n| `SURGE_LOGIN` likely unused for teardown | INFO | `surge teardown` only uses `--token`; the env var appears to be a no-op for this subcommand. |\n| No tests for `previewUrl` branches | INFO | The `if (data.previewUrl)` guard in `formatImplementComment`/`formatFixPrComment` is untested; coverage is low-risk but easy to add. |\n\n## Progress\n\n- Design matches issue #50 plan exactly — no scope deviations flagged.\n- `.agent/dist/` correctly excluded from the PR (gitignored; rebuilt at runtime via `setup-agent-runtime`).\n- Rubrics not yet initialized for this repo (`agent/rubrics` branch absent); no rubric-specific findings.\n- PR description documents the two required secrets clearly.\n\n## Issue Details\n\n<details>\n<summary>Unused auth in <code>teardown-preview</code></summary>\n\n**Cause:** The `teardown-preview` job was likely scaffolded from the `cleanup` job above it, which does need `steps.auth.outputs.token` (passed to `actions/github-script`). The teardown job only runs a shell command using `SURGE_LOGIN`/`SURGE_TOKEN` and never references the auth output.\n\n**Candidate solutions:**\n- Remove the `uses: actions/checkout@v4` step and the `Resolve GitHub auth` step entirely. The `teardown-preview` job runs on `ubuntu-latest` with no local composite action; no checkout is needed.\n\n**Comments:** Harmless in practice (`continue-on-error: true` on the teardown step), but adds unnecessary checkout time on every PR close.\n\n</details>\n\n<details>\n<summary>Missing <code>issues: read</code> in <code>agent-fix-pr.yml</code></summary>\n\n**Cause:** The `permissions` block (`actions: write`, `contents: write`, `pull-requests: write`, `id-token: write`) was not updated when the label-check step was added. `agent-implement.yml` already has `issues: write` but `agent-fix-pr.yml` does not.\n\n**Candidate solutions:**\n- Add `issues: read` to the `permissions` block in `agent-fix-pr.yml` (line 101–105 in the current file).\n\n**Comments:** Works fine when the app token or PAT is available (both carry broader issue access). The failure mode is silent only with the `github.token` fallback — `LABELS` returns empty, `DEPLOY_PREVIEW` is never set, and the preview silently skips with no log message.\n\n</details>\n\n<details>\n<summary>Uncached <code>npm ci</code> in deploy steps</summary>\n\n**Cause:** Both deploy steps run a bare `npm ci` from the Quartz project root with no `actions/cache` or `setup-node cache: 'npm'` wrapper.\n\n**Candidate solutions:**\n- Add `actions/setup-node` with `cache: 'npm'` before the deploy steps, or add an explicit `actions/cache` step for `~/.npm`.\n\n**Comments:** Not a blocker. The cost is ~30–60 s per preview-label run and only matters on busy repos.\n\n</details>\n\n## Recommended Next Step\n\n`FIX_PR` — the two WARNING findings are concrete, safe, one-line workflow changes (remove two steps from `teardown-preview`; add `issues: read` to `agent-fix-pr.yml`) that can be applied in an automated fix-pr pass.\n\n## Final Verdict\n\n`MINOR_ISSUES`\n\n## Action Items\n\n- [ ] Remove the `uses: actions/checkout@v4` step and `Resolve GitHub auth` step from the `teardown-preview` job in `.github/workflows/agent-branch-cleanup.yml` — neither is used by that job.\n- [ ] Add `issues: read` to the `permissions` block in `.github/workflows/agent-fix-pr.yml` to prevent silent failure of the label-check step when `github.token` is the active credential.\n\n---\n\n**Inline comments posted:** 2\n- `.github/workflows/agent-branch-cleanup.yml` line 98: unused `resolve-github-auth` in teardown-preview\n- `.github/workflows/agent-fix-pr.yml` line 169: missing `issues: read` for `gh issue view` call",
+      "createdAt": "2026-05-29T17:43:37Z",
+      "includesCreatedEdit": false,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/52#issuecomment-4578106968",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEOB9BA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| review | fix-pr | PR #52 | 4 / 40 | Dispatched |\n\nReason: agent planner selected fix-pr: Review concluded minor_issues with two concrete, safe-to-automate branch changes: remove unused steps from teardown-preview job and add missing issues:read permission.\n\nTask for fix-pr:\nAddress only the following two concrete findings from the review:\n\n1. `.github/workflows/agent-branch-cleanup.yml` — `teardown-preview` job: remove the `uses: actions/checkout@v4` step and the `Resolve GitHub auth` step (both are unused by this job and add unnecessary surface area).\n\n2. `.github/workflows/agent-fix-pr.yml` — `permissions` block: add `issues: read` to prevent silent failure of the label-check step that calls `gh issue view` when `github.token` is the active credential.\n\nConstraints:\n- Do not touch any other jobs, steps, or files.\n- Do not fix optional INFO notes, metadata-only polish, already-fixed findings, or style/naming preferences.\n- Do not reformat or restructure surrounding YAML beyond the minimal edits required.\n\n<!-- sepo-agent-handoff state:dispatched created:1780076679526 base64:aGFuZG9mZjphdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW86MjY2NTIzNTY2Mzg6cmV2aWV3OjUyOmZpeF9wcjo1Mjo0 -->",
+      "createdAt": "2026-05-29T17:44:40Z",
+      "includesCreatedEdit": true,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/52#issuecomment-4578114820",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEOClgg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo pushed fixes for this PR.** Branch: `agent/implement-issue-50/claude-26652028729`. Requested by @sepo-agent.\n\n<!-- sepo-agent-fix-pr-status -->\n\n- Removed unused `actions/checkout@v4` and `Resolve GitHub auth` steps from the `teardown-preview` job in `.github/workflows/agent-branch-cleanup.yml` — neither is referenced by that job (only `SURGE_LOGIN`/`SURGE_TOKEN` are needed).\n- Added `issues: read` to the `permissions` block in `.github/workflows/agent-fix-pr.yml` to prevent silent failure of the label-check step that calls `gh issue view` when `github.token` is the active credential.",
+      "createdAt": "2026-05-29T17:46:18Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/52#issuecomment-4578125186",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEOQzIg",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /orchestrate ",
+      "createdAt": "2026-05-29T18:09:30Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/52#issuecomment-4578358050",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEOSsNQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| orchestrate | review | PR #52 | 2 / 40 | Dispatched |\n\nReason: agent planner selected review: fix-pr completed successfully in round 4 (removed unused checkout/auth steps from teardown-preview, added issues:read to agent-fix-pr.yml). User triggered /orchestrate after the fixes, so a follow-up review should confirm the two WARNING findings are resolved and the PR is ready to merge.\n\n<!-- sepo-agent-handoff state:dispatched created:1780078301555 base64:aGFuZG9mZjphdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW86MjY2NTQwMjczNDc6b3JjaGVzdHJhdGU6NTI6cmV2aWV3OjUyOjI -->",
+      "createdAt": "2026-05-29T18:11:42Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/52#issuecomment-4578389045",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEOTurw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "I have enough context. The current diff represents the post-fix-pr state. Let me verify the two prior WARNING findings against the live diff.\n\n**Finding 1 — Unused checkout/auth in `teardown-preview`:** The `teardown-preview` job in the current diff has only one step (`Teardown surge preview`) — no `actions/checkout@v4`, no `Resolve GitHub auth`. **Resolved.**\n\n**Finding 2 — Missing `issues: read` in `agent-fix-pr.yml`:** The permissions block now includes `issues: read`. **Resolved.**\n\nNo rubrics branch exists (`RUBRICS_AVAILABLE=false`), so rubric scoring is N/A as before.\n\n---\n\n## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| N/A | N/A | 0 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| — | — | not applicable | N/A | No rubrics branch (`agent/rubrics`) exists for this repository. |\n\n## Notes\n\n- No rubrics are mounted (`agent/rubrics` branch not initialized). Rubric scoring remains N/A.\n- This is a re-review after `fix-pr` addressed the two WARNING findings from round 3. Both are confirmed resolved in the current diff:\n  - `teardown-preview` job now contains only the `Teardown surge preview` shell step — the unused `actions/checkout@v4` and `Resolve GitHub auth` steps are gone.\n  - `agent-fix-pr.yml` permissions block now includes `issues: read`, preventing silent failure of the label-check step under `github.token`.\n- The three INFO findings from the prior review (uncached `npm ci`, `SURGE_LOGIN` likely no-op for teardown, no unit tests for `previewUrl` guard) remain unaddressed — appropriate, as none were flagged for `fix-pr`.\n- PR is feature-complete against issue #50 and clean of WARNING-level findings. Ready to merge pending secret setup (`SURGE_LOGIN`, `SURGE_TOKEN`).\n- No rubric-specific follow-up needed.\n\n## Findings\n\n- **INFO:** Rubrics system not yet initialized for this repository (`agent/rubrics` branch absent). Run **Agent / Rubrics / Initialization** (`agent-rubrics-initialization.yml`) to enable rubric-based scoring in future reviews.\n- **INFO:** Both WARNING findings from round 3 are resolved. No new issues introduced by the fix-pr commit.\n\n## Final Rubric Verdict\n\nN/A",
+      "createdAt": "2026-05-29T18:12:59Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/52#issuecomment-4578406063",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEOYDNQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\n\nPR #52 adds label-gated Surge.sh preview deployments to the agent automation pipeline. When an issue carries the `preview` label, running `/implement` builds the Quartz site and deploys it to `augmented-mind-preview-<N>.surge.sh`, surfacing the URL in the Sepo status comment. The `fix-pr` workflow mirrors this: it redeploys after every fix commit so the preview stays current. A new `teardown-preview` job in `agent-branch-cleanup.yml` fires on PR close and calls `surge teardown` to clean up stale previews. Two secrets (`SURGE_LOGIN`, `SURGE_TOKEN`) are required before first use. This closes issue #50.\n\n## Review\n\nBoth reviewers agree: the two WARNING findings from round 3 (unused auth steps in `teardown-preview`; missing `issues: read` in `agent-fix-pr.yml`) were cleanly resolved by the `fix-pr` commit (`7475269`). No correctness bugs were found in the current diff. The remaining findings are all INFO-level and do not block the feature.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| `SURGE_LOGIN` set in teardown but not used | INFO | `surge teardown` only uses `--token`; the `SURGE_LOGIN` env var in the teardown step is a no-op. |\n| Teardown fires for all preview-branch PRs unconditionally | INFO | `teardown-preview` has no label gate; for non-preview PRs it calls `surge teardown` against a domain that never existed. Safe due to `continue-on-error: true`. |\n| Uncached `npm ci` in deploy steps | INFO | Both deploy steps run `npm ci` with no cache layer, adding ~30–60 s per preview-label run. |\n| No tests for `previewUrl` guard | INFO | The `if (data.previewUrl)` branches in `formatImplementComment`/`formatFixPrComment` are untested. Low risk. |\n\n## Progress\n\n- **WARNING resolved** — `teardown-preview` job now contains only the single `Teardown surge preview` step; unused `actions/checkout@v4` and `Resolve GitHub auth` steps removed in commit `7475269`.\n- **WARNING resolved** — `issues: read` added to the `permissions` block in `agent-fix-pr.yml` in the same commit; `gh issue view` call will no longer silently fail under `github.token`.\n- Design matches issue #50 plan exactly — no scope deviations.\n- `.agent/dist/` correctly excluded (gitignored; rebuilt at runtime).\n- Rubrics system not yet initialized for this repo (`agent/rubrics` branch absent); rubric scoring is N/A.\n- PR description documents the two required secrets clearly.\n- Two prior inline review threads resolved (both confirmed same-agent, viewer-resolvable, finding addressed).\n\n## Issue Details\n\n<details>\n<summary><code>SURGE_LOGIN</code> set in teardown but not used</summary>\n\n**Cause:** The teardown step's `env:` block includes `SURGE_LOGIN` alongside `SURGE_TOKEN`. The `surge teardown` subcommand only accepts the token; login is not consumed.\n\n**Candidate solutions:**\n- Remove `SURGE_LOGIN` from the teardown step's `env:` block.\n\n**Comments:** Harmless in practice — no security or correctness impact.\n\n</details>\n\n<details>\n<summary>Teardown fires unconditionally for all preview-branch PRs</summary>\n\n**Cause:** The `teardown-preview` job's `if:` condition gates on branch name pattern only (`agent/implement-issue-*`), not on whether the `preview` label was present. Every such PR close triggers a `surge teardown` call regardless.\n\n**Candidate solutions:**\n- Add a label-check output step (similar to implement/fix-pr) and gate the teardown step on `DEPLOY_PREVIEW == 'true'`.\n- Accept the current behavior: `surge teardown` on a non-existent domain is a quiet failure and `continue-on-error: true` suppresses any noise.\n\n**Comments:** Current behavior is safe and low-noise. The label-check would require an additional `gh` call on every PR close, which may not be worth the overhead.\n\n</details>\n\n## Recommended Next Step\n\n`NO_AUTOMATED_ACTION` — no unresolved WARNING or BLOCKING findings remain; the INFO items are either harmless (no-op env var, unconditional teardown safe via `continue-on-error`) or optional polish (npm cache, test coverage) that do not warrant an automated fix-pr pass.\n\n## Final Verdict\n\n`SHIP`\n\n## Action Items\n\n- [ ] (Optional) Remove `SURGE_LOGIN` from the `teardown-preview` step's `env:` block in `.github/workflows/agent-branch-cleanup.yml` — it is a no-op for `surge teardown`.\n- [ ] (Optional) Add `actions/setup-node` with `cache: 'npm'` before the deploy steps in `agent-implement.yml` and `agent-fix-pr.yml` to reduce preview build time.\n\n---\n\n**Inline comment actions:**\n- Resolved thread `PRRT_kwDOQ106186FwHyw` (`.github/workflows/agent-branch-cleanup.yml` — unused checkout/auth in teardown-preview): fix confirmed in commit `7475269`.\n- Resolved thread `PRRT_kwDOQ106186FwIVk` (`.github/workflows/agent-fix-pr.yml` line 170 — missing `issues: read`): fix confirmed in commit `7475269`.",
+      "createdAt": "2026-05-29T18:19:05Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/52#issuecomment-4578476853",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEOaHsA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nNo changes were committed to [`agent/rubrics`](https://github.com/augmented-mind/augmented-mind.github.io/tree/agent/rubrics) from PR #52.\n\n**Assessment complete.**\n\nAll reviews and review comments on PR #52 were authored by `sepo-agent-app[bot]` with `author_association: \"NONE\"`. The only human comment is from `lolipopshock` with the text `@sepo-agent /orchestrate` — a dispatch command, not substantive feedback.\n\nThe bot's review caught two real workflow bugs (unnecessary checkout in teardown-preview, missing `issues: read` in fix-pr), and the agent self-corrected before merge. But these are bot-to-bot observations with no trusted human endorsement, so they don't qualify as durable user/team preferences.\n\nNo existing rubrics exist yet (`/rubrics/` directory is absent), and nothing in this PR conversation meets the threshold for creating one.\n\n**no rubric changes**\n",
+      "createdAt": "2026-05-29T18:21:50Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/52#issuecomment-4578510768",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-05-29T17:33:05Z",
+  "files": [
+    {
+      "path": ".agent/src/cli/post-comment.ts",
+      "additions": 3,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/response.ts",
+      "additions": 6,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/agent-branch-cleanup.yml",
+      "additions": 18,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/agent-fix-pr.yml",
+      "additions": 34,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/agent-implement.yml",
+      "additions": 27,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "agent/implement-issue-50/claude-26652028729",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": "2026-05-29T18:20:30Z",
+  "number": 52,
+  "reviewDecision": "",
+  "reviews": [
+    {
+      "id": "PRR_kwDOQ106188AAAABBcNYzw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-05-29T17:42:07Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "a2c90fb2b5ce51877173790b9c006ed5b92d7e1a"
+      }
+    },
+    {
+      "id": "PRR_kwDOQ106188AAAABBcNnXw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-05-29T17:42:45Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "a2c90fb2b5ce51877173790b9c006ed5b92d7e1a"
+      }
+    }
+  ],
+  "state": "MERGED",
+  "title": "feat: Surge.sh preview deployments for implement/fix-pr runs",
+  "updatedAt": "2026-05-29T18:21:50Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/52"
+}
