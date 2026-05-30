@@ -10,9 +10,9 @@
   "last_resume_error": "",
   "resumed_from_session_id": "3bb3981b-1e1e-4291-9af9-c9273072da85",
   "session_bundle_backend": "github-artifact",
-  "session_bundle_artifact_id": "7305757767",
-  "session_bundle_artifact_name": "session-bundle-pull_request-56-answer-default-c65ed77086d7-26675906735",
-  "session_bundle_run_id": "26675906735",
+  "session_bundle_artifact_id": "7305772592",
+  "session_bundle_artifact_name": "session-bundle-pull_request-56-answer-default-c65ed77086d7-26675951648",
+  "session_bundle_run_id": "26675951648",
   "bundle_restore_status": "restored",
   "last_bundle_restore_error": "",
   "forked_from_thread_key": "",
@@ -21,5 +21,5 @@
   "last_comment_url": "",
   "attempt_count": 2,
   "created_at": "2026-05-30T05:39:27.545Z",
-  "updated_at": "2026-05-30T05:42:17.362Z"
+  "updated_at": "2026-05-30T05:42:19.846Z"
 }
