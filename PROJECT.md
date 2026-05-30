@@ -5,4 +5,4 @@ Augmented Mind is a podcast website (augmented-mind.github.io) built with a JS/T
 
 ## Open Questions
 - PR #41 (caption-infra/Transcript.tsx) OPEN/SHIP — ignorePatterns fix applied, ARIA + window.addCleanup added; awaiting human merge. PR #44 (caption-workflow) OPEN/SHIP — stacks on #41; closes #37/#43. Both need human merge before smoke-testing the VTT→MD→ZH pipeline.
-- PR #49 and PR #53 both implement issue #48 (Live Streams section); PR #53 is the newer version (supersedes #49) and is OPEN/SHIP — awaiting human merge.
+- Issue #48 (Live Streams): PR #56 is the newest implementation (supersedes PR #53 and #49), OPEN/SHIP — awaiting human merge. PR #53 is now stale.

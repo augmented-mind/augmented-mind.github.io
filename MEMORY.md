@@ -11,3 +11,6 @@
 - Quartz ignorePatterns and draft:true both exclude files before allFiles is built — components doing allFiles cross-file lookups (e.g. Transcript.tsx) must NOT use either to suppress caption files from the index; use ContentIndex-level path filtering instead.
 - Live Streams section: content/live-streams/ dir, ls*.md files, EpisodeCarousel with contentType filter in quartz.layout.ts — pattern for future non-episode content types.
 - Surge.sh previews: 'preview' label on an issue triggers deploy to augmented-mind-preview-<PR_NUMBER>.surge.sh (PR-number-based, not issue-number); teardown fires on PR close. Jobs need 'environment: preview' to access SURGE_LOGIN + SURGE_TOKEN secrets.
+- Live-stream pages share episode layout: isEpisodePage in quartz.layout.ts/Content.tsx covers live-streams/ slugs (inline header, YouTube embed, suppressed std header).
+- Never fabricate episode/stream description text — ls01.md content was hallucinated and required human correction. Use only source material (issue body, tweets, paper titles) for descriptions.
+- Content.tsx getYouTubeEmbedUrl handles youtube.com/live/<id> format (added for LS01); live-stream URLs use this format, not standard watch?v= URLs.
