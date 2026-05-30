@@ -89,15 +89,17 @@ jobs:
       github.event.pull_request.head.repo.full_name == github.repository &&
       startsWith(github.event.pull_request.head.ref, 'agent/implement-issue-')
     runs-on: ubuntu-latest
+    environment: preview
     steps:
       - name: Teardown surge preview
         continue-on-error: true
         env:
           SURGE_LOGIN: ${{ secrets.SURGE_LOGIN }}
           SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
-          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          if [[ "$HEAD_REF" =~ implement-issue-([0-9]+) ]]; then
-            ISSUE_N="${BASH_REMATCH[1]}"
-            npx surge teardown "augmented-mind-preview-${ISSUE_N}.surge.sh" --token "$SURGE_TOKEN"
+          if [[ -z "$SURGE_LOGIN" || -z "$SURGE_TOKEN" ]]; then
+            echo "::error::Surge credentials are empty; skipping teardown."
+            exit 1
           fi
+          npx surge teardown "augmented-mind-preview-${PR_NUMBER}.surge.sh" --token "$SURGE_TOKEN"

@@ -112,6 +112,7 @@ concurrency:
 jobs:
   fix-pr:
     runs-on: ${{ fromJson(inputs.runs_on || vars.AGENT_RUNS_ON || '["ubuntu-latest"]') }}
+    environment: preview
     env:
       MODEL_REASONING_EFFORT: xhigh
       PR_NUMBER: ${{ inputs.pr_number }}
@@ -170,7 +171,6 @@ jobs:
             LABELS=$(gh issue view "$ISSUE_N" --repo "$GITHUB_REPOSITORY" --json labels --jq '.labels[].name' 2>/dev/null || echo "")
             if echo "$LABELS" | grep -qx "preview"; then
               echo "DEPLOY_PREVIEW=true" >> "$GITHUB_ENV"
-              echo "PREVIEW_ISSUE_N=${ISSUE_N}" >> "$GITHUB_ENV"
             fi
           fi
 
@@ -284,9 +284,13 @@ jobs:
           SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
         run: |
           set -euo pipefail
+          if [[ -z "$SURGE_LOGIN" || -z "$SURGE_TOKEN" ]]; then
+            echo "::error::Surge credentials are empty; skipping deployment."
+            exit 1
+          fi
           npm ci
           npx quartz build
-          PREVIEW_DOMAIN="augmented-mind-preview-${PREVIEW_ISSUE_N}.surge.sh"
+          PREVIEW_DOMAIN="augmented-mind-preview-${PR_NUMBER}.surge.sh"
           npx surge ./public "$PREVIEW_DOMAIN" --token "$SURGE_TOKEN"
           echo "PREVIEW_URL=https://${PREVIEW_DOMAIN}" >> "$GITHUB_ENV"
 
