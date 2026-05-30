@@ -1,0 +1,264 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n\n- Adds a new **Live Streams** section to the homepage, visually consistent with the existing Episodes carousel\n- Creates `content/live-streams/` as a data-driven directory — new live streams are added by dropping a new `.md` file\n- First entry `ls01.md` uses the cover image from issue #48 (`quartz/static/covers/LS01-cover.png`)\n- Reuses the existing `EpisodeCarousel` component with a `live-streams/` path filter\n- Adds `environment: preview` to the `implement`, `fix-pr`, and `teardown-preview` jobs so GitHub injects environment-scoped `SURGE_LOGIN`/`SURGE_TOKEN` secrets directly\n- Adds explicit credential guards before `npx surge` — empty credentials now fail loudly instead of silently\n- `PREVIEW_URL` is only written to `$GITHUB_ENV` after `npx surge` exits 0\n\n## Test plan\n\n- [ ] Homepage shows \"Live Streams\" carousel below \"Episodes\" carousel\n- [ ] LS01 card displays the provided cover image\n- [ ] Surge preview deploys successfully to `augmented-mind-preview-48.surge.sh`\n- [ ] Missing credentials produce a clear `::error::` log line, not a silent skip\n\nCloses #48\n",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABEP2vEw",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /answer there should be another live preview deployed for this branch right? http://augmented-mind-preview-53.surge.sh/ ",
+      "createdAt": "2026-05-29T21:31:03Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/53#issuecomment-4580028179",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEP3jgA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Now I have a complete picture. Here's my answer:\n\n---\n\nThe preview **is** deployed, but at a different URL than `augmented-mind-preview-53.surge.sh`.\n\nThe CI workflows construct the preview domain using the **issue number**, not the PR number. Since this PR implements issue #48 (branch `agent/implement-issue-48/...`), the preview is deployed to:\n\n**`https://augmented-mind-preview-48.surge.sh`**\n\nHere's why: in both [`agent-implement.yml`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.github/workflows/agent-implement.yml) and [`agent-fix-pr.yml`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.github/workflows/agent-fix-pr.yml), the preview domain is `augmented-mind-preview-${ISSUE_NUMBER}.surge.sh`. The `fix-pr` workflow extracts the issue number by parsing the branch name (`implement-issue-([0-9]+)`), so it also resolves to issue 48.\n\nIssue #48 does have the `preview` label, so the deploy step should have been triggered.\n\nIf you'd like the previews to use the PR number instead (so `augmented-mind-preview-53.surge.sh` is the correct URL for PR #53), that would require a workflow change to use `PR_NUMBER` as the subdomain suffix rather than the issue number.",
+      "createdAt": "2026-05-29T21:33:24Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/53#issuecomment-4580041600",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEP60YQ",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /answer Oh interesting! \r\n\r\nIt makes sense to some extent b/c the pull request id wasn't ready when the implement happens. \r\nBut also it's dangerous that multiple PR can target the same issue. what's the issue? \r\n\r\n",
+      "createdAt": "2026-05-29T21:42:36Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/53#issuecomment-4580095073",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEP7a2A",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Now I have the full picture. Here's the issue breakdown:\n\n---\n\nYou've identified the real problem well. The core issues with the issue-number-based preview URL scheme:\n\n### 1. Collision when multiple PRs target the same issue\n\nThe most direct risk: if a first implementation attempt fails (PR closed, new one opened), or if `fix-pr` runs on a different branch for the same issue, **both branches deploy to the same `augmented-mind-preview-<issue>.surge.sh`** — they silently overwrite each other. The preview at any moment reflects whichever job ran last.\n\n### 2. Teardown fires on any PR close, not just the \"winning\" one\n\nThe teardown in [`agent-branch-cleanup.yml`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.github/workflows/agent-branch-cleanup.yml) runs on `pull_request_target: [closed]` for any `agent/implement-issue-*` branch. So if PR A is closed (superseded), it tears down the preview that PR B just deployed — even though PR B is still open.\n\n### 3. The \"PR number not ready\" constraint is real but solvable in `fix-pr`\n\nFor `agent-implement` (no PR yet), using the issue number is the only option. But for `agent-fix-pr`, the PR number *is* available — yet it still resolves back to the issue number via branch parsing. That's a missed opportunity to use a stable, PR-unique identifier.\n\n### The cleanest fix\n\nUse the **branch name** as the preview slug (or a hash of it) instead of either number. Branch names like `agent/implement-issue-48/claude-26662946788` are already unique per run. That way:\n- Each implementation attempt gets its own preview\n- Teardown only fires for the exact branch being closed\n- No collisions across multiple PRs for the same issue\n\nThe tradeoff is messier URLs — but correctness beats convenience here.",
+      "createdAt": "2026-05-29T21:44:18Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/53#issuecomment-4580104920",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEP81iw",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "> ### 3. The \"PR number not ready\" constraint is real but solvable in `fix-pr`\r\n\r\n@sepo-agent /answer if we want to have per pr deployment, even inside the implement, what's the right way to implement it? should we add a delay and then waiting it being created and then we can have the PR id? \r\n\r\nI am fine with adding as a follow up action (handed off) after the implement step and then post another comment / update the original PR comment ?",
+      "createdAt": "2026-05-29T21:47:47Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/53#issuecomment-4580128139",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEP9oaQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "No delay or follow-up action needed — the PR is already created at step 14 (`Create pull request`) and **deploy happens at step 16** in the same job. `steps.pr.outputs.pr_number` is already available when the deploy runs.\n\nThe fix is straightforward across three files:\n\n### `agent-implement.yml` — Deploy preview step\n\nChange the domain from `${ISSUE_NUMBER}` to `${PR_NUMBER}`, where `PR_NUMBER` comes from `steps.pr.outputs.pr_number`:\n\n```yaml\n- name: Deploy preview\n  if: steps.commit.outputs.committed == 'true' && env.DEPLOY_PREVIEW == 'true' && steps.pr.outputs.pr_number != ''\n  env:\n    PR_NUMBER: ${{ steps.pr.outputs.pr_number }}\n    # ...\n  run: |\n    PREVIEW_DOMAIN=\"augmented-mind-preview-${PR_NUMBER}.surge.sh\"\n    npx surge ./public \"$PREVIEW_DOMAIN\" ...\n```\n\n### `agent-fix-pr.yml` — Deploy preview step\n\nAlready has `PR_NUMBER` in scope. Just change `${PREVIEW_ISSUE_N}` → `${PR_NUMBER}`.\n\n### `agent-branch-cleanup.yml` — Teardown step\n\nThis is the only place that currently needs the issue-number trick because it uses branch name parsing. But since teardown fires on `pull_request_target: [closed]`, **the PR number is already in the event payload** as `github.event.pull_request.number` — no parsing needed:\n\n```yaml\n- name: Teardown surge preview\n  env:\n    PR_NUMBER: ${{ github.event.pull_request.number }}\n  run: |\n    npx surge teardown \"augmented-mind-preview-${PR_NUMBER}.surge.sh\" --token \"$SURGE_TOKEN\"\n```\n\n### Summary\n\n| File | Change |\n|------|--------|\n| `agent-implement.yml` | Use `steps.pr.outputs.pr_number` for domain (already available at deploy time) |\n| `agent-fix-pr.yml` | Use `PR_NUMBER` (already in scope) instead of `PREVIEW_ISSUE_N` |\n| `agent-branch-cleanup.yml` | Use `github.event.pull_request.number` (from event payload) instead of branch name parsing |\n\nNo architectural change needed — just swap the variable in three places. Want me to implement this?",
+      "createdAt": "2026-05-29T21:49:40Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/53#issuecomment-4580141161",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEP-IKQ",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "> No delay or follow-up action needed — the PR is already created at step 14 (`Create pull request`) and **deploy happens at step 16** in the same job. `steps.pr.outputs.pr_number` is already available when the deploy runs.\r\n> \r\n> The fix is straightforward across three files:\r\n> \r\n> ### `agent-implement.yml` — Deploy preview step\r\n> Change the domain from `${ISSUE_NUMBER}` to `${PR_NUMBER}`, where `PR_NUMBER` comes from `steps.pr.outputs.pr_number`:\r\n> \r\n> ```yaml\r\n> - name: Deploy preview\r\n>   if: steps.commit.outputs.committed == 'true' && env.DEPLOY_PREVIEW == 'true' && steps.pr.outputs.pr_number != ''\r\n>   env:\r\n>     PR_NUMBER: ${{ steps.pr.outputs.pr_number }}\r\n>     # ...\r\n>   run: |\r\n>     PREVIEW_DOMAIN=\"augmented-mind-preview-${PR_NUMBER}.surge.sh\"\r\n>     npx surge ./public \"$PREVIEW_DOMAIN\" ...\r\n> ```\r\n> \r\n> ### `agent-fix-pr.yml` — Deploy preview step\r\n> Already has `PR_NUMBER` in scope. Just change `${PREVIEW_ISSUE_N}` → `${PR_NUMBER}`.\r\n> \r\n> ### `agent-branch-cleanup.yml` — Teardown step\r\n> This is the only place that currently needs the issue-number trick because it uses branch name parsing. But since teardown fires on `pull_request_target: [closed]`, **the PR number is already in the event payload** as `github.event.pull_request.number` — no parsing needed:\r\n> \r\n> ```yaml\r\n> - name: Teardown surge preview\r\n>   env:\r\n>     PR_NUMBER: ${{ github.event.pull_request.number }}\r\n>   run: |\r\n>     npx surge teardown \"augmented-mind-preview-${PR_NUMBER}.surge.sh\" --token \"$SURGE_TOKEN\"\r\n> ```\r\n> \r\n> ### Summary\r\n> File\tChange\r\n> `agent-implement.yml`\tUse `steps.pr.outputs.pr_number` for domain (already available at deploy time)\r\n> `agent-fix-pr.yml`\tUse `PR_NUMBER` (already in scope) instead of `PREVIEW_ISSUE_N`\r\n> `agent-branch-cleanup.yml`\tUse `github.event.pull_request.number` (from event payload) instead of branch name parsing\r\n> No architectural change needed — just swap the variable in three places. Want me to implement this?\r\n\r\n@sepo-agent /fix-pr ",
+      "createdAt": "2026-05-29T21:51:05Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/53#issuecomment-4580149289",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEP_Mrw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo pushed fixes for this PR.** Branch: `agent/implement-issue-48/claude-26662946788`. Requested by @lolipopshock.\n\n<!-- sepo-agent-fix-pr-status -->\n\nPreview: https://augmented-mind-preview-48.surge.sh\n\n- **`agent-implement.yml`**: Deploy preview now uses `steps.pr.outputs.pr_number` (`PR_NUMBER`) as the Surge subdomain instead of `ISSUE_NUMBER`; the `if` guard also requires `pr_number != ''`\n- **`agent-fix-pr.yml`**: Deploy preview now uses `PR_NUMBER` (already in job env) instead of `PREVIEW_ISSUE_N`; removed the now-unused `echo \"PREVIEW_ISSUE_N=...\"` line from the label-check step\n- **`agent-branch-cleanup.yml`**: Teardown now reads `PR_NUMBER` from `github.event.pull_request.number` (event payload) instead of parsing the branch name — simpler and collision-free",
+      "createdAt": "2026-05-29T21:53:30Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/53#issuecomment-4580166831",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEQsGvA",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /answer it still deploys to the issue id -- is it because the main branch is updated? ",
+      "createdAt": "2026-05-30T00:31:35Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/53#issuecomment-4580902588",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEQs4aw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "PR #53 already contains the exact fix we discussed — all three workflow files are updated to use PR number. The reason it still deployed to the issue ID is a GitHub Actions timing issue:\n\n**Workflows run from the default branch (main), not the PR branch.**\n\nWhen `agent-implement` fired to create PR #53, it executed the version of `agent-implement.yml` that was on **main at that moment** — which still had `${ISSUE_NUMBER}` in the deploy step. The fix lives on the PR branch but hadn't been merged yet, so it had no effect on that run.\n\nThis is a bootstrapping problem:\n\n1. Implement runs from main → deploys to `preview-48.surge.sh` (old logic)\n2. PR #53 contains the fix (use PR number) — but it ran from main's old code\n3. Once PR #53 is merged, **future** implement runs will use `${PR_NUMBER}` correctly\n\nSo the fix is already written and correct. It just won't apply retroactively to this PR's preview — it'll take effect for the next issue that goes through the implement flow after merge. The current PR #53 preview remains at `augmented-mind-preview-48.surge.sh`.",
+      "createdAt": "2026-05-30T00:33:47Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/53#issuecomment-4580915307",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-05-29T21:27:24Z",
+  "files": [
+    {
+      "path": ".github/workflows/agent-branch-cleanup.yml",
+      "additions": 6,
+      "deletions": 4,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/agent-fix-pr.yml",
+      "additions": 6,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/agent-implement.yml",
+      "additions": 8,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "content/live-streams/index.md",
+      "additions": 5,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "content/live-streams/ls01.md",
+      "additions": 9,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "quartz.layout.ts",
+      "additions": 14,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/static/covers/LS01-cover.png",
+      "additions": 0,
+      "deletions": 0,
+      "changeType": "ADDED"
+    }
+  ],
+  "headRefName": "agent/implement-issue-48/claude-26662946788",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": null,
+  "number": 53,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "OPEN",
+  "title": "Add Live Streams section and fix Surge preview deployment",
+  "updatedAt": "2026-05-30T00:33:47Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/53"
+}

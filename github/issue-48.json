@@ -59,6 +59,64 @@
       "reactionGroups": [],
       "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/48#issuecomment-4568265263",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEPz8_g",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /orchestrate can you implement this again (following the latest change after https://github.com/augmented-mind/augmented-mind.github.io/pull/49#issuecomment-4579970806 ) you can just submit the same code and the purpose is to test the deployment ",
+      "createdAt": "2026-05-29T21:22:07Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/48#issuecomment-4579982590",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEP0sVQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| orchestrate | implement | Issue #48 | 2 / 40 | Dispatched |\n\nReason: agent planner selected implement: User explicitly requests a fresh implementation of the Live Streams feature (same code as PR #49) to test the Surge.sh preview deployment with the environment-wired workflow. PR #49 is open but stale for this purpose; a new PR from main will trigger the implement workflow cleanly.\n\n<!-- sepo-agent-handoff state:dispatched created:1780089867716 base64:aGFuZG9mZjphdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW86MjY2NjI4NTY0MDU6b3JjaGVzdHJhdGU6NDg6aW1wbGVtZW50OjQ4OjI -->",
+      "createdAt": "2026-05-29T21:24:28Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/48#issuecomment-4579994709",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEP13og",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo implementation finished**\n\n- Branch: `agent/implement-issue-48/claude-26662946788`\n- Pull request: https://github.com/augmented-mind/augmented-mind.github.io/pull/53\n- Preview: https://augmented-mind-preview-48.surge.sh\n\nRe-implemented the Live Streams section from PR #49, including the workflow fixes from the latest fix-pr run. Created content/live-streams/index.md and content/live-streams/ls01.md (with the cover image from issue #48 copied from the previous branch). Added a liveStreamsCarousel to quartz.layout.ts using the EpisodeCarousel component with a live-streams/ path filter, placed after the Episodes carousel on the index page. Applied all three workflow fixes: added `environment: preview` to the implement, fix-pr, and teardown-preview jobs, and added explicit credential guards so empty SURGE_* secrets fail loudly rather than silently no-oping. This new branch starts from current main so the implement workflow will run under the new workflow definition and should trigger a real Surge.sh deploy to augmented-mind-preview-48.surge.sh.",
+      "createdAt": "2026-05-29T21:28:17Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/48#issuecomment-4580013986",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-05-28T20:37:59Z",
@@ -79,6 +137,6 @@
   "number": 48,
   "state": "OPEN",
   "title": "Design a new section on our website:",
-  "updatedAt": "2026-05-29T18:46:29Z",
+  "updatedAt": "2026-05-29T21:28:17Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/48"
 }
