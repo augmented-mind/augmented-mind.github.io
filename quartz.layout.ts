@@ -2,7 +2,9 @@ import { PageLayout, SharedLayout } from "./quartz/cfg"
 import * as Component from "./quartz/components"
 import { SimpleSlug } from "./quartz/util/path"
 
-const isEpisodePage = (slug?: string) => slug?.startsWith("episodes/") && slug !== "episodes/index"
+const isEpisodePage = (slug?: string) =>
+  (slug?.startsWith("episodes/") && slug !== "episodes/index") ||
+  (slug?.startsWith("live-streams/") && slug !== "live-streams/index")
 
 // Sidebar episodes list (vertical, compact)
 const episodesSection = Component.RecentNotes({

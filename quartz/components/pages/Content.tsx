@@ -14,7 +14,7 @@ function getYouTubeEmbedUrl(url: string): string | null {
     } else if (["youtube.com", "www.youtube.com", "m.youtube.com"].includes(parsed.hostname)) {
       if (parsed.pathname === "/watch") {
         videoId = parsed.searchParams.get("v")
-      } else if (parsed.pathname.startsWith("/embed/") || parsed.pathname.startsWith("/shorts/")) {
+      } else if (parsed.pathname.startsWith("/embed/") || parsed.pathname.startsWith("/shorts/") || parsed.pathname.startsWith("/live/")) {
         videoId = parsed.pathname.split("/")[2] ?? null
       }
     }
@@ -113,7 +113,9 @@ const Content: QuartzComponent = ({ fileData, tree, cfg }: QuartzComponentProps)
   const title = (fileData.frontmatter?.title as string | undefined) ?? "YouTube video"
   const youtubeUrl = fileData.frontmatter?.youtubeUrl as string | undefined
   const episodeId = fileData.frontmatter?.episodeId as string | undefined
-  const isEpisodePage = fileData.slug?.startsWith("episodes/") && fileData.slug !== "episodes/index"
+  const isEpisodePage =
+    (fileData.slug?.startsWith("episodes/") && fileData.slug !== "episodes/index") ||
+    (fileData.slug?.startsWith("live-streams/") && fileData.slug !== "live-streams/index")
   const pageDate = getDate(cfg, fileData)
 
   if (youtubeUrl) {
@@ -141,17 +143,20 @@ const Content: QuartzComponent = ({ fileData, tree, cfg }: QuartzComponentProps)
 }
 
 Content.css = `
-body[data-slug^="episodes/"] .page-header {
+body[data-slug^="episodes/"] .page-header,
+body[data-slug^="live-streams/"] .page-header {
   display: none;
 }
 
-body[data-slug^="episodes/"] .page > #quartz-body .center {
+body[data-slug^="episodes/"] .page > #quartz-body .center,
+body[data-slug^="live-streams/"] .page > #quartz-body .center {
   padding-top: calc(2rem + 16px);
   overflow: hidden;
 }
 
 @media all and (max-width: 800px) {
-  body[data-slug^="episodes/"] .page > #quartz-body .center {
+  body[data-slug^="episodes/"] .page > #quartz-body .center,
+  body[data-slug^="live-streams/"] .page > #quartz-body .center {
     padding-top: calc(1.5rem + 16px);
   }
 }
