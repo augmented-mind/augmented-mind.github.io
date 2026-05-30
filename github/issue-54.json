@@ -1,0 +1,39 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "body": "## Goal\nImplement the requested change from the agent mention.\n\n## Original request\n@sepo-agent /implement \r\n\r\ncan you create a new PR, such that it includes only the fixes to the surge deployment fixes in this branch (e.g., environment variables, and pr-id-based deployment)?\n\n## Acceptance criteria\n- Implement the requested change.\n- Preserve existing behavior unless the request requires a change.\n- Update tests or validation as needed.\n\n---\n\nRequested via issue_comment at https://github.com/augmented-mind/augmented-mind.github.io/pull/53\n",
+  "closedAt": "2026-05-30T05:14:33Z",
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABERf72w",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo implementation finished**\n\n- Branch: `agent/implement-issue-54/claude-26675226806`\n- Pull request: https://github.com/augmented-mind/augmented-mind.github.io/pull/55\n\nExactly the three workflow files — no content changes. All changes are correct:\n\n- `agent-implement.yml`: added `environment: preview`, switched deploy domain from `${ISSUE_NUMBER}` → `${PR_NUMBER}` (from `steps.pr.outputs.pr_number`, which is available since PR creation precedes deploy), added credential guard, guarded deploy on `pr_number != ''`\n- `agent-fix-pr.yml`: added `environment: preview`, removed `PREVIEW_ISSUE_N` export, switched domain to `${PR_NUMBER}` (already in scope as `inputs.pr_number`), added credential guard\n- `agent-branch-cleanup.yml`: added `environment: preview`, replaced branch-name parsing with `github.event.pull_request.number`, added credential guard\n\n```json\n{\n  \"summary\": \"Applied Surge preview deployment fixes cherry-picked from PR #53: (1) added `environment: preview` to implement, fix-pr, and teardown-preview jobs so GitHub injects scoped SURGE_LOGIN/SURGE_TOKEN secrets; (2) switched preview domain from issue-number-based to PR-number-based in all three workflows, eliminating URL collisions when multiple PRs target the same issue; (3) replaced branch-name regex parsing in teardown with the event-native `github.event.pull_request.number`; (4) added explicit credential guards that fail loudly instead of silently proceeding with empty secrets. No content files were touched.\",\n  \"commit_message\": \"fix: use PR number for Surge preview URLs; add environment: preview\",\n  \"pr_title\": \"fix: PR-number-based Surge previews and environment secret scoping\",\n  \"pr_body\": \"## Summary\\n\\n- Adds `environment: preview` to `implement`, `fix-pr`, and `teardown-preview` jobs so GitHub injects environment-scoped `SURGE_LOGIN`/`SURGE_TOKEN` secrets directly\\n- Switches Surge preview domain from `augmented-mind-preview-{issue}.surge.sh` to `augmented-mind-preview-{pr}.surge.sh` in all three workflows — eliminates URL collisions when multiple PRs target the same issue\\n- Replaces branch-name regex parsing in teardown with the event-native `github.event.pull_request.number` (simpler and collision-free)\\n- Adds explicit credential guards in all deploy/teardown steps: empty credentials now fail loudly with `::error::` instead of silently skipping\\n\\n## Why PR number instead of issue number\\n\\nThe old scheme used the linked issue number as the preview subdomain. Multiple PRs for the same issue (e.g. re-implementation attempts or fix-pr iterations) would overwrite each other's preview. When a stale PR was closed, teardown would kill the live preview that the active PR just deployed. The PR number is unique per deployment and available in the event payload for teardown — no heuristics needed.\\n\\nCherry-picked from the workflow changes in PR #53 (the Live Streams feature PR), isolated here so it can land on `main` independently.\\n\\nCloses #54\"\n}\n```",
+      "createdAt": "2026-05-30T05:06:49Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/54#issuecomment-4581751771",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-05-30T05:04:03Z",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "number": 54,
+  "state": "CLOSED",
+  "title": "Implement requested change",
+  "updatedAt": "2026-05-30T05:14:33Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/54"
+}

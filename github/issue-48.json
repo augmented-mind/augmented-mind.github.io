@@ -117,6 +117,49 @@
       "reactionGroups": [],
       "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/48#issuecomment-4580013986",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABERh5ZA",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /implement can you try to implement it again? \n\nI wonder if you could do the following: \n1. duplicate most of the implementation in #53 , but not include the surge workflow fixes (in that the workflow fixes happens on the main branch already. \n2. and we should do a proper design + link + name for the live stream 1: \n    - https://www.youtube.com/live/2d49pMXiJOA\n    - title: how a class wrote a paper on human-centered LLMs \n    - guest: Caleb Ziems, Dora Zhao, and Diyi Yang",
+      "createdAt": "2026-05-30T05:19:29Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/48#issuecomment-4581783908",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABERikyQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "> Session continuity could not be restored, so this run continued with a fresh session.\n\n**Sepo implementation finished**\n\n- Branch: `agent/implement-issue-48/claude-26675540920`\n- Pull request: https://github.com/augmented-mind/augmented-mind.github.io/pull/56\n- Preview: https://augmented-mind-preview-56.surge.sh\n\nAdded a Live Streams section to the website. Created content/live-streams/index.md and content/live-streams/ls01.md for the first live stream ('How a Class Wrote a Paper on Human-Centered LLMs' with guests Caleb Ziems, Dora Zhao, and Diyi Yang, linking to https://www.youtube.com/live/2d49pMXiJOA). Downloaded the cover image from the issue attachment to quartz/static/covers/LS01-cover.png. Added a liveStreamsCarousel to quartz.layout.ts using EpisodeCarousel with a live-streams/ path filter, placed after the Episodes carousel on the index page. No workflow changes included — those already landed on main via PR #55.",
+      "createdAt": "2026-05-30T05:22:50Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/48#issuecomment-4581795017",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-05-28T20:37:59Z",
@@ -137,6 +180,6 @@
   "number": 48,
   "state": "OPEN",
   "title": "Design a new section on our website:",
-  "updatedAt": "2026-05-29T21:28:17Z",
+  "updatedAt": "2026-05-30T05:22:50Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/48"
 }

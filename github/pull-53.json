@@ -197,6 +197,49 @@
       "reactionGroups": [],
       "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/53#issuecomment-4580915307",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABERfPMQ",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /implement \r\n\r\ncan you create a new PR, such that it includes only the fixes to the surge deployment fixes in this branch (e.g., environment variables, and pr-id-based deployment)?",
+      "createdAt": "2026-05-30T05:03:02Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/53#issuecomment-4581740337",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABERfbrA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Implementing this request — tracking in https://github.com/augmented-mind/augmented-mind.github.io/issues/54.\n",
+      "createdAt": "2026-05-30T05:04:06Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/53#issuecomment-4581743532",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-05-29T21:27:24Z",
@@ -259,6 +302,6 @@
   "reviews": [],
   "state": "OPEN",
   "title": "Add Live Streams section and fix Surge preview deployment",
-  "updatedAt": "2026-05-30T00:33:47Z",
+  "updatedAt": "2026-05-30T05:04:06Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/53"
 }
