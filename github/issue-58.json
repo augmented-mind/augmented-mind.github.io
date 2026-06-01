@@ -1,0 +1,56 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjY3MTU4MTIy",
+    "is_bot": false,
+    "login": "shaoyijia",
+    "name": "Yijia Shao"
+  },
+  "body": "**Is your feature request related to a problem? Please describe.**\nImplement a feature that wire the guest post from GitHub Discussions into our website. It needs to connect the post to a specific episode (can ask us which episode a post shall link to) and reflect that on \"Graph View\" feature on our current website.\n\n**Describe the solution you'd like**\nMatch the post page style to the style of our current episode page but higlight its authors (not our team members)\n\n@sepo-agent could you help with this?",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABEY1YWw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "implement requests currently require OWNER, MEMBER, COLLABORATOR, CONTRIBUTOR access.\n",
+      "createdAt": "2026-06-01T04:03:23Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/58#issuecomment-4589443163",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEY2vdA",
+      "author": {
+        "login": "shaoyijia"
+      },
+      "authorAssociation": "NONE",
+      "body": "ok! let me know if you need me to do anything?",
+      "createdAt": "2026-06-01T04:09:32Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/58#issuecomment-4589465460",
+      "viewerDidAuthor": false
+    }
+  ],
+  "createdAt": "2026-06-01T04:02:21Z",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAACUV7FjQ",
+      "name": "enhancement",
+      "description": "New feature or request",
+      "color": "a2eeef"
+    }
+  ],
+  "number": 58,
+  "state": "OPEN",
+  "title": "Wire Guest Post in Discussions to our website",
+  "updatedAt": "2026-06-01T04:09:32Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/58"
+}
