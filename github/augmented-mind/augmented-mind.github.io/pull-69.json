@@ -1,0 +1,43 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n\nAdds the current Sepo preview URL to agent-authored PR status comments for quick reference.\n\n- `post-comment` now looks up the latest `Sepo preview: ...` PR comment and passes the URL into response formatting.\n- Fix-pr status comments include the preview URL and explicitly note that it redeploys automatically after each push; successful fix runs say the update should appear there shortly.\n- Review synthesis headers also include the preview URL when available.\n\n## Test plan\n\n- [x] `npm --prefix .agent test`\n- [x] `git diff --check`\n",
+  "closedAt": null,
+  "comments": [],
+  "createdAt": "2026-06-04T19:12:26Z",
+  "files": [
+    {
+      "path": ".agent/src/__tests__/response.test.ts",
+      "additions": 19,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/cli/post-comment.ts",
+      "additions": 33,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/response.ts",
+      "additions": 38,
+      "deletions": 26,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "fix/agent-preview-references",
+  "labels": [],
+  "mergedAt": null,
+  "number": 69,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "OPEN",
+  "title": "Add preview links to agent PR comments",
+  "updatedAt": "2026-06-04T19:12:26Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/69"
+}

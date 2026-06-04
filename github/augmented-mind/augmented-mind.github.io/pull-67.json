@@ -1,0 +1,31 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n\nFixes a race in the Sepo preview workflow where a non-preview `pull_request.labeled` event, such as the automatic `agent` label, can cancel an in-progress valid preview deployment and then skip its own deploy job.\n\nThe workflow-level concurrency group is moved to job-level concurrency on the actual `deploy` and `teardown` jobs, so skipped jobs from ignored label events do not acquire the preview concurrency group or cancel active preview runs.\n\n## Test plan\n\n- [x] `actionlint .github/workflows/preview.yml`\n- [x] Verified PR #66 failure mode: `opened` preview run was cancelled by an `agent` label run, and the label run skipped because it was not `sepo-preview`.\n",
+  "closedAt": "2026-06-04T18:06:08Z",
+  "comments": [],
+  "createdAt": "2026-06-04T18:03:50Z",
+  "files": [
+    {
+      "path": ".github/workflows/preview.yml",
+      "additions": 6,
+      "deletions": 3,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "fix/preview-concurrency-label-race",
+  "labels": [],
+  "mergedAt": "2026-06-04T18:06:08Z",
+  "number": 67,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "MERGED",
+  "title": "Fix preview cancellation on non-preview labels",
+  "updatedAt": "2026-06-04T18:06:08Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/67"
+}

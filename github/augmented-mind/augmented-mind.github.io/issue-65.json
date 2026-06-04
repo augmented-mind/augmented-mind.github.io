@@ -1,0 +1,99 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "body": "Right now we have a podcast series section for different series\n\nCan we add a new section for live streams\n\nAnd we can add this image as the first one.\n\n\n<img width=\"1792\" height=\"1080\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/321e04f5-18a2-4ce1-893f-1d49efe8f8d5\" />\n\n\n\n@sepo-agent /answer can you implement it? \n\n\n\n1. can we adapt the design of episode pages (e.g., the header, the content organization) for the live stream page? \n\n2. the main content is not correct (I think you've hallucinated this!)\n\n```\nCaleb Ziems, Dora Zhao, and Diyi Yang join us for a live stream exploring how a class collaboratively wrote a research paper on human-centered large language models.\n\nThis session dives into the process of large-scale collaborative research, the challenges of coordinating student contributions into a coherent academic paper, and the broader questions around human-centered approaches to LLM development.\n\n```\n\n\n\nWe hosted\n[@cjziems](https://x.com/cjziems)\n, \n[@dorazhao9](https://x.com/dorazhao9)\n, and \n[@Diyi_Yang](https://x.com/Diyi_Yang)\n for a discussion on their new paper \"Reflections and New Directions for Human-Centered Large Language Models\"!\n\nyou can also check their paper -- it's coming out of a class project. \n\n\nPost\n[Diyi Yang](https://x.com/Diyi_Yang)\n[@Diyi_Yang](https://x.com/Diyi_Yang)\nThe next frontier of AI is not only more capable model; it is an AI that *humans* can meaningfully live and work with :)\n\nWith all students in my cs329x Human-Centered LLM class, we present 60+ pages of insights for developing Human-Centered LLMs (HCLLMs), from design & data sourcing to training, eval & deployment 🧵\nhttps://x.com/Diyi_Yang/status/2057127600024432838\n\nWe can just include a one paragraph tldr of the topic, and we can later add additional details \n\nhere is the livestream video \nhttps://www.youtube.com/watch?v=2d49pMXiJOA",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABE59RzA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "I've mapped the architecture. Here's my plan.\n\n## How the podcast/episode system works today\n\nThe site is **Quartz v4**. Episodes are just markdown files in [`content/episodes/`](https://github.com/augmented-mind/augmented-mind.github.io/tree/main/content/episodes) with frontmatter (`title`, `episodeId`, `date`, `coverImage`, `youtubeUrl`, `guestOffset`, `tags`). Three pieces give them their distinctive look:\n\n1. **Episode page header & video embed** — [`quartz/components/pages/Content.tsx`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/pages/Content.tsx) hides the normal page title (CSS keyed on `body[data-slug^=\"episodes/\"]`), renders a custom inline header (`EP00 · Title · date`), and injects a YouTube embed at the top of the article.\n2. **Landing-page carousel** — [`quartz/components/EpisodeCarousel.tsx`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/EpisodeCarousel.tsx), wired in [`quartz.layout.ts`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz.layout.ts) to show only on the index page, filtered by the `episodes/` slug prefix. It's already generic (takes `title`/`filter`/`linkToMore`).\n3. **Sidebar list** — `RecentNotes`, same filter.\n\nCovers live in [`quartz/static/covers/`](https://github.com/augmented-mind/augmented-mind.github.io/tree/main/quartz/static/covers) and are referenced as `/static/covers/EP00-cover.png`.\n\n## Proposed approach\n\nYes — we can reuse the episode design almost wholesale. The plan:\n\n1. **New content folder** `content/livestreams/` with an `index.md` (\"All Livestreams\") and the first entry (e.g. `ls01.md`), mirroring episode frontmatter but with a `streamId: \"LIVE 01\"` field instead of `episodeId`.\n2. **Generalize `Content.tsx`** so the inline-header + top-of-article embed treatment also applies to `livestreams/` (add the prefix to the page check, read `episodeId ?? streamId`, and extend the CSS selector to `body[data-slug^=\"episodes/\"], body[data-slug^=\"livestreams/\"]`). No visual change to episodes.\n3. **Reuse `EpisodeCarousel`** for a second \"Livestreams\" carousel on the index (new `livestreamsCarousel` in `quartz.layout.ts`, filtered to `livestreams/`), plus a `livestreamsSection` sidebar list. I'll add a small optional `itemNoun` option so the \"See N more…\" label can say \"livestream\" instead of \"episode\".\n4. **Cover image** — save the attached image to `quartz/static/covers/LS01-cover.png` and reference it from the entry.\n\nThis keeps livestreams and episodes as parallel, independently-listed sections (matching \"add a new section for live streams\") while sharing the page chrome.\n\n## Corrected first-entry content (draft)\n\n> **Title:** Human-Centered LLMs — with Caleb Ziems, Dora Zhao & Diyi Yang\n> **Video:** https://www.youtube.com/watch?v=2d49pMXiJOA\n>\n> We hosted [Caleb Ziems](https://x.com/cjziems), [Dora Zhao](https://x.com/dorazhao9), and [Diyi Yang](https://x.com/Diyi_Yang) for a live discussion of their new paper, *Reflections and New Directions for Human-Centered Large Language Models*. Growing out of Stanford's CS329X Human-Centered LLM class, the paper distills 60+ pages of insights — across design, data sourcing, training, evaluation, and deployment — into a roadmap for building LLMs that humans can meaningfully live and work with. (More details to come.)\n\nI'll drop the hallucinated paragraph entirely and link the paper + Diyi Yang's [announcement thread](https://x.com/Diyi_Yang/status/2057127600024432838).\n\n## Questions before I build\n\n1. **Section label** — call it \"Livestreams\" (and `streamId` like `LIVE 01`)? Or do you prefer \"Live Streams\" / a different ID scheme?\n2. **Paper link** — do you have a direct arXiv/PDF URL? I'll otherwise link only the announcement thread for now.\n3. The attached image — I'll use it as-is for the cover (1792×1080 crops fine to 16:9). Good?\n\nThis is the `/answer` flow, so I've stopped at the plan. **Approve and I'll implement it** (steps 1–4 above) in a PR.\n\n---\n`claude` | `default` | `high` | `GitHub Actions 1000001638`",
+      "createdAt": "2026-06-04T16:33:48Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/65#issuecomment-4624175564",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABE6Scxw",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "1. Here is the link https://arxiv.org/pdf/2605.06901\n2. image is fine \n3. your naming is also fine. \n\n@sepo-agent /orchestrate \n",
+      "createdAt": "2026-06-04T17:18:40Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/65#issuecomment-4624522439",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABE6TwQg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| orchestrate | implement | Issue #65 | 2 / 40 | Dispatched |\n\nReason: agent planner selected implement: User approved the agent's 4-step livestream-section plan and resolved all three open questions (arXiv link provided, image OK as cover, naming 'Livestreams'/'LIVE 01' OK). Work is small and self-contained within issue #65.\n\n<!-- sepo-agent-handoff state:dispatched created:1780593670745 base64:aGFuZG9mZjphdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW86MjY5Njc3OTIwMjA6b3JjaGVzdHJhdGU6NjU6aW1wbGVtZW50OjY1OjI -->",
+      "createdAt": "2026-06-04T17:21:11Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/65#issuecomment-4624543810",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABE6XmtQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo implementation finished**\n\n- Branch: `agent/implement-issue-65/claude-26967923622`\n- Pull request: https://github.com/augmented-mind/augmented-mind.github.io/pull/66\n\nAdded a new Livestreams section that reuses the existing episode page design. Created content/livestreams/ with an index page and the first entry (ls01.md, 'Human-Centered LLMs' with Caleb Ziems, Dora Zhao & Diyi Yang), using a streamId: \"LIVE 01\" frontmatter field and the supplied cover image at quartz/static/covers/LS01-cover.png. Generalized Content.tsx (isEpisodePage -> isSeriesPage) so the inline header, title-hiding CSS, and top-of-article YouTube embed also apply to livestreams/ pages, and made EpisodeCarousel/RecentNotes read episodeId ?? streamId. Added an itemNoun carousel option and wired a Livestreams carousel (index) plus sidebar list into quartz.layout.ts, parallel to Episodes. Replaced the hallucinated description with corrected copy linking the arXiv paper (https://arxiv.org/pdf/2605.06901) and Diyi Yang's announcement thread. Verified with a full Quartz build: 15 files emitted, livestream page renders the LIVE 01 badge + embed, the index shows both Episodes and Livestreams carousels, and existing episode pages are unchanged. All four modified TS files pass prettier --check.\n\n---\n`claude` | `default` | `xhigh` | `GitHub Actions 1000001643`",
+      "createdAt": "2026-06-04T17:28:47Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/65#issuecomment-4624606901",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-04T16:30:18Z",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "number": 65,
+  "state": "OPEN",
+  "title": "Design a new livestream section on our website:",
+  "updatedAt": "2026-06-04T17:28:47Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/65"
+}

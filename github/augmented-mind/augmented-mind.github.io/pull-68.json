@@ -1,0 +1,201 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n\nUses the existing Sepo GitHub auth resolver before posting preview URLs, so preview comments come from the Sepo agent GitHub App/token instead of the default `github-actions[bot]` token when Sepo auth is available.\n\nThe workflow still falls back to `${{ github.token }}` if Sepo app/OIDC auth is unavailable.\n\n## Notes\n\n- The exact visible author is determined by the installed GitHub App slug. In this repo that should show as the Sepo agent app bot rather than `github-actions[bot]`.\n- Existing `github-actions[bot]` preview comments may not be edited by the new identity; future preview runs should update the Sepo-authored comment.\n\n## Test plan\n\n- [x] `actionlint .github/workflows/preview.yml`\n",
+  "closedAt": "2026-06-04T20:20:45Z",
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABE69t_g",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /review ",
+      "createdAt": "2026-06-04T19:00:29Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/68#issuecomment-4625231358",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABE6_RdA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "No `agent/rubrics` branch exists (empty `ls-remote` output), `RUBRICS_AVAILABLE=false`, and no rubrics context was provided. There are no rubrics to score this PR against.\n\n## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| N/A | N/A | 0 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| — | _No rubrics available_ | not applicable | N/A | No `agent/rubrics` branch on `augmented-mind/augmented-mind.github.io`; harness reported `RUBRICS_AVAILABLE=false` with empty `RUBRICS_DIR`/`RUBRICS_CONTEXT_FILE`. |\n\n## Notes\n\n- No user/team rubrics have been initialized for this repository, so there is nothing rubric-specific to evaluate PR #68 against. This is a scoping outcome, not a quality judgment on the change.\n- For context, [PR #68](https://github.com/augmented-mind/augmented-mind.github.io/pull/68) is a small, focused 9-line change to [`.github/workflows/preview.yml`](https://github.com/augmented-mind/augmented-mind.github.io/blob/a6d56e01043eabc1f95c2a21cb8f04b83b860886/.github/workflows/preview.yml): it resolves Sepo agent GitHub App auth via the existing `./.github/actions/resolve-github-auth` and uses `steps.auth.outputs.token` for the preview comment, falling back to `github.token`.\n- The smallest useful follow-up if rubric steering is desired: run **Agent / Rubrics / Initialization** to seed the `agent/rubrics` branch, then re-run this review.\n\n## Findings\n\n- **INFO:** No rubrics are configured for this repo; rubric-based scoring was skipped. No rubric-tied findings.\n\n## Final Rubric Verdict\n\nN/A\n\n---\n`claude` | `default` | `high` | `GitHub Actions 1000001669`",
+      "createdAt": "2026-06-04T19:04:15Z",
+      "includesCreatedEdit": false,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/68#issuecomment-4625256820",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABE7BfdQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: a6d56e01043eabc1f95c2a21cb8f04b83b860886 -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\nInline comment posted on line 59 (id `3358268528`). No memory writes are warranted — the auth-chain convention is derivable from the code itself. Here is the synthesis.\n\n---\n\n## Summary of PR/Issue\n\nPR #68 makes the `preview.yml` workflow post its \"Sepo preview: <url>\" comment as the Sepo agent identity instead of `github-actions[bot]`. It does this by inserting a `Resolve Sepo agent auth` step that reuses the existing [`resolve-github-auth`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.github/actions/resolve-github-auth/action.yml) composite action, then swapping the `Comment URL` step's `GH_TOKEN` from `${{ github.token }}` to the resolved `steps.auth.outputs.token`. The auth step is gated by `if: steps.deploy.outputs.url != ''` (matching the comment step), so no token is minted when there's nothing to post, and `github.token` remains the fallback. It's a 9-line, single-file change that reuses an established repo pattern rather than rebuilding token handling.\n\n## Review\n\nThe change is correct, well-scoped, and achieves its goal on this repo's primary GitHub App path; one minor consistency gap is worth fixing before merge. The rubrics reviewer returned N/A (no `agent/rubrics` branch configured), so all substantive findings come from the code review.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Omits `pat` input — only call site of 22 that does | WARNING | In app-less + OIDC-broker-down + PAT-configured setups, the comment falls back to `github-actions[bot]` instead of the Sepo PAT identity, undercutting the PR goal and breaking cross-workflow parity. |\n| Auth-step failure now gates the preview comment | INFO | If app creds are set but invalid (or only one of the two is set), the `auth` step hard-fails and no comment is posted — a mild robustness regression vs. the prior unconditional path, only on misconfigured secrets. |\n| Transitional duplicate comment | INFO | On PRs with an existing `github-actions[bot]` preview comment, the first run under the new identity posts a fresh Sepo comment and orphans the old one. Self-heals; acknowledged in the PR body. |\n| `--edit-last` under app token unverified | INFO | `preview.yml` is the only workflow using `gh pr comment --edit-last`; sticky-edit behavior under the app identity should be confirmed on first live run. The `||` fallback prevents job failure regardless. |\n\n## Progress\n\n- **Transitional duplicate comment** is already disclosed in the PR description — intentionally accepted, no action expected.\n- **Rubrics review:** N/A — no `agent/rubrics` branch exists for this repo, so rubric scoring was skipped (a scoping outcome, not a quality judgment). Optional follow-up: run **Agent / Rubrics / Initialization** if rubric steering is desired.\n- **Inline comment posted:** one new same-agent inline comment on `.github/workflows/preview.yml:59` ([discussion_r3358268528](https://github.com/augmented-mind/augmented-mind.github.io/pull/68#discussion_r3358268528)) with an applyable suggestion adding the `pat` line. No prior inline comments or review threads existed, so nothing was replied to, resolved, or minimized.\n- **Design confirmed sound:** token is masked inside the action; required permissions (`id-token: write`, `pull-requests: write`) are already granted at the workflow level; `actionlint` passed per the PR test plan.\n\n## Issue Details\n\n<details>\n<summary><strong>Omits <code>pat</code> input — only call site of 22 that does</strong></summary>\n\n**Cause:** The new `with:` block passes `app_id`, `app_private_key`, and `fallback_token` but not `pat`. Every one of the 22 other `resolve-github-auth` invocations in `.github/workflows/` passes the full `app_id → app_private_key → pat → fallback_token` chain (31 occurrences confirmed by grep). The action's resolution order ([action.yml:81-96](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.github/actions/resolve-github-auth/action.yml)) is `github_app → oidc_broker (only when app creds empty) → pat → github_token`.\n\n**Candidate solutions:** Add `pat: ${{ secrets.AGENT_PAT }}` after the `app_private_key` input (line 59). One-line change; restores parity with all sibling workflows and preserves the Sepo identity in PAT-only fallback setups.\n\n**Comments:** Non-blocking — in this repo's primary config the app token wins and `pat` is never consulted, so the happy path is unaffected. The gap only manifests when app creds are absent **and** the OIDC broker fails **and** a PAT is configured, where the comment would post as `github-actions[bot]` rather than the Sepo machine user. Safe for an automated fix.\n\n</details>\n\n<details>\n<summary><strong>Auth-step failure now gates the preview comment</strong></summary>\n\n**Cause:** The `Comment URL` step previously used `github.token` directly and was independent of any auth resolution. Now it depends on the `auth` step, which hard-fails if `create-github-app-token@v1` rejects invalid app creds, or if exactly one of `app_id`/`app_private_key` is set (the action's validation step). With no `if: always()` on `Comment URL`, a failed `auth` step turns the job red and posts no comment.\n\n**Candidate solutions:** Acceptable as-is given it only triggers on misconfigured secrets. If extra robustness is wanted, the comment step could tolerate auth failure, but that adds complexity for a low-probability misconfiguration and isn't recommended for this PR.\n\n</details>\n\n<details>\n<summary><strong>Transitional duplicate comment</strong></summary>\n\n**Cause:** On a PR that already has a `github-actions[bot]` preview comment, the first run under the Sepo identity finds no Sepo-authored comment, so `--edit-last` fails and the `||` fallback posts a new Sepo comment, leaving the old one orphaned.\n\n**Candidate solutions:** None required — self-heals for new PRs and is explicitly acknowledged in the PR description. Reviewers should just expect a one-time double comment on in-flight PRs.\n\n</details>\n\n<details>\n<summary><strong><code>--edit-last</code> under app token unverified</strong></summary>\n\n**Cause:** `preview.yml` is the only workflow using `gh pr comment --edit-last`. Sticky-edit worked under `github-actions[bot]` (itself an app), and an app installation token resolves `viewer` the same way, so editing *should* continue in place — but it hasn't been exercised under the Sepo app in this repo.\n\n**Candidate solutions:** No code change needed. Confirm operationally on the first live agent PR that a second push edits the same comment rather than appending. The `||` fallback guarantees the job won't fail even in the worst case.\n\n</details>\n\n## Recommended Next Step\n\n`FIX_PR` — adding `pat: ${{ secrets.AGENT_PAT }}` is a mechanical, one-line change that exactly matches 22 sibling call sites, has no downside on the primary path, and is safe for an automated fix-pr pass.\n\n## Final Verdict\n\n`MINOR_ISSUES`\n\n## Action Items\n\n- [ ] In the `Resolve Sepo agent auth` step's `with:` block, add `pat: ${{ secrets.AGENT_PAT }}` after `app_private_key` (`.github/workflows/preview.yml:59`) to match all 22 other `resolve-github-auth` call sites and preserve the Sepo identity in PAT-only fallback configs.\n\n---\n`claude` | `default` | `max` | `GitHub Actions 1000001675`",
+      "createdAt": "2026-06-04T19:09:42Z",
+      "includesCreatedEdit": false,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/68#issuecomment-4625293173",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABE7ai0w",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /review",
+      "createdAt": "2026-06-04T20:08:38Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/68#issuecomment-4625703635",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABE7bNqQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Confirmed: `RUBRICS_AVAILABLE=false`, no `agent/rubrics` branch (empty `ls-remote`), and no rubrics context file is set. There are no rubrics to score this PR against.\n\n## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| N/A | N/A | 0 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| — | _No rubrics available_ | not applicable | N/A | No `agent/rubrics` branch on `augmented-mind/augmented-mind.github.io` (empty `git ls-remote refs/heads/agent/rubrics`); harness env reports `RUBRICS_AVAILABLE=false` with empty `RUBRICS_DIR` and `RUBRICS_CONTEXT_FILE`. |\n\n## Notes\n\n- No user/team rubrics are initialized for this repository, so there is nothing rubric-specific to evaluate [PR #68](https://github.com/augmented-mind/augmented-mind.github.io/pull/68) against. This is a scoping outcome, not a quality judgment on the change.\n- For context, PR #68 is a 9-line, single-file change to [`.github/workflows/preview.yml`](https://github.com/augmented-mind/augmented-mind.github.io/blob/39df16e90103cae4f67c94bd66599896a3d6d3f1/.github/workflows/preview.yml): it adds a `Resolve Sepo agent auth` step via the existing [`resolve-github-auth`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.github/actions/resolve-github-auth/action.yml) composite and switches the `Comment URL` step's `GH_TOKEN` from `${{ github.token }}` to `${{ steps.auth.outputs.token }}`, with `github.token` as fallback.\n- The current head (`39df16e9`) **already addresses** the prior review's only action item: the `with:` block now includes `pat: ${{ secrets.AGENT_PAT }}` after `app_private_key`, restoring parity with the other `resolve-github-auth` call sites. That earlier finding came from the code-review lane, not a rubric.\n- Smallest useful follow-up if rubric steering is desired: run **Agent / Rubrics / Initialization** to seed the `agent/rubrics` branch, then re-run this review.\n\n## Findings\n\n- **INFO:** No rubrics are configured for this repo; rubric-based scoring was skipped. No rubric-tied findings.\n\n## Final Rubric Verdict\n\nN/A\n\n---\n`claude` | `default` | `high` | `GitHub Actions 1000001684`",
+      "createdAt": "2026-06-04T20:10:19Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/68#issuecomment-4625714601",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABE7eg4g",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: 39df16e90103cae4f67c94bd66599896a3d6d3f1 -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\nReply posted successfully as `sepo-agent-app[bot]` ([discussion_r3358622131](https://github.com/augmented-mind/augmented-mind.github.io/pull/68#discussion_r3358622131)). The prior WARNING is verified fixed in the current diff, both review artifacts agree, and no new findings exist. No memory writes are warranted — the auth-chain convention is derivable from the code. Here is the synthesis.\n\n---\n\n## Summary of PR/Issue\n\nPR #68 (\"Post preview URLs as Sepo agent\") makes the `preview.yml` workflow post its `Sepo preview: <url>` comment as the Sepo agent identity instead of `github-actions[bot]`. It inserts a `Resolve Sepo agent auth` step that reuses the existing [`resolve-github-auth`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.github/actions/resolve-github-auth/action.yml) composite action, then swaps the `Comment URL` step's `GH_TOKEN` from `${{ github.token }}` to the resolved `steps.auth.outputs.token`. The auth step shares the same `if: steps.deploy.outputs.url != ''` gate as the comment step, so no token is minted when there's nothing to post, and `github.token` stays the terminal fallback. It's a single-file change (+10/−1) that reuses an established repo pattern rather than rebuilding token handling. This is the second `/review` pass, at head `39df16e`, after the first pass flagged a missing `pat` input.\n\n## Review\n\nThe change is correct, well-scoped, and now matches the repo's canonical auth chain exactly; the single WARNING from the prior pass is fixed and verified, leaving only previously-acknowledged operational INFO notes. Both reviewers agree — the Claude code reviewer returns SHIP, and the rubrics reviewer is N/A (no `agent/rubrics` branch configured).\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Auth-step failure now gates the preview comment | INFO | If app creds are present but invalid (or only one of the pair is set), the `auth` step hard-fails and no comment posts. Only triggers on misconfigured secrets; every sibling workflow shares the same dependency. |\n| Transitional duplicate comment | INFO | On a PR with an existing `github-actions[bot]` preview comment, the first run under the Sepo identity orphans the old comment and posts a fresh one. Self-heals; acknowledged in the PR body. |\n| `--edit-last` under app token unverified | INFO | `preview.yml` is the only workflow using `gh pr comment --edit-last`; sticky-edit behavior under the Sepo app identity should be confirmed on the first live run. The `\\|\\|` fallback prevents job failure regardless. |\n\n## Progress\n\n- **Prior WARNING (missing `pat`) — RESOLVED.** Head `39df16e` now includes `pat: ${{ secrets.AGENT_PAT }}` in canonical order (`app_id → app_private_key → pat → fallback_token`), confirmed against the live diff and all 22 sibling `resolve-github-auth` call sites (31 occurrences). Both reviewers independently verified this.\n- **Inline thread cleanup.** Replied to the prior same-agent WARNING thread on `.github/workflows/preview.yml:59` ([discussion_r3358622131](https://github.com/augmented-mind/augmented-mind.github.io/pull/68#discussion_r3358622131)) confirming the fix. The thread could not be auto-resolved — `viewerCanResolve: false` (installation token lacks triage/push), so per the rules I replied rather than resolved; nothing was minimized.\n- **Transitional duplicate comment** is disclosed in the PR description — intentionally accepted, no action expected.\n- **Rubrics review:** N/A — no `agent/rubrics` branch exists, so rubric scoring was skipped (a scoping outcome, not a quality judgment). Optional follow-up: run **Agent / Rubrics / Initialization** if rubric steering is desired.\n- **Design confirmed sound:** the resolved token is masked inside the action, the required `id-token: write` and `pull-requests: write` permissions are granted at the workflow level, the auth/comment `if` gates are consistent (both run or both skip), and `actionlint` passed per the PR test plan.\n\n## Issue Details\n\n<details>\n<summary><strong>Auth-step failure now gates the preview comment</strong></summary>\n\n**Cause:** The `Comment URL` step previously used `github.token` directly and was independent of any auth resolution. It now depends on the `auth` step, which hard-fails if `create-github-app-token` rejects invalid app creds, or if exactly one of `app_id`/`app_private_key` is set (the action's validation). With no `if: always()` on `Comment URL`, a failed `auth` step turns the job red and posts no comment.\n\n**Candidate solutions:** Acceptable as-is — it only triggers on misconfigured secrets, and every other workflow shares the identical dependency on this action. Adding fault tolerance would add complexity for a low-probability misconfiguration and isn't recommended for this PR.\n\n</details>\n\n<details>\n<summary><strong>Transitional duplicate comment</strong></summary>\n\n**Cause:** On a PR that already has a `github-actions[bot]` preview comment, the first run under the Sepo identity finds no Sepo-authored comment, so `--edit-last` fails and the `||` fallback posts a new Sepo comment, orphaning the old one.\n\n**Candidate solutions:** None required — self-heals for new PRs and is explicitly acknowledged in the PR description. Reviewers should just expect a one-time double comment on in-flight PRs.\n\n</details>\n\n<details>\n<summary><strong><code>--edit-last</code> under app token unverified</strong></summary>\n\n**Cause:** `preview.yml` is the only workflow using `gh pr comment --edit-last`. Sticky-edit worked under `github-actions[bot]` (itself an app), and an app installation token resolves `viewer` the same way, so editing *should* continue in place — but it hasn't been exercised under the Sepo app in this repo.\n\n**Candidate solutions:** No code change needed. Confirm operationally on the first live agent PR that a second push edits the same comment rather than appending. The `||` fallback guarantees the job won't fail even in the worst case.\n\n</details>\n\n## Recommended Next Step\n\n`NO_AUTOMATED_ACTION` — the only actionable finding (missing `pat`) is already fixed and verified at head `39df16e`, and the remaining items are previously-acknowledged operational INFO notes that require no branch change.\n\n## Final Verdict\n\n`SHIP`\n\n## Action Items\n\n- [ ] No required branch changes — the prior `pat` action item is resolved at `39df16e`; PR is ready to merge. _(Operational, optional, human: on the first live agent PR, confirm `gh pr comment --edit-last` edits the existing Sepo comment in place rather than appending.)_\n\n---\n`claude` | `default` | `max` | `GitHub Actions 1000001688`",
+      "createdAt": "2026-06-04T20:17:57Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/68#issuecomment-4625768674",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABE7gKdg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nNo changes were committed to [`agent/rubrics`](https://github.com/augmented-mind/augmented-mind.github.io/tree/agent/rubrics) from PR #68.\n\n**no rubric changes**\n\nThe PR #68 conversation contains no durable user/team preference worth encoding as a rubric:\n\n- **Human comments**: The only human (lolipopshock, `author_association: CONTRIBUTOR`) posted just two `@sepo-agent /review` commands — no stated preference about style, workflow, or review quality.\n- **All substantive content** (the auth-chain WARNING, the synthesis, verdicts) came from `sepo-agent-app[bot]`, which is advisory-only evidence; no trusted contributor (OWNER/MEMBER/COLLABORATOR) endorsed any point as a durable expectation.\n- The bot itself noted the `resolve-github-auth` chain convention is \"derivable from the code itself\" — a code convention, not a user/team preference.\n- The `Requested by` actor (lolipopshock) merged the PR but authored no explicit add/update-rubric instruction, so the trusted-source exception doesn't apply.\n\nPer the guardrails, ambiguous/untrusted feedback defaults to no learning. No `/rubrics/` directory or `agent/rubrics` branch was modified.\n\n---\n`claude` | `default` | `medium` | `GitHub Actions 1000001691`",
+      "createdAt": "2026-06-04T20:22:01Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/68#issuecomment-4625795702",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-04T18:08:28Z",
+  "files": [
+    {
+      "path": ".github/workflows/preview.yml",
+      "additions": 10,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "fix/preview-sepo-agent-comments",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": "2026-06-04T20:20:45Z",
+  "number": 68,
+  "reviewDecision": "",
+  "reviews": [
+    {
+      "id": "PRR_kwDOQ106188AAAABCBcyLg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-06-04T19:08:53Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "a6d56e01043eabc1f95c2a21cb8f04b83b860886"
+      }
+    },
+    {
+      "id": "PRR_kwDOQ106188AAAABCB26aQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-06-04T20:16:23Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "39df16e90103cae4f67c94bd66599896a3d6d3f1"
+      }
+    }
+  ],
+  "state": "MERGED",
+  "title": "Post preview URLs as Sepo agent",
+  "updatedAt": "2026-06-04T20:22:02Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/68"
+}
