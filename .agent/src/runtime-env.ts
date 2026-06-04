@@ -1,4 +1,5 @@
 const CODEX_ACPX_AUTH_METHOD_IDS = ["openai-api-key", "codex-api-key"] as const;
+const CLAUDE_MODEL_ID_PATTERN = /^claude-[A-Za-z0-9._-]+$/u;
 
 function acpxAuthEnvName(methodId: string): string | undefined {
   const token = methodId
@@ -24,6 +25,19 @@ function setCredentialEnv(options: {
     const envName = acpxAuthEnvName(methodId);
     if (envName) options.output[envName] = credential;
   }
+}
+
+function requestedPinnedClaudeModel(inputEnv: NodeJS.ProcessEnv): string {
+  const agent = String(inputEnv.ACPX_AGENT || "").trim().toLowerCase();
+  const model = String(inputEnv.MODEL_ID || "").trim();
+  if (agent !== "claude" || !CLAUDE_MODEL_ID_PATTERN.test(model)) {
+    return "";
+  }
+  return model;
+}
+
+function synthesizeClaudeModelConfig(model: string): string {
+  return JSON.stringify({ availableModels: [model] });
 }
 
 export function buildSharedEnv(inputEnv: NodeJS.ProcessEnv = process.env): Record<string, string> {
@@ -58,5 +72,19 @@ export function buildSharedEnv(inputEnv: NodeJS.ProcessEnv = process.env): Recor
     sourceName: "ANTHROPIC_API_KEY",
     ambientName: "ANTHROPIC_API_KEY",
   });
+
+  const pinnedClaudeModel = requestedPinnedClaudeModel(inputEnv);
+  if (pinnedClaudeModel) {
+    if (!inputEnv.ANTHROPIC_MODEL) {
+      env.ANTHROPIC_MODEL = pinnedClaudeModel;
+    }
+    if (!inputEnv.CLAUDE_MODEL_CONFIG) {
+      // Claude ACP validates generic acpx model requests against the adapter's
+      // advertised model IDs. Date/version-pinned Claude IDs are only advertised
+      // when Claude Code settings expose them as available models.
+      env.CLAUDE_MODEL_CONFIG = synthesizeClaudeModelConfig(pinnedClaudeModel);
+    }
+  }
+
   return env;
 }

@@ -8,10 +8,9 @@ const SAFE_TOKEN = /^[A-Za-z0-9][A-Za-z0-9._:/+-]*$/;
 // Keep this small: Sepo pins one default model per supported provider, not a model catalog.
 const BUILTIN_PROVIDER_DEFAULTS = Object.freeze({
   codex: Object.freeze({ model: "gpt-5.5" }),
-  // Claude ACP advertises model aliases like "default", "opus", and "haiku".
-  // Use the adapter-level alias instead of Claude Code's date/versioned model IDs;
-  // acpx validates --model against the advertised ACP IDs before dispatch.
-  claude: Object.freeze({ model: "opus" }),
+  // Claude date/version-pinned models must also be surfaced to Claude ACP through
+  // CLAUDE_MODEL_CONFIG; runtime-env synthesizes that config for this default.
+  claude: Object.freeze({ model: "claude-opus-4-8" }),
 });
 
 function normalizeProvider(value) {
