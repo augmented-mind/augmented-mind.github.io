@@ -5,7 +5,7 @@
   "acpxSessionId": "",
   "agentSessionId": "",
   "branch": "",
-  "status": "running",
+  "status": "completed",
   "resume_status": "not_attempted",
   "last_resume_error": "",
   "resumed_from_session_id": "",
@@ -21,5 +21,5 @@
   "last_comment_url": "",
   "attempt_count": 1,
   "created_at": "2026-06-04T17:41:52.943Z",
-  "updated_at": "2026-06-04T17:41:52.944Z"
+  "updated_at": "2026-06-04T17:47:58.601Z"
 }
