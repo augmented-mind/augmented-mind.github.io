@@ -18,7 +18,7 @@ jobs:
       - name: Build site
         run: |
           npm ci
-          npx quartz build          # -> ./public
+          npx quartz build
       - name: Upload artifact
         id: upload
         uses: actions/upload-artifact@v4
@@ -39,17 +39,22 @@ jobs:
           [[ "$CODE" == 200 ]] || { echo "::error::deploy failed ($CODE)"; exit 1; }
           URL=$(jq -r .url <<<"$BODY")
           echo "url=$URL" >> "$GITHUB_OUTPUT"
-          echo "### 🔎 Preview: $URL" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Preview: $URL" >> "$GITHUB_STEP_SUMMARY"
       - name: Comment URL
         if: github.event_name == 'pull_request'
-        env: { GH_TOKEN: "${{ github.token }}", URL: "${{ steps.deploy.outputs.url }}" }
-        run: gh pr comment "${{ github.event.pull_request.number }}" --repo "$GITHUB_REPOSITORY" --body "🔎 Sepo preview: $URL"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          URL: ${{ steps.deploy.outputs.url }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body "Sepo preview: $URL"
   teardown:
     if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - name: Teardown preview
-        env: { SERVER_URL: https://preview-api.sepo.sh }
+        env:
+          SERVER_URL: https://preview-api.sepo.sh
         run: |
           set -euo pipefail
           TOK=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
