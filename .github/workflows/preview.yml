@@ -8,9 +8,12 @@ concurrency:
   cancel-in-progress: true
 jobs:
   deploy:
-    # Auto-preview every agent PR (branch prefix is present at open, no label needed).
-    # Humans can opt a PR in with `sepo-preview`, or opt an agent PR out with `no-preview`.
+    # AGENT_PREVIEW_POLICY: unset/auto = public repos only, `all` = include private, `off` = disabled.
+    # Within that, auto-preview every agent PR (agent/ branch prefix). Label overrides:
+    # `sepo-preview` opts any PR in, `no-preview` opts an agent PR out.
     if: >-
+      vars.AGENT_PREVIEW_POLICY != 'off' &&
+      (vars.AGENT_PREVIEW_POLICY == 'all' || github.event.repository.private == false) &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.action != 'closed' &&
       (github.event.action != 'labeled' || github.event.label.name == 'sepo-preview') &&
