@@ -3,11 +3,11 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, labeled, closed]
 permissions: { id-token: write, contents: read, pull-requests: write }
-concurrency:
-  group: sepo-preview-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
 jobs:
   deploy:
+    concurrency:
+      group: sepo-preview-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
     # AGENT_PREVIEW_POLICY: unset/auto = public repos only, `all` = include private, `off` = disabled.
     # Within that, auto-preview every agent PR (agent/ branch prefix). Label overrides:
     # `sepo-preview` opts any PR in, `no-preview` opts an agent PR out.
@@ -60,6 +60,9 @@ jobs:
           gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body "Sepo preview: $URL" --edit-last \
             || gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body "Sepo preview: $URL"
   teardown:
+    concurrency:
+      group: sepo-preview-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
     if: >-
       github.event.action == 'closed' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
