@@ -127,7 +127,6 @@ concurrency:
 jobs:
   implement:
     runs-on: ${{ fromJson(inputs.runs_on || vars.AGENT_RUNS_ON || '["ubuntu-latest"]') }}
-    environment: preview
     env:
       ISSUE_NUMBER: ${{ inputs.issue_number }}
       IMPLEMENTATION_ROUTE: ${{ inputs.implementation_route || 'implement' }}
@@ -189,18 +188,6 @@ jobs:
           TARGET_KIND: issue
           TARGET_NUMBER: ${{ env.ISSUE_NUMBER }}
         run: node .agent/dist/cli/add-label.js
-
-      - name: Check preview label
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ steps.auth.outputs.token }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-        run: |
-          set -euo pipefail
-          LABELS=$(gh issue view "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --json labels --jq '.labels[].name' 2>/dev/null || echo "")
-          if echo "$LABELS" | grep -qx "preview"; then
-            echo "DEPLOY_PREVIEW=true" >> "$GITHUB_ENV"
-          fi
 
       - name: Create implementation branch
         env:
@@ -296,25 +283,6 @@ jobs:
           TARGET_NUMBER: ${{ steps.pr.outputs.pr_number }}
         run: node .agent/dist/cli/add-label.js
 
-      - name: Deploy preview
-        if: steps.commit.outputs.committed == 'true' && env.DEPLOY_PREVIEW == 'true' && steps.pr.outputs.pr_number != ''
-        continue-on-error: true
-        env:
-          SURGE_LOGIN: ${{ secrets.SURGE_LOGIN }}
-          SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
-          PR_NUMBER: ${{ steps.pr.outputs.pr_number }}
-        run: |
-          set -euo pipefail
-          if [[ -z "$SURGE_LOGIN" || -z "$SURGE_TOKEN" ]]; then
-            echo "::error::Surge credentials are empty; skipping deployment."
-            exit 1
-          fi
-          npm ci
-          npx quartz build
-          PREVIEW_DOMAIN="augmented-mind-preview-${PR_NUMBER}.surge.sh"
-          npx surge ./public "$PREVIEW_DOMAIN" --token "$SURGE_TOKEN"
-          echo "PREVIEW_URL=https://${PREVIEW_DOMAIN}" >> "$GITHUB_ENV"
-
       - name: Post status comment
         if: always()
         env:
@@ -324,7 +292,6 @@ jobs:
           GH_TOKEN: ${{ steps.auth.outputs.token }}
           ISSUE_NUMBER: ${{ env.ISSUE_NUMBER }}
           PR_URL: ${{ steps.pr.outputs.pr_url }}
-          PREVIEW_URL: ${{ env.PREVIEW_URL }}
           RESPONSE_FILE: ${{ steps.agent.outputs.response_file }}
           RESUME_STATUS: ${{ steps.agent.outputs.resume_status }}
           ROUTE: ${{ env.IMPLEMENTATION_ROUTE }}
