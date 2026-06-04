@@ -13,3 +13,4 @@
 - Previews use Sepo preview server (preview-api.sepo.sh) via GitHub Actions OIDC — no Surge secrets needed. Standalone preview.yml auto-deploys agent/ PRs; label overrides: sepo-preview (opt in), no-preview (opt out). Tears down on PR close.
 - Never fabricate episode/stream description text — ls01.md content was hallucinated and required human correction. Use only source material (issue body, tweets, paper titles) for descriptions.
 - preview.yml concurrency (sepo-preview-<pr#>, cancel-in-progress) must live on deploy/teardown jobs, NOT workflow-level — workflow-level groups let skipped non-preview label runs cancel active previews (PR #66 race).
+- resolve-github-auth call sites must pass the full chain app_id → app_private_key → pat → fallback_token; omitting pat (as PR #68's first pass did) drops Sepo identity in PAT-only fallback configs.
