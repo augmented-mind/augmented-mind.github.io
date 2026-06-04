@@ -1,6 +1,7 @@
 // Agent response parsing and status determination.
 
 import {
+  buildReviewSynthesisHeadMarker,
   buildReviewSynthesisMarker,
   REVIEW_SYNTHESIS_HEADING,
 } from "./review-synthesis.js";
@@ -90,9 +91,7 @@ export function formatFixPrComment(data: StatusCommentData): string {
       const requestedBy = data.requestedBy ? formatMention(data.requestedBy) : "";
       if (requestedBy) line += ` Requested by ${requestedBy}.`;
       if (data.approvalCommentUrl) line += ` Approval: ${data.approvalCommentUrl}.`;
-      const successLines = [line, "", marker, ""];
-      successLines.push(data.summary ?? "");
-      return successLines.join("\n");
+      return [line, "", marker, "", data.summary ?? ""].join("\n");
     }
     case "no_changes":
       return [
@@ -140,18 +139,28 @@ export function formatReviewComment(data: {
   synthesisBody: string;
   requestedBy?: string;
   approvalCommentUrl?: string;
+  reviewedHeadSha?: string;
 }): string {
   const lines = [
     REVIEW_SYNTHESIS_HEADING,
     "",
     buildReviewSynthesisMarker(),
-    "",
-    "> Dual-agent review by **Claude** and **Codex**.",
   ];
+  const headMarker = buildReviewSynthesisHeadMarker(data.reviewedHeadSha || "");
+  if (headMarker) lines.push(headMarker);
+  lines.push("", "> Dual-agent review by **Claude** and **Codex**.");
   if (data.requestedBy) lines.push(`> Requested by @${data.requestedBy}.`);
   if (data.approvalCommentUrl) lines.push(`> Approval comment: ${data.approvalCommentUrl}`);
   lines.push("", data.synthesisBody);
   return lines.join("\n");
+}
+
+export function appendRunDisplayFooter(body: string, display: string | undefined): string {
+  const normalizedDisplay = String(display || "").trim();
+  if (!normalizedDisplay) return body;
+  const normalizedBody = String(body || "").trimEnd();
+  if (!normalizedBody) return normalizedDisplay;
+  return `${normalizedBody}\n\n---\n${normalizedDisplay}`;
 }
 
 function escapeMarkdownLinkText(text: string): string {

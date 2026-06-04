@@ -11,6 +11,7 @@
 //   fell back to fresh after resume failure, or failed before the run.
 
 import { execFileSync, spawnSync } from "node:child_process";
+import { randomBytes } from "node:crypto";
 import { closeSync, mkdtempSync, openSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -20,6 +21,8 @@ import { join } from "node:path";
 export interface AcpxRunOptions {
   /** The agent to use (e.g., "codex", "claude") */
   agent: string;
+  /** Optional model id passed through acpx model selection. */
+  model?: string;
   /** The prompt text */
   prompt: string;
   /** Smaller prompt for a successfully resumed destination session. */
@@ -34,8 +37,10 @@ export interface AcpxRunOptions {
   permissionMode?: "approve-all" | "approve-reads" | "deny-all";
   /** Timeout in seconds */
   timeout?: number;
-  /** Optional session thought level for persistent lanes */
+  /** Optional Codex thought level for session-backed runs. */
   thoughtLevel?: string;
+  /** Allow exec lanes to use a fresh session for non-resumable artifacts. */
+  preserveExecSession?: boolean;
   /** Prior ACP session ID to resume (when workflow opts in) */
   resumeSessionId?: string;
   /** Extra environment variables */
@@ -87,6 +92,10 @@ const PERSISTENT_SESSION_MODE = "full-access";
 const CLAUDE_BYPASS_MODE = "bypassPermissions";
 const DEFAULT_PERMISSION_MODE: PermissionMode = "approve-all";
 const ACPX_MAX_BUFFER = 50 * 1024 * 1024; // 50 MB
+const TRANSIENT_EXEC_SESSION_BYTES = 6;
+const CODEX_REASONING_EFFORTS = new Set(["low", "medium", "high", "xhigh"]);
+const CODEX_REASONING_SUFFIX = /(?:\/(?:low|medium|high|xhigh)|\[(?:low|medium|high|xhigh)\])$/u;
+const CODEX_REASONING_MODEL_PREFIX = /^gpt-5(?:[.-]|$)/u;
 
 export interface FileCaptureRunOptions {
   command: string;
@@ -205,8 +214,78 @@ export function sessionNameFromThreadKey(threadKey: string): string {
   return threadKey.replace(/[/:]/g, "-");
 }
 
+function transientSessionNameForExec(threadKey: string | undefined): string {
+  const base = threadKey ? sessionNameFromThreadKey(threadKey) : "exec";
+  return `${base}-exec-${randomBytes(TRANSIENT_EXEC_SESSION_BYTES).toString("hex")}`;
+}
+
+function isCodexAgent(agent: string): boolean {
+  return agent.trim().toLowerCase() === "codex";
+}
+
+export interface AcpxModelSelection {
+  model?: string;
+  thoughtLevel?: string;
+  reasoningEncodedInModel: boolean;
+}
+
+/**
+ * Normalizes Sepo's provider-neutral `model` + `reasoning_effort` fields into
+ * the model ids advertised by newer Codex ACP adapters.
+ *
+ * `@zed-industries/codex-acp` reports GPT-5 Codex reasoning variants as model
+ * ids such as `gpt-5.5/xhigh`. Sending `model=gpt-5.5` and then setting
+ * `thought_level=xhigh` no longer replays reliably for named sessions, so Sepo
+ * composes those values before handing them to acpx. Non-Codex agents and
+ * Codex requests without a known GPT-5 reasoning variant keep the legacy
+ * separate thought-level path.
+ */
+export function resolveAcpxModelSelection(options: {
+  agent: string;
+  model?: string;
+  thoughtLevel?: string;
+}): AcpxModelSelection {
+  const model = options.model?.trim() || "";
+  const thoughtLevel = options.thoughtLevel?.trim() || "";
+
+  if (!isCodexAgent(options.agent) || !model) {
+    return {
+      model: model || undefined,
+      thoughtLevel: thoughtLevel || undefined,
+      reasoningEncodedInModel: false,
+    };
+  }
+
+  if (CODEX_REASONING_SUFFIX.test(model)) {
+    return {
+      model,
+      thoughtLevel: undefined,
+      reasoningEncodedInModel: true,
+    };
+  }
+
+  if (
+    thoughtLevel &&
+    CODEX_REASONING_EFFORTS.has(thoughtLevel) &&
+    CODEX_REASONING_MODEL_PREFIX.test(model)
+  ) {
+    return {
+      model: `${model}/${thoughtLevel}`,
+      thoughtLevel: undefined,
+      reasoningEncodedInModel: true,
+    };
+  }
+
+  return {
+    model,
+    thoughtLevel: thoughtLevel || undefined,
+    reasoningEncodedInModel: false,
+  };
+}
+
 export function buildAcpxArgs(options: {
   agent: string;
+  model?: string;
   prompt: string;
   permissionMode: PermissionMode;
   timeout?: number;
@@ -221,6 +300,11 @@ export function buildAcpxArgs(options: {
   args.push("--suppress-reads");
   if (options.timeout) {
     args.push("--timeout", String(options.timeout));
+  }
+  const model = options.model?.trim();
+  const usesNamedSession = !options.isExecRoute && Boolean(options.sessionName);
+  if (model && !usesNamedSession) {
+    args.push("--model", model);
   }
 
   args.push(options.agent);
@@ -262,6 +346,7 @@ export interface SessionSetupCommand {
 export function buildSessionSetupCommands(options: {
   agent: string;
   sessionName?: string;
+  model?: string;
   thoughtLevel?: string;
   permissionMode?: PermissionMode;
 }): SessionSetupCommand[] {
@@ -270,20 +355,30 @@ export function buildSessionSetupCommands(options: {
   }
 
   const normalizedAgent = options.agent.trim().toLowerCase();
-  if (normalizedAgent === "claude") {
-    if (options.permissionMode === "approve-all") {
-      return [
-        {
-          label: "set-mode",
-          args: [options.agent, "set-mode", "-s", options.sessionName, CLAUDE_BYPASS_MODE],
-        },
-      ];
-    }
-    return [];
+  const modelSelection = resolveAcpxModelSelection({
+    agent: options.agent,
+    model: options.model,
+    thoughtLevel: options.thoughtLevel,
+  });
+  const commands: SessionSetupCommand[] = [];
+  if (modelSelection.model) {
+    commands.push({
+      label: "set model",
+      args: [options.agent, "set", "model", modelSelection.model, "-s", options.sessionName],
+    });
   }
 
-  const commands: SessionSetupCommand[] = [];
-  const thoughtLevel = options.thoughtLevel?.trim();
+  if (normalizedAgent === "claude") {
+    if (options.permissionMode === "approve-all") {
+      commands.push({
+        label: "set-mode",
+        args: [options.agent, "set-mode", "-s", options.sessionName, CLAUDE_BYPASS_MODE],
+      });
+    }
+    return commands;
+  }
+
+  const thoughtLevel = modelSelection.thoughtLevel;
   if (thoughtLevel) {
     commands.push({
       label: "set thought_level",
@@ -396,6 +491,61 @@ function ensureSession(
   } catch (err: unknown) {
     const error = (err as { stderr?: Buffer })?.stderr?.toString("utf8") ?? String(err);
     return { kind: "failed", error };
+  }
+}
+
+function createTransientSession(
+  agent: string,
+  sessionName: string,
+  cwd: string,
+  env: NodeJS.ProcessEnv,
+): SessionEnsureOutcome {
+  try {
+    execFileSync("acpx", [agent, "sessions", "new", "--name", sessionName], {
+      cwd,
+      env,
+      stdio: "pipe",
+      maxBuffer: ACPX_MAX_BUFFER,
+    });
+    return { kind: "fresh" };
+  } catch (err: unknown) {
+    const error = (err as { stderr?: Buffer })?.stderr?.toString("utf8") ?? String(err);
+    return { kind: "failed", error };
+  }
+}
+
+function runSessionSetupCommands(options: {
+  agent: string;
+  sessionName: string;
+  model?: string;
+  thoughtLevel?: string;
+  permissionMode: PermissionMode;
+  cwd: string;
+  env: NodeJS.ProcessEnv;
+}): { ok: true } | { ok: false; status?: number; stderr: string } {
+  try {
+    for (const command of buildSessionSetupCommands({
+      agent: options.agent,
+      sessionName: options.sessionName,
+      model: options.model,
+      thoughtLevel: options.thoughtLevel,
+      permissionMode: options.permissionMode,
+    })) {
+      execFileSync("acpx", command.args, {
+        cwd: options.cwd,
+        env: options.env,
+        stdio: ["pipe", "pipe", "pipe"],
+        maxBuffer: ACPX_MAX_BUFFER,
+      });
+    }
+    return { ok: true };
+  } catch (err: unknown) {
+    const error = err as { status?: number; stderr?: Buffer };
+    return {
+      ok: false,
+      status: error.status,
+      stderr: error.stderr?.toString("utf8") ?? String(err),
+    };
   }
 }
 
@@ -576,6 +726,7 @@ export function tailForLog(value: string, maxChars: number): string {
 export function runAcpx(options: AcpxRunOptions): AcpxRunResult {
   const {
     agent,
+    model,
     prompt,
     continuationPrompt,
     cwd,
@@ -583,6 +734,7 @@ export function runAcpx(options: AcpxRunOptions): AcpxRunResult {
     threadKey,
     timeout,
     thoughtLevel,
+    preserveExecSession,
     resumeSessionId,
     env: extraEnv,
   } = options;
@@ -590,9 +742,49 @@ export function runAcpx(options: AcpxRunOptions): AcpxRunResult {
   const permissionMode = options.permissionMode ?? DEFAULT_PERMISSION_MODE;
   const isExecRoute = sessionMode === "exec";
   const env = { ...process.env, ...extraEnv };
+  const modelSelection = resolveAcpxModelSelection({ agent, model, thoughtLevel });
+  const selectedModel = modelSelection.model;
+  const selectedThoughtLevel = modelSelection.thoughtLevel;
+  const needsTransientExecSession =
+    preserveExecSession === true ||
+    (isExecRoute && isCodexAgent(agent) && Boolean(selectedThoughtLevel));
   let sessionName: string | undefined;
   let sessionEnsureOutcome: SessionEnsureOutcome = { kind: "not_applicable" };
-  if (isExecRoute || !threadKey) {
+  if (isExecRoute && needsTransientExecSession) {
+    sessionName = transientSessionNameForExec(threadKey);
+    sessionEnsureOutcome = createTransientSession(agent, sessionName, cwd, env);
+    if (sessionEnsureOutcome.kind === "failed") {
+      return {
+        exitCode: 1,
+        stdout: "",
+        rawStdout: "",
+        stderr: `session setup failed: ${sessionEnsureOutcome.error}`,
+        sessionLog: "",
+        sessionName,
+        sessionEnsureOutcome,
+      };
+    }
+    const setupResult = runSessionSetupCommands({
+      agent,
+      sessionName,
+      model: selectedModel,
+      thoughtLevel: selectedThoughtLevel,
+      permissionMode,
+      cwd,
+      env,
+    });
+    if (!setupResult.ok) {
+      return {
+        exitCode: setupResult.status ?? 1,
+        stdout: "",
+        rawStdout: "",
+        stderr: `session setup failed: ${setupResult.stderr}`,
+        sessionLog: "",
+        sessionName,
+        sessionEnsureOutcome,
+      };
+    }
+  } else if (isExecRoute || !threadKey) {
     sessionName = undefined;
   } else {
     // Persistent lane: ensure session exists first
@@ -609,28 +801,21 @@ export function runAcpx(options: AcpxRunOptions): AcpxRunResult {
         sessionEnsureOutcome,
       };
     }
-    try {
-      for (const command of buildSessionSetupCommands({
-        agent,
-        sessionName,
-        thoughtLevel,
-        permissionMode,
-      })) {
-        execFileSync("acpx", command.args, {
-          cwd,
-          env,
-          stdio: ["pipe", "pipe", "pipe"],
-          maxBuffer: ACPX_MAX_BUFFER,
-        });
-      }
-    } catch (err: unknown) {
-      const error = err as { status?: number; stderr?: Buffer };
-      const stderr = error.stderr?.toString("utf8") ?? String(err);
+    const setupResult = runSessionSetupCommands({
+      agent,
+      sessionName,
+      model: selectedModel,
+      thoughtLevel: selectedThoughtLevel,
+      permissionMode,
+      cwd,
+      env,
+    });
+    if (!setupResult.ok) {
       return {
-        exitCode: error.status ?? 1,
+        exitCode: setupResult.status ?? 1,
         stdout: "",
         rawStdout: "",
-        stderr: `session setup failed: ${stderr}`,
+        stderr: `session setup failed: ${setupResult.stderr}`,
         sessionLog: "",
         sessionName,
         sessionEnsureOutcome,
@@ -639,6 +824,7 @@ export function runAcpx(options: AcpxRunOptions): AcpxRunResult {
   }
   const args = buildAcpxArgs({
     agent,
+    model: selectedModel,
     prompt: selectPromptForSessionOutcome({
       fullPrompt: prompt,
       continuationPrompt,
@@ -647,7 +833,7 @@ export function runAcpx(options: AcpxRunOptions): AcpxRunResult {
     permissionMode,
     timeout,
     sessionName,
-    isExecRoute,
+    isExecRoute: isExecRoute && !needsTransientExecSession,
   });
 
   const result = runCommandWithFileCapture({

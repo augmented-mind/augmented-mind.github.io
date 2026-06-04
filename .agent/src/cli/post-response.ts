@@ -5,12 +5,16 @@
 //      AGENT_COLLAPSE_OLD_REVIEWS
 
 import { readFileSync } from "node:fs";
+import { upsertPrCommentByMarker } from "../github.js";
 import { postResponse } from "../respond.js";
 import {
   collapsePreviousRubricsReviews,
   isRubricsReviewBody,
 } from "../review-summary-minimize.js";
+import { SELF_APPROVAL_STATUS_MARKER } from "../self-approval.js";
+import { SELF_MERGE_STATUS_MARKER } from "../self-merge.js";
 import { formatSessionRestoreNotice } from "../session-bundle.js";
+import { appendRunDisplayFooter } from "../response.js";
 
 const bodyFile = process.env.BODY_FILE || "";
 const responseKind = process.env.RESPONSE_KIND || "issue_comment";
@@ -21,6 +25,7 @@ const replyToId = process.env.REPLY_TO_ID || undefined;
 const repo = process.env.GITHUB_REPOSITORY || undefined;
 const resumeStatus = process.env.RESUME_STATUS || "";
 const runStatus = process.env.STATUS || "success";
+const modelDisplay = process.env.MODEL_DISPLAY || process.env.AGENT_RUN_DISPLAY || "";
 const collapseOldReviews = !["false", "0", "no", "off"].includes(
   (process.env.AGENT_COLLAPSE_OLD_REVIEWS || "").trim().toLowerCase(),
 );
@@ -43,7 +48,38 @@ if (continuityNote) {
   body = `> ${continuityNote}\n\n${body}`;
 }
 
+body = appendRunDisplayFooter(body, modelDisplay);
+
+let posted = false;
+let markerUpsertFailed = false;
+const markerUpsert = body.includes(SELF_APPROVAL_STATUS_MARKER)
+  ? { marker: SELF_APPROVAL_STATUS_MARKER, label: "self-approval" }
+  : body.includes(SELF_MERGE_STATUS_MARKER)
+    ? { marker: SELF_MERGE_STATUS_MARKER, label: "self-merge" }
+    : null;
 if (
+  responseKind === "pr_comment" &&
+  repo &&
+  targetNumber > 0 &&
+  markerUpsert
+) {
+  try {
+    const action = upsertPrCommentByMarker(targetNumber, repo, markerUpsert.marker, body);
+    console.log(`${action === "updated" ? "Updated" : "Created"} ${markerUpsert.label} status comment.`);
+    posted = true;
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(
+      `Failed to upsert ${markerUpsert.label} status comment for ${repo}#${targetNumber}: ${message}`,
+    );
+    markerUpsertFailed = true;
+    process.exitCode = 1;
+  }
+}
+
+if (
+  !posted &&
+  !markerUpsertFailed &&
   responseKind === "pr_comment" &&
   repo &&
   targetNumber > 0 &&
@@ -63,7 +99,9 @@ if (
   }
 }
 
-postResponse(
-  { responseKind, targetNumber, reviewCommentId, discussionNodeId, replyToId, repo },
-  body,
-);
+if (!posted && !markerUpsertFailed) {
+  postResponse(
+    { responseKind, targetNumber, reviewCommentId, discussionNodeId, replyToId, repo },
+    body,
+  );
+}

@@ -1,8 +1,10 @@
-# Repository memory
+---
+title: "Repository memory"
+---
 
 The agent composes long-lived memory across runs on a dedicated `agent/memory` branch. Memory is **agentic**: the main agent (on `answer`, `implement`, `fix-pr`, `review`, `skill`) reads and writes memory directly during normal tasks, using a pair of CLIs. Dedicated scheduled workflows curate memory outside user-driven work.
 
-Memory is separate from [user/team rubrics](./rubrics.md). Memory captures agent/project continuity and lessons the agent uses to improve its own work; rubrics capture normative user preferences used to steer implementation and score reviews.
+Memory is separate from [user/team rubrics](rubrics.md). Memory captures agent/project continuity and lessons the agent uses to improve its own work; rubrics capture normative user preferences used to steer implementation and score reviews.
 
 ## Branch layout
 
@@ -11,22 +13,26 @@ Memory is separate from [user/team rubrics](./rubrics.md). Memory captures agent
 | `PROJECT.md` | Slow-changing project context: goals, constraints, open questions |
 | `MEMORY.md` | Durable learned conventions and lessons the agent should carry forward |
 | `daily/YYYY-MM-DD.md` | Append-only daily bullets composed by the agent |
-| `github/{issue,pull,discussion}-<id>.json` | Deterministic mirror of repo history, written by `agent-memory-sync.yml` |
+| `github/<owner>/<repo>/{issue,pull,discussion}-<id>.json` | Deterministic mirror of repo history, written by `agent-memory-sync.yml` |
 
 These are the seeded anchor files, not an exhaustive schema; the memory tree may also contain additional agent-created notes when that helps organize durable context.
 
-Markdown where humans curate (PROJECT / MEMORY / daily); raw `gh --json` output where the mirror just dumps. The flat `github/` layout uses a `<type>-<id>.json` filename so issue #42, PR #42, and discussion #42 never collide — GitHub shares the issue/PR counter, and discussions use their own.
+Markdown where humans curate (PROJECT / MEMORY / daily); raw `gh --json` output where the mirror just dumps. The `github/` layout is repo-namespaced so copied memory branches can retain old repo history while new syncs write into the current repo's namespace. Each namespace uses a `<type>-<id>.json` filename so issue #42, PR #42, and discussion #42 never collide — GitHub shares the issue/PR counter, and discussions use their own.
+
+Notes can cite mirrored artifacts with backlink-style paths, for example `[[github/self-evolving/repo/issue-238.json]]`.
+
+Previous adopters with flat artifacts such as `github/issue-*.json`, `github/pull-*.json`, or `github/discussion-*.json` should manually move active artifacts under the matching `github/<owner>/<repo>/` namespace or delete stale copied artifacts. Sepo does not automatically mutate the legacy flat layout, and `memory/search.js` searches recursively, so leftover flat artifacts can still appear in search results and mix old and new repository context.
 
 The mirror preserves exactly what `gh` returns so the agent can query with `jq`:
 
 ```bash
-jq '.comments[].body' "$MEMORY_DIR/github/issue-209.json"
-jq 'select(.state == "MERGED") | .title' "$MEMORY_DIR/github/pull-"*.json
+jq '.comments[].body' "$MEMORY_DIR/github/self-evolving/repo/issue-209.json"
+jq 'select(.state == "MERGED") | .title' "$MEMORY_DIR/github/self-evolving/repo/pull-"*.json
 ```
 
 `memory/search.js` already handles `.json` files, so tokenized text search still works on field values.
 
-Sync cursors for the mirror live in a separate ref, `refs/agent-memory-state/sync`, so cursor updates don't pollute the memory branch's commit history. This follows the same ref-backed state pattern used by session continuity thread state: operational cursor state stays off the human-facing memory branch.
+Sync cursors for the mirror live in a separate ref, `refs/agent-memory-state/sync`, so cursor updates don't pollute the memory branch's commit history. This follows the same ref-backed state pattern used by session continuity thread state: operational cursor state stays off the human-facing memory branch. The state records `repo_slug`; if a copied branch carries state for another repository, the read/write CLIs ignore it and start a fresh cursor for the current repo.
 
 ## Memory CLIs
 
@@ -70,7 +76,7 @@ File impact is intentionally narrow:
 
 - `add`, `replace`, and `remove` change exactly one file: `$MEMORY_DIR/MEMORY.md` or `$MEMORY_DIR/PROJECT.md`.
 - `daily-append` changes exactly one dated log: `$MEMORY_DIR/daily/YYYY-MM-DD.md`, creating it first when missing.
-- `memory/update.js` never mutates `github/*.json`; those files only change during the deterministic mirror sync.
+- `memory/update.js` never mutates `github/<owner>/<repo>/*.json`; those files only change during the deterministic mirror sync.
 - Agents may also edit repo-local memory files directly when they need a shape the CLI does not cover; the CLI is the safe default for simple bullet updates.
 
 ### `update.js` outcomes
@@ -92,7 +98,7 @@ Non-LLM support CLIs used by the scheduled workflows:
 | CLI | Purpose |
 |---|---|
 | `memory/bootstrap-branch.js` | Local helper that creates or updates a local `agent/memory` branch and seeds the memory tree |
-| `memory/sync-github-artifacts.js` | Mirrors issues, PRs, and discussions into `github/*.json` |
+| `memory/sync-github-artifacts.js` | Mirrors issues, PRs, and discussions into `github/<owner>/<repo>/*.json` |
 | `memory/read-sync-state.js` / `memory/write-sync-state.js` | Read and write cursors stored at `refs/agent-memory-state/sync` |
 | `memory/resolve-policy.js` | Internal to `run-agent-task`; resolves the effective memory mode per run |
 
@@ -117,9 +123,9 @@ The dedicated memory workflows can still bootstrap the memory tree when the bran
 
 ## Scheduled workflow policy: `AGENT_SCHEDULE_POLICY`
 
-`AGENT_SCHEDULE_POLICY` is an optional repository variable that controls scheduled workflow runs. It applies only to `schedule` events; manual `workflow_dispatch` runs remain available for debugging and recovery.
+`AGENT_SCHEDULE_POLICY` is an optional repository variable that controls scheduled workflow runs. It applies only to `schedule` events; manual `workflow_dispatch` runs remain available for debugging and recovery. To pause all Sepo workflow entry points, including manual dispatch, set the global `AGENT_ENABLED` repository variable to `false`.
 
-**Default**: scheduled workflows use `skip_no_updates`, with `agent-memory-sync.yml` set to `always_run`.
+**Default**: scheduled workflows use `skip_no_updates`, with `agent-daily-summary.yml` set to `disabled` and `agent-memory-sync.yml` set to `always_run`.
 
 **Modes**:
 
@@ -133,12 +139,13 @@ The dedicated memory workflows can still bootstrap the memory tree when the bran
 {
   "default_mode": "skip_no_updates",
   "workflow_overrides": {
+    "agent-daily-summary.yml": "disabled",
     "agent-memory-sync.yml": "always_run"
   }
 }
 ```
 
-Workflow overrides are keyed by workflow filename. Today, `agent-memory-scan.yml` compares `refs/agent-memory-state/sync.last_activity_at` with `refs/agent-memory-state/scan.last_scan_at` and records the scan cursor only after a successful scan. After the sync state has an initial baseline, the sync activity cursor advances only when issue, pull request, or discussion activity is mirrored, so no-op sync runs do not force a scan. `agent-daily-summary.yml` currently counts issue, pull request, and discussion signals in its lookback window and skips when that count is zero; it also checks discussion posting availability before signal collection so repositories without discussions, or without the configured discussion category, skip summary generation early. Commit-only activity is not counted yet. `agent-memory-sync.yml` has no external detector, so it should usually be set to `always_run`; if the policy resolves it to `disabled`, the cron run stops before sync work begins.
+Workflow overrides are keyed by workflow filename. Today, `agent-memory-scan.yml` compares `refs/agent-memory-state/sync.last_activity_at` with `refs/agent-memory-state/scan.last_scan_at` and records the scan cursor only after a successful scan. After the sync state has an initial baseline, the sync activity cursor advances only when issue, pull request, or discussion activity is mirrored, so no-op sync runs do not force a scan. `agent-daily-summary.yml` is disabled for scheduled runs by default; when enabled, it currently counts issue, pull request, and discussion signals in its lookback window and skips when that count is zero. It also checks discussion posting availability before signal collection so repositories without discussions, or without the configured discussion category, skip summary generation early. Commit-only activity is not counted yet. `agent-memory-sync.yml` has no external detector, so it should usually be set to `always_run`; if the policy resolves it to `disabled`, the cron run stops before sync work begins.
 
 ## Access policy: `AGENT_MEMORY_POLICY`
 

@@ -42,6 +42,7 @@ exit 1
     const payload = JSON.parse(readFileSync(payloadPath, "utf8"));
     assert.equal(payload.inputs.base_branch, "agent/parent-branch");
     assert.equal(payload.inputs.base_pr, "");
+    assert.equal(payload.inputs.automation_max_rounds, "12");
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }

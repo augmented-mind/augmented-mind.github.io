@@ -3,7 +3,8 @@
 //      NEXT_TARGET_NUMBER, AUTOMATION_CURRENT_ROUND, AUTOMATION_MAX_ROUNDS,
 //      GITHUB_REPOSITORY, DEFAULT_BRANCH, REQUESTED_BY, REQUEST_TEXT,
 //      SESSION_BUNDLE_MODE, SOURCE_RUN_ID, PLANNER_RESPONSE_FILE, TARGET_KIND,
-//      BASE_BRANCH, BASE_PR, AGENT_COLLAPSE_OLD_REVIEWS
+//      BASE_BRANCH, BASE_PR, AGENT_COLLAPSE_OLD_REVIEWS, AGENT_ALLOW_SELF_APPROVE,
+//      AGENT_ALLOW_SELF_MERGE
 
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -855,6 +856,7 @@ const ref = process.env.DEFAULT_BRANCH || "";
 const sourceAction = process.env.SOURCE_ACTION || "";
 const sourceConclusion = process.env.SOURCE_CONCLUSION || "unknown";
 const sourceRunId = process.env.SOURCE_RUN_ID || process.env.GITHUB_RUN_ID || "";
+const sourceRecommendedNextStep = process.env.SOURCE_RECOMMENDED_NEXT_STEP || "";
 const sourceHandoffContext = process.env.SOURCE_HANDOFF_CONTEXT || "";
 const sourceTargetKind = process.env.TARGET_KIND || "";
 const sourceAssociationRaw = process.env.AUTHOR_ASSOCIATION || "";
@@ -866,9 +868,15 @@ const requestText = process.env.REQUEST_TEXT || "";
 const sessionBundleMode = process.env.SESSION_BUNDLE_MODE || "";
 const baseBranch = process.env.BASE_BRANCH || "";
 const basePr = process.env.BASE_PR || "";
-const maxRounds = positiveInt(process.env.AUTOMATION_MAX_ROUNDS || "", 5);
+const maxRounds = positiveInt(process.env.AUTOMATION_MAX_ROUNDS || "", 12);
 const currentRound = positiveInt(process.env.AUTOMATION_CURRENT_ROUND || "", 1);
 const automationMode = normalizeAutomationMode(process.env.AUTOMATION_MODE || "disabled");
+const allowSelfApprove = ["true", "1", "yes", "on"].includes(
+  normalizeToken(process.env.AGENT_ALLOW_SELF_APPROVE || ""),
+);
+const allowSelfMerge = ["true", "1", "yes", "on"].includes(
+  normalizeToken(process.env.AGENT_ALLOW_SELF_MERGE || ""),
+);
 const collapseOldReviews = !["false", "0", "no", "off"].includes(
   (process.env.AGENT_COLLAPSE_OLD_REVIEWS || "").trim().toLowerCase(),
 );
@@ -1323,11 +1331,14 @@ function decidePlannerOrchestration(): HandoffDecision {
     automationMode,
     sourceAction,
     sourceConclusion,
+    sourceRecommendedNextStep,
     targetKind: sourceTargetKind,
     targetNumber,
     nextTargetNumber: process.env.NEXT_TARGET_NUMBER || "",
     currentRound,
     maxRounds,
+    allowSelfApprove,
+    allowSelfMerge,
     sourceHandoffContext,
     plannerDecision: readPlannerDecision(),
   });
@@ -1338,6 +1349,8 @@ function validateInitialOrchestrateCapabilities(): HandoffDecision | null {
     sourceAction,
     sourceConclusion,
     currentRound,
+    allowSelfApprove,
+    allowSelfMerge,
     authorAssociation: sourceAssociationRaw,
     accessPolicy: accessPolicyRaw,
     isPublicRepo,
@@ -1355,11 +1368,14 @@ const routeDecision = authorizationStop || (normalizeToken(sourceAction) === "or
     automationMode,
     sourceAction,
     sourceConclusion,
+    sourceRecommendedNextStep,
     targetKind: sourceTargetKind,
     targetNumber,
     nextTargetNumber: process.env.NEXT_TARGET_NUMBER || "",
     currentRound,
     maxRounds,
+    allowSelfApprove,
+    allowSelfMerge,
     sourceHandoffContext,
     plannerDecision: automationMode === "agent" ? readPlannerDecision() : null,
   }));
@@ -1530,6 +1546,18 @@ const commonInputs = {
 try {
   if (decision.nextAction === "review") {
     dispatchWorkflow(repo, "agent-review.yml", ref, {
+      ...commonInputs,
+      pr_number: decision.targetNumber,
+    });
+  } else if (decision.nextAction === "agent-self-approve") {
+    dispatchWorkflow(repo, "agent-self-approve.yml", ref, {
+      ...commonInputs,
+      pr_number: decision.targetNumber,
+      source_conclusion: sourceConclusion,
+      source_recommended_next_step: sourceRecommendedNextStep,
+    });
+  } else if (decision.nextAction === "agent-self-merge") {
+    dispatchWorkflow(repo, "agent-self-merge.yml", ref, {
       ...commonInputs,
       pr_number: decision.targetNumber,
     });

@@ -43,7 +43,7 @@ on:
       automation_max_rounds:
         description: "Maximum automation handoff rounds"
         required: false
-        default: "5"
+        default: "12"
       orchestration_enabled:
         description: "Whether this run belongs to an explicit orchestrator chain"
         required: false
@@ -92,7 +92,7 @@ on:
       automation_max_rounds:
         type: string
         required: false
-        default: "5"
+        default: "12"
       orchestration_enabled:
         type: string
         required: false
@@ -101,7 +101,6 @@ on:
 permissions:
   actions: write
   contents: write
-  issues: read
   pull-requests: write
   id-token: write # required for GitHub Actions OIDC broker exchange
 
@@ -111,6 +110,7 @@ concurrency:
 
 jobs:
   fix-pr:
+    if: vars.AGENT_ENABLED != 'false'
     runs-on: ${{ fromJson(inputs.runs_on || vars.AGENT_RUNS_ON || '["ubuntu-latest"]') }}
     env:
       MODEL_REASONING_EFFORT: xhigh
@@ -140,6 +140,8 @@ jobs:
           default_provider: ${{ vars.AGENT_DEFAULT_PROVIDER || 'auto' }}
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}
           claude_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          model_policy: ${{ vars.AGENT_MODEL_POLICY || '' }}
 
       - name: Setup agent runtime
         id: runtime
@@ -183,8 +185,13 @@ jobs:
         with:
           agent: ${{ steps.provider.outputs.provider }}
           github_token: ${{ steps.auth.outputs.token }}
+          secondary_github_token: ${{ secrets.AGENT_SECONDARY_GITHUB_TOKEN }}
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}
           claude_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          model: ${{ steps.provider.outputs.model }}
+          display_model: ${{ vars.AGENT_DISPLAY_MODEL || '' }}
+          reasoning_effort: ${{ steps.provider.outputs.reasoning_effort || 'xhigh' }}
           prompt: fix-pr
           route: fix-pr
           lane: fix-pr-${{ steps.provider.outputs.provider }}
@@ -196,6 +203,9 @@ jobs:
           session_bundle_mode: ${{ inputs.session_bundle_mode || vars.AGENT_SESSION_BUNDLE_MODE || 'auto' }}
           session_policy: resume-best-effort
           request_text: ${{ inputs.request_text }}
+          request_comment_id: ${{ inputs.request_comment_id }}
+          request_comment_url: ${{ inputs.request_comment_url }}
+          request_source_kind: ${{ inputs.request_source_kind || 'workflow_dispatch' }}
           requested_by: ${{ inputs.requested_by || github.actor }}
           source_kind: ${{ inputs.request_source_kind || 'workflow_dispatch' }}
           target_kind: pull_request
@@ -203,9 +213,6 @@ jobs:
           target_url: ${{ github.server_url }}/${{ github.repository }}/pull/${{ env.PR_NUMBER }}
           workflow: agent-fix-pr.yml
         env:
-          REQUEST_COMMENT_ID: ${{ inputs.request_comment_id }}
-          REQUEST_COMMENT_URL: ${{ inputs.request_comment_url }}
-          REQUEST_SOURCE_KIND: ${{ inputs.request_source_kind || 'workflow_dispatch' }}
           ORCHESTRATOR_CONTEXT: ${{ inputs.orchestrator_context }}
 
       - name: Detect PR branch head update
@@ -269,6 +276,7 @@ jobs:
           PR_NUMBER: ${{ env.PR_NUMBER }}
           REQUESTED_BY: ${{ inputs.orchestration_enabled == 'true' && (vars.AGENT_HANDLE || '@sepo-agent') || inputs.requested_by || github.actor }}
           RESPONSE_FILE: ${{ steps.agent.outputs.response_file }}
+          MODEL_DISPLAY: ${{ steps.agent.outputs.model_display }}
           RESUME_STATUS: ${{ steps.agent.outputs.resume_status }}
           ROUTE: fix-pr
           STATUS: ${{ (steps.commit.outcome == 'failure' || steps.push-head.outcome == 'failure') && 'failed' || steps.response.outputs.status || 'failed' }}

@@ -8,6 +8,7 @@ import {
   decideHandoff,
   defaultFixPrHandoffContext,
   extractReviewConclusion,
+  extractReviewRecommendedNextStep,
   extractReviewActionItems,
   formatHandoffMarkerComment,
   getHandoffMarkerState,
@@ -59,6 +60,50 @@ test("agent mode validates planner handoff against policy", () => {
     decision.handoffContext,
     "Review the new PR with special attention to generated workflow permissions.",
   );
+});
+
+test("agent mode allows planner-selected self-approval for SHIP reviews when enabled", () => {
+  const decision = decideHandoff({
+    automationMode: "agent",
+    sourceAction: "review",
+    sourceConclusion: "SHIP",
+    targetNumber: "99",
+    currentRound: 2,
+    maxRounds: 5,
+    allowSelfApprove: true,
+    plannerDecision: {
+      decision: "handoff",
+      nextAction: "agent-self-approve",
+      reason: "Review shipped and self-approval is enabled.",
+    },
+  });
+
+  assert.equal(decision.decision, "dispatch");
+  assert.equal(decision.nextAction, "agent-self-approve");
+  assert.equal(decision.targetNumber, "99");
+  assert.match(decision.reason, /agent planner selected agent-self-approve/);
+});
+
+test("agent mode allows planner-selected self-merge after self-approval when enabled", () => {
+  const decision = decideHandoff({
+    automationMode: "agent",
+    sourceAction: "agent-self-approve",
+    sourceConclusion: "approved",
+    targetNumber: "99",
+    currentRound: 3,
+    maxRounds: 5,
+    allowSelfMerge: true,
+    plannerDecision: {
+      decision: "handoff",
+      nextAction: "agent-self-merge",
+      reason: "Self-approval completed and self-merge is enabled.",
+    },
+  });
+
+  assert.equal(decision.decision, "dispatch");
+  assert.equal(decision.nextAction, "agent-self-merge");
+  assert.equal(decision.targetNumber, "99");
+  assert.match(decision.reason, /agent planner selected agent-self-merge/);
 });
 
 test("agent mode supports issue-level child issue delegation", () => {
@@ -452,6 +497,90 @@ test("review verdicts dispatch fix-pr or stop", () => {
 
   assert.equal(ship.decision, "stop");
   assert.match(ship.reason, /SHIP/);
+
+  const selfApprove = decideHandoff({
+    automationMode: "heuristics",
+    sourceAction: "review",
+    sourceConclusion: "SHIP",
+    targetNumber: "99",
+    currentRound: 2,
+    maxRounds: 5,
+    allowSelfApprove: true,
+  });
+
+  assert.equal(selfApprove.decision, "dispatch");
+  assert.equal(selfApprove.nextAction, "agent-self-approve");
+  assert.equal(selfApprove.targetNumber, "99");
+  assert.match(selfApprove.reason, /dispatching agent-self-approve/);
+});
+
+test("review HUMAN_DECISION dispatches self-approval when enabled", () => {
+  for (const verdict of ["SHIP", "MINOR_ISSUES", "NEEDS_REWORK"]) {
+    const decision = decideHandoff({
+      automationMode: "heuristics",
+      sourceAction: "review",
+      sourceConclusion: verdict,
+      sourceRecommendedNextStep: "HUMAN_DECISION",
+      targetNumber: "99",
+      currentRound: 2,
+      maxRounds: 5,
+      allowSelfApprove: true,
+    });
+
+    assert.equal(decision.decision, "dispatch");
+    assert.equal(decision.nextAction, "agent-self-approve");
+    assert.match(decision.reason, /HUMAN_DECISION/);
+  }
+});
+
+test("review HUMAN_DECISION stops when self-approval is disabled", () => {
+  const decision = decideHandoff({
+    automationMode: "heuristics",
+    sourceAction: "review",
+    sourceConclusion: "MINOR_ISSUES",
+    sourceRecommendedNextStep: "HUMAN_DECISION",
+    targetNumber: "99",
+    currentRound: 2,
+    maxRounds: 5,
+    allowSelfApprove: false,
+  });
+
+  assert.equal(decision.decision, "stop");
+  assert.match(decision.reason, /HUMAN_DECISION/);
+});
+
+test("agent mode validates review HUMAN_DECISION self-approval handoff", () => {
+  const allowed = decideHandoff({
+    automationMode: "agent",
+    sourceAction: "review",
+    sourceConclusion: "MINOR_ISSUES",
+    sourceRecommendedNextStep: "HUMAN_DECISION",
+    targetNumber: "99",
+    currentRound: 2,
+    maxRounds: 5,
+    allowSelfApprove: true,
+    plannerDecision: {
+      decision: "handoff",
+      nextAction: "agent-self-approve",
+      reason: "Review asked for human decision and self-approval is enabled.",
+    },
+  });
+  assert.equal(allowed.decision, "dispatch");
+  assert.equal(allowed.nextAction, "agent-self-approve");
+
+  const wrong = decideHandoff({
+    automationMode: "agent",
+    sourceAction: "review",
+    sourceConclusion: "MINOR_ISSUES",
+    sourceRecommendedNextStep: "HUMAN_DECISION",
+    targetNumber: "99",
+    currentRound: 2,
+    maxRounds: 5,
+    allowSelfApprove: true,
+    plannerDecision: { decision: "handoff", nextAction: "fix-pr", reason: "Fix it instead." },
+  });
+  assert.equal(wrong.decision, "stop");
+  assert.match(wrong.reason, /policy only allows agent-self-approve/);
 });
 
 test("review fix-pr handoffs preserve derived source context", () => {
@@ -468,6 +597,83 @@ test("review fix-pr handoffs preserve derived source context", () => {
   assert.equal(decision.decision, "dispatch");
   assert.equal(decision.nextAction, "fix-pr");
   assert.equal(decision.handoffContext, "Fix only the failing fallback test.");
+});
+
+test("self-approval request changes dispatches fix-pr with handoff context", () => {
+  const decision = decideHandoff({
+    automationMode: "heuristics",
+    sourceAction: "agent-self-approve",
+    sourceConclusion: "REQUEST_CHANGES",
+    sourceHandoffContext: "Tighten the resolver preflight and add tests.",
+    targetNumber: "99",
+    currentRound: 3,
+    maxRounds: 5,
+  });
+
+  assert.equal(decision.decision, "dispatch");
+  assert.equal(decision.nextAction, "fix-pr");
+  assert.equal(decision.targetNumber, "99");
+  assert.equal(decision.handoffContext, "Tighten the resolver preflight and add tests.");
+});
+
+test("self-approval terminal conclusions stop", () => {
+  for (const conclusion of ["approved", "blocked", "failed"]) {
+    const decision = decideHandoff({
+      automationMode: "heuristics",
+      sourceAction: "agent-self-approve",
+      sourceConclusion: conclusion,
+      targetNumber: "99",
+      currentRound: 3,
+      maxRounds: 5,
+    });
+
+    assert.equal(decision.decision, "stop");
+    assert.equal(decision.nextAction, undefined);
+    assert.match(decision.reason, new RegExp(`agent-self-approve concluded ${conclusion}`));
+  }
+});
+
+test("self-approval approved dispatches self-merge only when enabled", () => {
+  const disabled = decideHandoff({
+    automationMode: "heuristics",
+    sourceAction: "agent-self-approve",
+    sourceConclusion: "approved",
+    targetNumber: "99",
+    currentRound: 3,
+    maxRounds: 5,
+  });
+  assert.equal(disabled.decision, "stop");
+
+  const enabled = decideHandoff({
+    automationMode: "heuristics",
+    sourceAction: "agent-self-approve",
+    sourceConclusion: "approved",
+    targetNumber: "99",
+    currentRound: 3,
+    maxRounds: 5,
+    allowSelfMerge: true,
+  });
+  assert.equal(enabled.decision, "dispatch");
+  assert.equal(enabled.nextAction, "agent-self-merge");
+  assert.equal(enabled.targetNumber, "99");
+  assert.match(enabled.reason, /dispatching agent-self-merge/);
+});
+
+test("self-merge terminal conclusions stop", () => {
+  for (const conclusion of ["merged", "auto_merge_enabled", "blocked", "failed"]) {
+    const decision = decideHandoff({
+      automationMode: "heuristics",
+      sourceAction: "agent-self-merge",
+      sourceConclusion: conclusion,
+      targetNumber: "99",
+      currentRound: 4,
+      maxRounds: 5,
+    });
+
+    assert.equal(decision.decision, "stop");
+    assert.equal(decision.nextAction, undefined);
+    assert.match(decision.reason, new RegExp(`agent-self-merge concluded ${conclusion}`));
+  }
 });
 
 test("fix-pr success dispatches review until the round budget is exhausted", () => {
@@ -533,6 +739,18 @@ test("extractReviewConclusion reads final verdict markdown", () => {
   assert.equal(extractReviewConclusion("Final answer\n\n## Final Verdict\nSHIP"), "ship");
   assert.equal(extractReviewConclusion("This needs-rework before another pass"), "needs_rework");
   assert.equal(extractReviewConclusion("No verdict here"), "unknown");
+});
+
+test("extractReviewRecommendedNextStep reads review synthesis recommendation", () => {
+  assert.equal(
+    extractReviewRecommendedNextStep("## Recommended Next Step\nHUMAN_DECISION: Needs gate judgment."),
+    "human_decision",
+  );
+  assert.equal(
+    extractReviewRecommendedNextStep("## Recommended Next Step\n- `FIX_PR`"),
+    "fix_pr",
+  );
+  assert.equal(extractReviewRecommendedNextStep("No recommendation"), "");
 });
 
 test("handoff dedupe markers are deterministic and detectable", () => {
@@ -655,6 +873,24 @@ test("parsePlannerDecision reads planner JSON", () => {
       '{"decision":"handoff","nextAction":"fix-pr","reason":"Alias.","handoffContext":"camel case works"}',
     )?.handoffContext,
     "camel case works",
+  );
+  assert.equal(
+    parsePlannerDecision(
+      '{"decision":"handoff","next_action":"agent-self-approve","reason":"Ship review can proceed to self-approval."}',
+    )?.nextAction,
+    "agent-self-approve",
+  );
+  assert.equal(
+    parsePlannerDecision(
+      '{"decision":"handoff","next_action":"agent-self-merge","reason":"Self-approval can proceed to merge."}',
+    )?.nextAction,
+    "agent-self-merge",
+  );
+  assert.equal(
+    parsePlannerDecision(
+      '{"decision":"handoff","next_action":"self_approve","reason":"Legacy alias should not map."}',
+    )?.nextAction,
+    undefined,
   );
   assert.deepEqual(
     parsePlannerDecision(

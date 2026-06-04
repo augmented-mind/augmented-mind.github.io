@@ -11,22 +11,34 @@ inputs:
     description: "Built-in prompt name (resolves to .github/prompts/<name>.md)"
     required: false
   skill:
-    description: "User-defined skill name (resolves to .skills/<name>/SKILL.md)"
+    description: "User-defined skill name (resolves to <skill_root>/<name>/SKILL.md)"
     required: false
+  skill_root:
+    description: "Root directory for user-defined skills"
+    required: false
+    default: ".skills"
   agent:
     description: "acpx agent to use"
     required: false
     default: codex
+  model:
+    description: "Optional acpx model id to request"
+    required: false
+    default: ""
   permission_mode:
     description: "acpx permission mode (approve-all, approve-reads, deny-all)"
     required: false
     default: approve-all
+  display_model:
+    description: "Whether to expose provider/model/reasoning/runner metadata for comments"
+    required: false
+    default: "true"
   reasoning_effort:
     description: "Model reasoning effort level"
     required: false
     default: xhigh
   route:
-    description: "Envelope route (implement, review, fix-pr, answer, create-action, dispatch, skill, rubrics-review, rubrics-initialization, rubrics-update)"
+    description: "Envelope route (implement, review, fix-pr, answer, create-action, dispatch, agent-self-approve, agent-self-merge, skill, install, update-agent, rubrics-review, rubrics-initialization, rubrics-update)"
     required: true
   lane:
     description: "Logical lane for thread/session identity (defaults to 'default')"
@@ -45,6 +57,18 @@ inputs:
     description: "Source kind"
     required: false
     default: workflow_dispatch
+  request_source_kind:
+    description: "Trigger source kind for route-specific prompt context"
+    required: false
+    default: ""
+  request_comment_id:
+    description: "Triggering comment or review id for route-specific prompt context"
+    required: false
+    default: ""
+  request_comment_url:
+    description: "Triggering comment or review URL for route-specific prompt context"
+    required: false
+    default: ""
   request_text:
     description: "User request text"
     required: false
@@ -59,6 +83,10 @@ inputs:
   github_token:
     description: "GitHub token for API access"
     required: true
+  secondary_github_token:
+    description: "Optional read-only secondary GitHub token for external repo context"
+    required: false
+    default: ""
   openai_api_key:
     description: "OpenAI API key for Codex"
     required: false
@@ -66,6 +94,10 @@ inputs:
   claude_oauth_token:
     description: "Claude Code OAuth token"
     required: false
+  anthropic_api_key:
+    description: "Anthropic API key for Claude Code"
+    required: false
+    default: ""
   session_policy:
     description: "Session continuity policy (none, track-only, resume-best-effort, resume-required)"
     required: true
@@ -130,6 +162,12 @@ outputs:
   session_name:
     description: "acpx session name (if persistent)"
     value: ${{ steps.run.outputs.session_name }}
+  model:
+    description: "acpx model id reported by the run, or the requested model id"
+    value: ${{ steps.run.outputs.model }}
+  model_display:
+    description: "Markdown-ready provider/model/reasoning/runner footer when display_model is enabled"
+    value: ${{ steps.run.outputs.model_display }}
   acpx_record_id:
     description: "acpx record ID"
     value: ${{ steps.run.outputs.acpx_record_id }}
@@ -196,6 +234,12 @@ outputs:
   rubrics_committed:
     description: "Whether the agent produced rubric edits that were committed and pushed"
     value: ${{ steps.commit_rubrics.outputs.committed }}
+  install_status:
+    description: "Structured /install publish status from install-fork-pr helper"
+    value: ${{ steps.run.outputs.install_status }}
+  install_pr_url:
+    description: "Structured /install target pull request URL from install-fork-pr helper"
+    value: ${{ steps.run.outputs.install_pr_url }}
 
 runs:
   using: composite
@@ -296,10 +340,14 @@ runs:
       shell: bash
       env:
         ACPX_AGENT: ${{ inputs.agent }}
+        MODEL_ID: ${{ inputs.model }}
+        DISPLAY_MODEL: ${{ inputs.display_model || 'true' }}
         ACPX_PERMISSION_MODE: ${{ inputs.permission_mode }}
         INPUT_GITHUB_TOKEN: ${{ inputs.github_token }}
+        INPUT_SECONDARY_GITHUB_TOKEN: ${{ inputs.secondary_github_token }}
         INPUT_OPENAI_API_KEY: ${{ inputs.openai_api_key }}
         CLAUDE_CODE_OAUTH_TOKEN: ${{ inputs.claude_oauth_token }}
+        ANTHROPIC_API_KEY: ${{ inputs.anthropic_api_key }}
         MEMORY_AVAILABLE: ${{ steps.memory.outputs.memory_available }}
         MEMORY_DIR: ${{ steps.memory.outputs.memory_dir }}
         MEMORY_REF: ${{ steps.memory.outputs.memory_ref }}
@@ -311,10 +359,14 @@ runs:
         PROMPT_NAME: ${{ inputs.prompt }}
         REPO_SLUG: ${{ github.repository }}
         REQUEST_TEXT: ${{ inputs.request_text }}
+        REQUEST_COMMENT_ID: ${{ inputs.request_comment_id }}
+        REQUEST_COMMENT_URL: ${{ inputs.request_comment_url }}
+        REQUEST_SOURCE_KIND: ${{ inputs.request_source_kind || inputs.source_kind }}
         REQUESTED_BY: ${{ inputs.requested_by }}
         ROUTE: ${{ inputs.route }}
         LANE: ${{ inputs.lane }}
         SESSION_POLICY: ${{ inputs.session_policy }}
+        SESSION_BUNDLE_MODE: ${{ inputs.session_bundle_mode }}
         SESSION_BUNDLE_RESTORE_STATUS: ${{ steps.restore.outputs.restore_status }}
         SESSION_BUNDLE_RESTORE_ERROR: ${{ steps.restore.outputs.restore_error }}
         SESSION_FORK_FROM_THREAD_KEY: ${{ steps.restore.outputs.fork_from_thread_key }}
@@ -322,6 +374,7 @@ runs:
         SESSION_FORK_RESTORE_STATUS: ${{ steps.restore.outputs.fork_restore_status }}
         SESSION_FORK_RESTORE_ERROR: ${{ steps.restore.outputs.fork_restore_error }}
         SKILL_NAME: ${{ inputs.skill }}
+        SKILL_ROOT: ${{ inputs.skill_root }}
         SOURCE_KIND: ${{ inputs.source_kind }}
         TARGET_KIND: ${{ inputs.target_kind }}
         TARGET_NUMBER: ${{ inputs.target_number }}
