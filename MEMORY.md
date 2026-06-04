@@ -7,7 +7,7 @@
 - .agent/dist/ and .agent/node_modules/ are in .gitignore (added in infra update); compiled artifacts no longer at risk of leaking into agent PRs
 - Dark mode in custom.scss: use var(--light) for card backgrounds (not hardcoded hex); suppress box-shadows via :root[saved-theme="dark"] block
 - When implementing issues, check all comments in the linked issue (not just body) for assets like cover images before flagging them as missing.
-- Sepo infra at v0.1.0; new workflows active: agent-update, agent-onboarding, agent-project-manager, agent-release-prepare
+- Sepo infra at v0.3.1; workflows include update-agent, follow-up routing, self-approval, self-merge, agent-onboarding, agent-project-manager. Resolver is JS (not shell); resolve-agent-provider needs local CommonJS package marker since repo root is ESM.
 - Quartz ignorePatterns and draft:true both exclude files before allFiles is built — components doing allFiles cross-file lookups (e.g. Transcript.tsx) must NOT use either to suppress caption files from the index; use ContentIndex-level path filtering instead.
 - Live Streams section: content/live-streams/ dir, ls*.md files, EpisodeCarousel with contentType filter in quartz.layout.ts — pattern for future non-episode content types.
 - Previews use Sepo preview server (preview-api.sepo.sh) via GitHub Actions OIDC — no Surge secrets needed. Standalone preview.yml auto-deploys agent/ PRs; label overrides: sepo-preview (opt in), no-preview (opt out). Tears down on PR close.
