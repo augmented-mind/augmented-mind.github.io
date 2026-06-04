@@ -44,27 +44,3 @@ test("buildSharedEnv preserves Claude credentials without unsupported ACPX alias
   assert.equal("ACPX_AUTH_CLAUDE_CODE_OAUTH_TOKEN" in env, false);
   assert.equal("ACPX_AUTH_ANTHROPIC_API_KEY" in env, false);
 });
-
-test("buildSharedEnv exposes pinned Claude model IDs to Claude ACP", () => {
-  const env = buildSharedEnv({
-    ACPX_AGENT: "claude",
-    MODEL_ID: "claude-opus-4-8",
-  });
-
-  assert.equal(env.ANTHROPIC_MODEL, "claude-opus-4-8");
-  assert.deepEqual(JSON.parse(env.CLAUDE_MODEL_CONFIG), {
-    availableModels: ["claude-opus-4-8"],
-  });
-});
-
-test("buildSharedEnv does not override explicit Claude model environment", () => {
-  const env = buildSharedEnv({
-    ACPX_AGENT: "claude",
-    MODEL_ID: "claude-opus-4-8",
-    ANTHROPIC_MODEL: "claude-sonnet-4-6",
-    CLAUDE_MODEL_CONFIG: '{"availableModels":["claude-sonnet-4-6"]}',
-  });
-
-  assert.equal("ANTHROPIC_MODEL" in env, false);
-  assert.equal("CLAUDE_MODEL_CONFIG" in env, false);
-});

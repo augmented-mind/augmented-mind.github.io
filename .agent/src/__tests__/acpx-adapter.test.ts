@@ -6,6 +6,7 @@ import { delimiter, join } from "node:path";
 
 import {
   buildAcpxArgs,
+  buildClaudePinnedModelEnv,
   buildSessionSetupCommands,
   compactSessionLog,
   extractAssistantText,
@@ -116,6 +117,37 @@ test("resolveAcpxModelSelection keeps non-Codex and unknown Codex reasoning sepa
   assert.deepEqual(
     resolveAcpxModelSelection({ agent: "codex", model: "o3", thoughtLevel: "high" }),
     { model: "o3", thoughtLevel: "high", reasoningEncodedInModel: false },
+  );
+});
+
+test("buildClaudePinnedModelEnv exposes pinned Claude models to Claude ACP", () => {
+  assert.deepEqual(
+    buildClaudePinnedModelEnv({ agent: "claude", model: "claude-opus-4-8", env: {} }),
+    {
+      ANTHROPIC_MODEL: "claude-opus-4-8",
+      CLAUDE_MODEL_CONFIG: JSON.stringify({ availableModels: ["claude-opus-4-8"] }),
+    },
+  );
+
+  assert.deepEqual(
+    buildClaudePinnedModelEnv({
+      agent: "claude",
+      model: "claude-opus-4-8",
+      env: {
+        ANTHROPIC_MODEL: "claude-sonnet-4-6",
+        CLAUDE_MODEL_CONFIG: '{"availableModels":["claude-sonnet-4-6"]}',
+      },
+    }),
+    {},
+  );
+
+  assert.deepEqual(
+    buildClaudePinnedModelEnv({ agent: "claude", model: "opus", env: {} }),
+    {},
+  );
+  assert.deepEqual(
+    buildClaudePinnedModelEnv({ agent: "codex", model: "claude-opus-4-8", env: {} }),
+    {},
   );
 });
 
@@ -371,6 +403,95 @@ if (args.includes("prompt")) {
       ],
     ]);
     assert.equal(calls.some((call) => call.args.includes(stableSessionName)), false);
+  } finally {
+    if (oldPath === undefined) {
+      delete process.env.PATH;
+    } else {
+      process.env.PATH = oldPath;
+    }
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("runAcpx passes pinned Claude model config to persistent session commands", () => {
+  const dir = mkdtempSync(join(tmpdir(), "acpx-claude-pinned-model-test-"));
+  const oldPath = process.env.PATH;
+  const threadKey = "self-evolving/repo:pull_request:66:fix-pr:fix-pr-claude";
+
+  try {
+    const acpxPath = join(dir, "acpx");
+    const callsPath = join(dir, "calls.jsonl");
+    writeFileSync(
+      acpxPath,
+      `#!/usr/bin/env node
+const fs = require("node:fs");
+const args = process.argv.slice(2);
+fs.appendFileSync(process.env.ACPX_TEST_CALLS, JSON.stringify({
+  args,
+  ANTHROPIC_MODEL: process.env.ANTHROPIC_MODEL || "",
+  CLAUDE_MODEL_CONFIG: process.env.CLAUDE_MODEL_CONFIG || ""
+}) + "\\n");
+if (args.includes("prompt")) {
+  process.stdout.write([
+    '{"jsonrpc":"2.0","id":1,"result":{"sessionId":"sess-claude-pinned","models":{"currentModelId":"claude-opus-4-8"}}}',
+    '{"jsonrpc":"2.0","method":"session/update","params":{"update":{"sessionUpdate":"agent_message_chunk","content":{"type":"text","text":"Done."}}}}',
+    '{"jsonrpc":"2.0","id":2,"result":{"stopReason":"end_turn"}}'
+  ].join("\\n") + "\\n");
+}
+`,
+      "utf8",
+    );
+    chmodSync(acpxPath, 0o755);
+    process.env.PATH = `${dir}${delimiter}${oldPath || ""}`;
+
+    const result = runAcpx({
+      agent: "claude",
+      model: "claude-opus-4-8",
+      prompt: "fix this",
+      cwd: process.cwd(),
+      sessionMode: "persistent",
+      threadKey,
+      permissionMode: "approve-all",
+      env: { ACPX_TEST_CALLS: callsPath },
+    });
+
+    assert.equal(result.exitCode, 0);
+    assert.equal(result.stdout, "Done.");
+    assert.equal(result.sessionEnsureOutcome.kind, "fresh");
+
+    const sessionName = sessionNameFromThreadKey(threadKey);
+    const calls = readFileSync(callsPath, "utf8")
+      .trim()
+      .split("\n")
+      .map((line) => JSON.parse(line) as {
+        args: string[];
+        ANTHROPIC_MODEL: string;
+        CLAUDE_MODEL_CONFIG: string;
+      });
+
+    assert.deepEqual(calls.map((call) => call.args), [
+      ["claude", "sessions", "ensure", "--name", sessionName],
+      ["claude", "set", "model", "claude-opus-4-8", "-s", sessionName],
+      ["claude", "set-mode", "-s", sessionName, "bypassPermissions"],
+      [
+        "--approve-all",
+        "--format",
+        "json",
+        "--json-strict",
+        "--suppress-reads",
+        "claude",
+        "prompt",
+        "-s",
+        sessionName,
+        "fix this",
+      ],
+    ]);
+    for (const call of calls) {
+      assert.equal(call.ANTHROPIC_MODEL, "claude-opus-4-8");
+      assert.deepEqual(JSON.parse(call.CLAUDE_MODEL_CONFIG), {
+        availableModels: ["claude-opus-4-8"],
+      });
+    }
   } finally {
     if (oldPath === undefined) {
       delete process.env.PATH;

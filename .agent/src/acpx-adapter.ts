@@ -96,6 +96,7 @@ const TRANSIENT_EXEC_SESSION_BYTES = 6;
 const CODEX_REASONING_EFFORTS = new Set(["low", "medium", "high", "xhigh"]);
 const CODEX_REASONING_SUFFIX = /(?:\/(?:low|medium|high|xhigh)|\[(?:low|medium|high|xhigh)\])$/u;
 const CODEX_REASONING_MODEL_PREFIX = /^gpt-5(?:[.-]|$)/u;
+const CLAUDE_PINNED_MODEL_PREFIX = /^claude-[A-Za-z0-9._-]+$/u;
 
 export interface FileCaptureRunOptions {
   command: string;
@@ -221,6 +222,34 @@ function transientSessionNameForExec(threadKey: string | undefined): string {
 
 function isCodexAgent(agent: string): boolean {
   return agent.trim().toLowerCase() === "codex";
+}
+
+function isClaudeAgent(agent: string): boolean {
+  return agent.trim().toLowerCase() === "claude";
+}
+
+export function buildClaudePinnedModelEnv(options: {
+  agent: string;
+  model?: string;
+  env?: NodeJS.ProcessEnv | Record<string, string | undefined>;
+}): Record<string, string> {
+  const model = options.model?.trim() || "";
+  if (!isClaudeAgent(options.agent) || !CLAUDE_PINNED_MODEL_PREFIX.test(model)) {
+    return {};
+  }
+
+  const existingEnv = options.env ?? process.env;
+  const env: Record<string, string> = {};
+  if (!existingEnv.ANTHROPIC_MODEL) {
+    env.ANTHROPIC_MODEL = model;
+  }
+  if (!existingEnv.CLAUDE_MODEL_CONFIG) {
+    // Claude ACP validates generic acpx model requests against the adapter's
+    // advertised model IDs. Date/version-pinned Claude IDs are only advertised
+    // when Claude Code settings expose them as available models.
+    env.CLAUDE_MODEL_CONFIG = JSON.stringify({ availableModels: [model] });
+  }
+  return env;
 }
 
 export interface AcpxModelSelection {
@@ -745,6 +774,7 @@ export function runAcpx(options: AcpxRunOptions): AcpxRunResult {
   const modelSelection = resolveAcpxModelSelection({ agent, model, thoughtLevel });
   const selectedModel = modelSelection.model;
   const selectedThoughtLevel = modelSelection.thoughtLevel;
+  Object.assign(env, buildClaudePinnedModelEnv({ agent, model: selectedModel, env }));
   const needsTransientExecSession =
     preserveExecSession === true ||
     (isExecRoute && isCodexAgent(agent) && Boolean(selectedThoughtLevel));
