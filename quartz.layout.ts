@@ -37,7 +37,7 @@ const livestreamsSection = Component.RecentNotes({
 const livestreamsCarousel = Component.EpisodeCarousel({
   title: "Livestreams",
   limit: 20,
-  showTags: true,
+  showTags: false,
   itemNoun: "livestream",
   filter: (f) => f.slug!.startsWith("livestreams/") && f.slug! !== "livestreams/index",
   linkToMore: "livestreams/" as SimpleSlug,

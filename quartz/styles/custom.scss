@@ -51,7 +51,8 @@ body {
   letter-spacing: -0.02em;
 }
 
-body[data-slug^="episodes/"] {
+body[data-slug^="episodes/"],
+body[data-slug^="livestreams/"] {
   --episode-card-bg: var(--light);
   --episode-card-header-bg: var(--light);
 }
