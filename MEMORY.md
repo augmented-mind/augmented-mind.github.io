@@ -14,3 +14,4 @@
 - Live-stream pages share episode layout: isEpisodePage in quartz.layout.ts/Content.tsx covers live-streams/ slugs (inline header, YouTube embed, suppressed std header).
 - Never fabricate episode/stream description text — ls01.md content was hallucinated and required human correction. Use only source material (issue body, tweets, paper titles) for descriptions.
 - Content.tsx getYouTubeEmbedUrl handles youtube.com/live/<id> format (added for LS01); live-stream URLs use this format, not standard watch?v= URLs.
+- preview.yml concurrency (sepo-preview-<pr#>, cancel-in-progress) must live on deploy/teardown jobs, NOT workflow-level — workflow-level groups let skipped non-preview label runs cancel active previews (PR #66 race).
