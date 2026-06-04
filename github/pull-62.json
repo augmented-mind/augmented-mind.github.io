@@ -1,0 +1,231 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "baseRefName": "main",
+  "body": "## What\n\nMigrates per-branch previews from **inline `npx surge`** (embedded in the agent workflows) to the centralized **Sepo preview server** (`preview-api.sepo.sh`), via one standalone workflow.\n\n### Added — `.github/workflows/preview.yml`\nStandalone `on: pull_request` workflow that builds the site, uploads it as an artifact, and deploys a preview through the server using **GitHub Actions OIDC** — so **no Surge secrets live in this repo**. Tears down on PR close.\n\n**Triggering:** auto-previews every **agent PR** (gated on the `agent/` branch prefix, present at PR open — no label needed). Label overrides:\n- `sepo-preview` — opt a **human** PR in\n- `no-preview` — opt an agent PR out\n\n### Removed — the embedded version\n- inline **Deploy preview** steps from `agent-implement.yml` and `agent-fix-pr.yml`\n- the **teardown-preview** job from `agent-branch-cleanup.yml`\n- the **Check preview label** steps, `environment: preview`, and `PREVIEW_URL` plumbing in those jobs\n\n## Why\n\nThe embedded approach coupled previews to the agent lifecycle, required per-repo Surge secrets, and **patched `.agent/src` framework source** (which the framework updater overwrites). The standalone workflow is decoupled, update-safe, carries no secrets, and is the reusable shape we'll generalize into a Sepo plugin.\n\n## Proven\n\nThe deploy + teardown chain was validated end-to-end on #61 (deploy → live `…surge.sh` URL + PR comment + registry entry; close → 404 + registry cleared).\n\n## After merge\n- `.agent/src/cli/post-comment.ts` + `response.ts` `PREVIEW_URL` lines are now **dormant** (nothing sets `PREVIEW_URL`); revert in a follow-up to restore pristine framework source, or let the next framework update reset them.\n- `SURGE_LOGIN` / `SURGE_TOKEN` secrets and the `preview` GitHub Environment are no longer used and can be deleted.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n",
+  "closedAt": "2026-06-04T06:33:22Z",
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABE1VlPg",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /review ",
+      "createdAt": "2026-06-04T05:40:45Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/62#issuecomment-4619330878",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABE1WbRg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| N/A | N/A | 0 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| — | No rubrics configured | not applicable | N/A | `agent/rubrics` branch does not exist in this repository |\n\n## Notes\n\n- No rubrics are configured for this repo (`agent/rubrics` branch is absent). The score is N/A per the rubrics review rules. The observations below are informational, not rubric-scored.\n- **What the PR does well:** Decoupling previews from agent workflows is the right architectural move. Using OIDC eliminates secrets from the repo, concurrency grouping prevents duplicate deploys, and the deploy/teardown split across job conditions is logically clean.\n- **Smallest useful follow-up:** The `Comment URL` step posts a **new** comment on every `synchronize` event (each push), which can get noisy on a long-lived PR. Consider updating an existing comment (e.g., `gh pr comment --edit-last` or a sticky-comment pattern) instead of appending a new one each time.\n\n## Findings\n\n- **INFO:** Teardown job sends only the OIDC token — no explicit PR number or branch in the request body. This works if the Sepo preview server extracts the PR/branch from the JWT's `job_workflow_ref` or `ref` claims, but this is an implicit contract with the server. Worth confirming in server-side docs or a comment.\n- **INFO:** Concurrency group `sepo-preview-<pr>` is shared between the `deploy` and `teardown` jobs with `cancel-in-progress: true`. If a push and a close event arrive close together, the teardown could cancel a queued deploy (or vice versa). This is a known edge case and likely acceptable given the PR body explicitly called it proven on #61.\n- **INFO:** PR body notes that `PREVIEW_URL` references in `.agent/src/cli/post-comment.ts` and `response.ts` are now dormant; a follow-up is already planned to clean those up or let the next framework update reset them.\n- **INFO:** The `no-preview` label opt-out applies only to the deploy job condition; the teardown job does not check `no-preview`. If a PR was opted out mid-flight (no-preview added after some deploy ran), teardown will still fire on close — which is the correct and safe behavior.\n\n## Final Rubric Verdict\n\nN/A",
+      "createdAt": "2026-06-04T05:43:47Z",
+      "includesCreatedEdit": false,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/62#issuecomment-4619344710",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABE1YIoA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\nBoth inline comments posted. Here is the synthesis:\n\n---\n\n## Summary of PR/Issue\n\nPR #62 migrates per-branch preview deployments from inline `npx surge` steps embedded in three agent workflows to a standalone `preview.yml` that uses GitHub Actions OIDC with the Sepo preview server (`preview-api.sepo.sh`). The old approach coupled previews to the agent lifecycle, required per-repo Surge secrets, and patched framework source files that the framework updater overwrites. The new workflow is decoupled, secret-free, and designed as the reusable shape to be generalized into a Sepo plugin. Triggering logic auto-previews all `agent/` branch PRs, with `sepo-preview` / `no-preview` label overrides for human PRs; teardown fires on PR close. End-to-end deploy + teardown was validated on #61.\n\n## Review\n\nThe architectural direction is correct and the OIDC migration is cleanly executed. Two concrete fixes are needed before widespread use: the comment step spams the PR thread on every push, and the teardown step silently swallows failures. Neither is a blocker if addressed in a follow-up, but both are small fixes warranting action now.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Comment spam on `synchronize` | WARNING | `gh pr comment` always appends; every agent push creates a duplicate \"Sepo preview: $URL\" comment, cluttering the review thread. |\n| Teardown failures silently succeed | WARNING | The teardown `curl` prints but never checks the HTTP response code; non-200 responses show green and leave dangling previews. |\n| OIDC token not guarded against `null` | INFO | If the OIDC endpoint returns an unexpected shape, `jq -r '.value'` emits `\"null\"` and exits 0; the downstream failure is an opaque 401/403. |\n| No teardown on `sepo-preview` label removal | INFO | `unlabeled` is not in the trigger `types`; removing the opt-in label from a non-agent PR leaves the preview live until close. Acceptable for the current primary use case. |\n| `SERVER_URL` hardcoded | INFO | `https://preview-api.sepo.sh` is baked into both jobs; a `vars.SEPO_PREVIEW_SERVER_URL` fallback would allow reconfiguration without a workflow PR. |\n| Dormant `PREVIEW_URL` plumbing | INFO | `PREVIEW_URL` env references in `post-comment.js` / `response.ts` are now unused; PR body already flags a follow-up to clean them up. |\n\n## Progress\n\n- Both reviewers agree the architectural decoupling from agent workflows is correct.\n- OIDC approach confirmed — no Surge secrets needed in the repo.\n- Fork guard, concurrency grouping, and deploy/teardown split conditions are logically clean.\n- End-to-end validation on #61 noted in PR body.\n- `environment: preview` correctly removed from both agent workflows, unblocking those jobs from the approval gate.\n- Old `teardown-preview` job in `agent-branch-cleanup.yml` cleanly removed; new teardown covers a broader branch prefix (`agent/` vs. `agent/implement-issue-*`).\n- `PREVIEW_URL` dormant plumbing is acknowledged in the PR body with a planned follow-up.\n- The `no-preview` teardown behavior (teardown still fires on close even if label was added mid-flight) is intentional and correct.\n- Concurrency cancellation race between deploy and teardown on simultaneous push+close is a known edge case, proven acceptable on #61.\n\n## Issue Details\n\n<details>\n<summary>Comment spam on <code>synchronize</code></summary>\n\n**Cause:** [`preview.yml` line 56](https://github.com/augmented-mind/augmented-mind.github.io/blob/d49f4f7dba50c2b73459feb3653a44cdf75591a1/.github/workflows/preview.yml#L56) — `gh pr comment` with no `--edit-last` always creates a new comment. Agent PRs typically see 3–5 pushes, producing 3–5 identical comments.\n\n**Candidate solutions:**\n- `--edit-last` with a `|| create` fallback (minimal change, suitable for agent-PR flow where `github-actions[bot]` comments on the PR are exclusively from this workflow)\n- REST API find-and-update by matching comment body prefix (more precise for human PRs with other bot output)\n\n**Comments:** Both reviewers independently flagged this. The rubrics reviewer called it the \"smallest useful follow-up\"; the code reviewer rated it WARNING given agent PR frequency.\n</details>\n\n<details>\n<summary>Teardown failures silently succeed</summary>\n\n**Cause:** [`preview.yml` lines 71–72](https://github.com/augmented-mind/augmented-mind.github.io/blob/d49f4f7dba50c2b73459feb3653a44cdf75591a1/.github/workflows/preview.yml#L71-L72) — `curl ... -w '\\n%{http_code}'` prints the code but the script never checks it. The deploy step does check (`[[ \"$CODE\" == 200 ]] || exit 1`); teardown is inconsistent.\n\n**Candidate solutions:**\n- Capture response, extract code, and exit 1 on unexpected values — allow 404 (idempotent no-preview) and 200; fail on everything else.\n\n**Comments:** Rubrics reviewer flagged this as an implicit contract with the server; code reviewer rated it WARNING for the dangling-preview risk.\n</details>\n\n<details>\n<summary>OIDC token not guarded against <code>null</code></summary>\n\n**Cause:** [`preview.yml` lines 39–40 and 69–70](https://github.com/augmented-mind/augmented-mind.github.io/blob/d49f4f7dba50c2b73459feb3653a44cdf75591a1/.github/workflows/preview.yml#L39-L40) — `jq -r '.value'` on a non-matching JSON shape (timeout body, 429, etc.) emits `\"null\"` with exit code 0; `set -euo pipefail` does not catch this.\n\n**Candidate solutions:**\n- Add `[[ \"$TOK\" != \"null\" && -n \"$TOK\" ]] || { echo \"::error::OIDC token fetch failed\"; exit 1; }` after both token-fetch lines.\n</details>\n\n## Recommended Next Step\n\n`FIX_PR` — The two WARNINGs (comment deduplication and teardown status check) are concrete, line-level changes to a single file that an automated fix-pr pass can address safely.\n\n## Final Verdict\n\n`MINOR_ISSUES`\n\n## Action Items\n\n- [ ] [`preview.yml` line 56] Use `--edit-last` with create-fallback in the `Comment URL` step to avoid appending duplicate preview comments on every `synchronize` push\n- [ ] [`preview.yml` lines 71–72] Check the HTTP response code in the teardown step and exit 1 on unexpected values (allow 200 and 404; fail on anything else)\n- [ ] [`preview.yml` lines 39–40, 69–70] Guard the OIDC token against `\"null\"` output from `jq -r '.value'` in both jobs (optional follow-up — low operational risk but improves diagnostics)\n\n---\n\n**Progress notes:** Posted 2 inline comments — line 56 (comment spam) and line 72 (silent teardown failure) on `.github/workflows/preview.yml`.",
+      "createdAt": "2026-06-04T05:49:30Z",
+      "includesCreatedEdit": false,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/62#issuecomment-4619372704",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABE1d9Xw",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /review",
+      "createdAt": "2026-06-04T06:07:50Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/62#issuecomment-4619468127",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABE1ew_g",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "I now have full context. The PR has a follow-up commit (`9178c86`) addressing the prior review's WARNINGs. Let me produce the rubrics review.\n\n---\n\n## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| N/A | N/A | 0 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| — | No rubrics configured | not applicable | N/A | `agent/rubrics` branch does not exist in this repository |\n\n## Notes\n\n- No rubrics are configured for this repo; score is N/A per review rules. The observations below are informational.\n- **Prior synthesis review (`d49f4f7`, 2026-06-04) flagged two WARNINGs.** Both are resolved in the current HEAD (`9178c86`):\n  - **Comment spam on `synchronize`** → `--edit-last || create` fallback is now in the `Comment URL` step ([`preview.yml` line 56–57](https://github.com/augmented-mind/augmented-mind.github.io/blob/9178c86245a0ccb077ff0cd5175966765a1ebb1e/.github/workflows/preview.yml#L56-L57)).\n  - **Teardown failures silently succeed** → teardown step now exits 1 on anything other than 200 or 404 ([`preview.yml` line 73](https://github.com/augmented-mind/augmented-mind.github.io/blob/9178c86245a0ccb077ff0cd5175966765a1ebb1e/.github/workflows/preview.yml#L73)).\n- **Dormant `PREVIEW_URL` plumbing** (previously flagged as INFO/planned follow-up) is also cleaned up in `9178c86` — `post-comment.ts` and `response.ts` are reverted to pristine framework source. No follow-up needed on that item.\n- Two INFO findings from the prior review remain open but are low operational risk:\n  - **OIDC token `null` guard** — `jq -r '.value'` still emits `\"null\"` with exit 0 on unexpected JSON; `set -euo pipefail` does not catch this. A guard like `[[ \"$TOK\" != \"null\" && -n \"$TOK\" ]]` would make failures explicit.\n  - **`SERVER_URL` hardcoded** — `https://preview-api.sepo.sh` is baked into both jobs; a `vars.SEPO_PREVIEW_SERVER_URL` env var would allow reconfiguration without a workflow PR.\n\n## Findings\n\n- **INFO:** OIDC token null guard absent in both `deploy` and `teardown` jobs — low operational risk, but degrades diagnostics on OIDC endpoint failures (401/403 instead of explicit error message).\n- **INFO:** `SERVER_URL` is hardcoded; minor ergonomics issue only.\n\n## Final Rubric Verdict\n\nN/A",
+      "createdAt": "2026-06-04T06:10:08Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/62#issuecomment-4619481342",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABE1gm9Q",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\nBoth prior inline comments minimized as outdated. Now producing the unified synthesis:\n\n---\n\n## Summary of PR/Issue\n\nPR #62 migrates per-branch preview deployments from inline `npx surge` steps embedded in three agent workflows to a standalone `preview.yml` that deploys via GitHub Actions OIDC to the Sepo preview server (`preview-api.sepo.sh`). The old approach coupled previews to the agent lifecycle, required per-repo Surge secrets, and patched framework source files that the updater overwrites. The new workflow is decoupled, secret-free, triggers automatically on `agent/` branch PRs with `sepo-preview`/`no-preview` label overrides, and tears down on PR close. End-to-end deploy+teardown was validated on #61, and a follow-up commit (`9178c86`) addressed the two WARNINGs from the prior synthesis review.\n\n## Review\n\nBoth reviewers agree: the architectural direction is correct, cleanly executed, and the two WARNINGs from the prior review are fully resolved in `9178c86`. Only low-risk INFO findings remain.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| OIDC token not guarded against string `\"null\"` | INFO | `jq -r '.value'` emits `\"null\"` with exit 0 on unexpected endpoint shapes; `set -euo pipefail` does not catch this, producing an opaque 401/403 from the server with no diagnostic. |\n| `SERVER_URL` hardcoded in both jobs | INFO | `https://preview-api.sepo.sh` is baked into both deploy and teardown steps; a `vars.SEPO_PREVIEW_SERVER_URL` fallback would allow reconfiguration without a workflow PR. |\n| `labeled` trigger fires for any label | INFO | All label additions fire the workflow; the deploy `if` guard skips the job correctly, but adds workflow noise. Unavoidable with GitHub's `pull_request` trigger — no label-name filter in `types`. |\n| Teardown inherits unused `pull-requests: write` | INFO | Workflow-level `pull-requests: write` permission is scoped to both jobs; teardown only needs `id-token: write`. Over-provisioned but no practical security impact. |\n\n## Progress\n\n- **Comment spam on `synchronize`** (prior WARNING) → resolved in `9178c86`: `--edit-last || create` fallback in the `Comment URL` step.\n- **Teardown failures silently succeed** (prior WARNING) → resolved in `9178c86`: teardown now exits 1 on anything other than 200 or 404, matching the deploy step's pattern.\n- **Dormant `PREVIEW_URL` plumbing** (prior INFO, planned follow-up) → cleaned up in `9178c86`: `post-comment.ts` and `response.ts` reverted to pristine framework source ahead of schedule.\n- OIDC approach confirmed — no Surge secrets in repo; fork guard correct for OIDC trust.\n- `environment: preview` removed from agent workflows, unblocking them from the manual approval gate.\n- `teardown-preview` job in `agent-branch-cleanup.yml` cleanly removed; new teardown covers the broader `agent/` prefix.\n- Concurrency group design and deploy/teardown split conditions are logically clean; edge case (simultaneous push+close) is acceptable and proven on #61.\n- Two prior inline review comments (comment spam, silent teardown) marked as **outdated** — the issues they flagged are resolved in `9178c86`.\n\n## Issue Details\n\n<details>\n<summary>OIDC token not guarded against string <code>\"null\"</code></summary>\n\n**Cause:** [`preview.yml` lines 39–40 and 66–67](https://github.com/augmented-mind/augmented-mind.github.io/blob/9178c86245a0ccb077ff0cd5175966765a1ebb1e/.github/workflows/preview.yml#L39-L40) — `TOK=$(curl -sS ... | jq -r '.value')` exits 0 with `TOK=\"null\"` when the OIDC endpoint returns a timeout body, 429, or any shape without `.value`. The downstream `curl` then sends `{\"oidc_token\":\"null\",...}` to the preview server, resulting in an opaque 401/403 with no diagnostic message.\n\n**Candidate solutions:**\n```bash\n[[ \"$TOK\" != \"null\" && -n \"$TOK\" ]] || { echo \"::error::OIDC token fetch failed\"; exit 1; }\n```\nAdd this one-liner guard after each `TOK=` fetch (both deploy and teardown jobs).\n\n**Comments:** Flagged independently by both reviewers. Low operational risk on the happy path; mainly a diagnostics improvement for flaky OIDC endpoint scenarios.\n</details>\n\n<details>\n<summary><code>SERVER_URL</code> hardcoded in both jobs</summary>\n\n**Cause:** `https://preview-api.sepo.sh` is inlined as an `env:` var in both the deploy and teardown job steps. There is no `vars.SEPO_PREVIEW_SERVER_URL` fallback.\n\n**Candidate solutions:**\n- Add `SERVER_URL: ${{ vars.SEPO_PREVIEW_SERVER_URL || 'https://preview-api.sepo.sh' }}` to use the repo var when set.\n\n**Comments:** Minor ergonomics issue. The PR body describes this workflow as the shape to be generalized into a Sepo plugin — that generalization is the natural point to add configurability. Not urgent now.\n</details>\n\n## Recommended Next Step\n\n`NO_AUTOMATED_ACTION` — No unresolved BLOCKING or WARNING findings remain; all open items are INFO-level with low operational risk and no required branch changes.\n\n## Final Verdict\n\n`SHIP`\n\n## Action Items\n\n- [ ] (Optional) [`preview.yml` lines 39–40, 66–67] Add `[[ \"$TOK\" != \"null\" && -n \"$TOK\" ]]` guard after each OIDC token fetch to surface endpoint failures with a clear error rather than an opaque 401/403",
+      "createdAt": "2026-06-04T06:15:08Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/62#issuecomment-4619511541",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABE1oS4w",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nNo changes were committed to [`agent/rubrics`](https://github.com/augmented-mind/augmented-mind.github.io/tree/agent/rubrics) from PR #62.\n\nBased on my analysis:\n\n- **PR author**: `lolipopshock` (`CONTRIBUTOR` association, not `OWNER`/`MEMBER`/`COLLABORATOR`)\n- **Repo owner**: `augmented-mind` org; no admin/maintain collaborators returned from the API\n- **All review feedback**: from `sepo-agent-app[bot]` (`NONE` association) — two inline comments about sticky preview comments and teardown status checks\n- **lolipopshock's contributions**: only two `@sepo-agent /review` trigger commands, no explicit rubric preferences or \"future agents should...\" statements\n\nThe elevated trust exception for the `Requested by` actor (`lolipopshock`) requires they authored an explicit rubric request or durable preference statement — \"/review\" commands don't qualify.\n\nThe bot review observations (use `--edit-last` for sticky comments; check teardown HTTP status) were acted on in the follow-up commits, but they originated from a bot with `NONE` association and no trusted contributor explicitly endorsed them.\n\nThere are also no existing rubrics to update.\n\n**no rubric changes**\n",
+      "createdAt": "2026-06-04T06:35:03Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/62#issuecomment-4619637475",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-04T05:39:24Z",
+  "files": [
+    {
+      "path": ".agent/src/cli/post-comment.ts",
+      "additions": 0,
+      "deletions": 3,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/response.ts",
+      "additions": 0,
+      "deletions": 3,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/agent-branch-cleanup.yml",
+      "additions": 0,
+      "deletions": 20,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/agent-fix-pr.yml",
+      "additions": 0,
+      "deletions": 37,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/agent-implement.yml",
+      "additions": 0,
+      "deletions": 33,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/preview.yml",
+      "additions": 81,
+      "deletions": 0,
+      "changeType": "ADDED"
+    }
+  ],
+  "headRefName": "feat/sepo-preview-migrate",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": "2026-06-04T06:33:22Z",
+  "number": 62,
+  "reviewDecision": "",
+  "reviews": [
+    {
+      "id": "PRR_kwDOQ106188AAAABB8M05A",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-06-04T05:48:34Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "d49f4f7dba50c2b73459feb3653a44cdf75591a1"
+      }
+    },
+    {
+      "id": "PRR_kwDOQ106188AAAABB8M3UA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-06-04T05:48:44Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "d49f4f7dba50c2b73459feb3653a44cdf75591a1"
+      }
+    }
+  ],
+  "state": "MERGED",
+  "title": "Migrate per-branch previews to the Sepo preview server (OIDC, no Surge secrets)",
+  "updatedAt": "2026-06-04T06:35:03Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/62"
+}
