@@ -30,9 +30,12 @@ jobs:
     # for memory curation. Skip closed-without-merge fork PRs where attacker-
     # controlled title/body would reach the LLM without merge review.
     if: >-
-      github.event_name == 'workflow_dispatch' ||
-      github.event.pull_request.head.repo.full_name == github.repository ||
-      github.event.pull_request.merged == true
+      vars.AGENT_ENABLED != 'false' &&
+      (
+        github.event_name == 'workflow_dispatch' ||
+        github.event.pull_request.head.repo.full_name == github.repository ||
+        github.event.pull_request.merged == true
+      )
     runs-on: ${{ fromJson(vars.AGENT_RUNS_ON || '["ubuntu-latest"]') }}
     env:
       MEMORY_REF: ${{ inputs.memory_ref || vars.AGENT_MEMORY_REF || 'agent/memory' }}
@@ -63,6 +66,8 @@ jobs:
           default_provider: ${{ vars.AGENT_DEFAULT_PROVIDER || 'auto' }}
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}
           claude_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          model_policy: ${{ vars.AGENT_MODEL_POLICY || '' }}
 
       - name: Setup agent runtime
         uses: ./.github/actions/setup-agent-runtime
@@ -84,8 +89,12 @@ jobs:
         with:
           agent: ${{ steps.provider.outputs.provider }}
           github_token: ${{ steps.auth.outputs.token }}
+          secondary_github_token: ${{ secrets.AGENT_SECONDARY_GITHUB_TOKEN }}
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}
           claude_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          model: ${{ steps.provider.outputs.model }}
+          display_model: ${{ vars.AGENT_DISPLAY_MODEL || '' }}
           permission_mode: approve-all
           prompt: memory-pr-closed
           route: answer
@@ -100,5 +109,5 @@ jobs:
           target_kind: pull_request
           target_number: ${{ env.PR_NUMBER }}
           target_url: ${{ env.PR_URL }}
-          reasoning_effort: medium
+          reasoning_effort: ${{ steps.provider.outputs.reasoning_effort || 'medium' }}
           workflow: agent-memory-pr-closed.yml

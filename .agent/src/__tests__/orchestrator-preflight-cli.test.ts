@@ -83,6 +83,74 @@ test("preflight keeps planner enabled for authorized issue meta-orchestration", 
   assert.equal(run.outputs.get("authorization_stop"), "false");
 });
 
+test("preflight defaults automation max rounds to 12", () => {
+  const run = runPreflight({ AUTOMATION_MAX_ROUNDS: "" });
+
+  assert.equal(run.status, 0, run.stderr || run.stdout);
+  assert.equal(run.outputs.get("max_rounds"), "12");
+  assert.equal(run.outputs.get("planner_enabled"), "true");
+});
+
+test("preflight checks self-approval delegated access only when enabled", () => {
+  const accessPolicy = JSON.stringify({
+    route_overrides: {
+      "agent-self-approve": ["MEMBER"],
+    },
+  });
+  const disabled = runPreflight({
+    AUTHOR_ASSOCIATION: "CONTRIBUTOR",
+    ACCESS_POLICY: accessPolicy,
+    REPOSITORY_PRIVATE: "false",
+    AGENT_ALLOW_SELF_APPROVE: "false",
+  });
+  assert.equal(disabled.status, 0, disabled.stderr || disabled.stdout);
+  assert.equal(disabled.outputs.get("authorization_stop"), "false");
+
+  const enabled = runPreflight({
+    AUTHOR_ASSOCIATION: "CONTRIBUTOR",
+    ACCESS_POLICY: accessPolicy,
+    REPOSITORY_PRIVATE: "false",
+    AGENT_ALLOW_SELF_APPROVE: "true",
+  });
+  assert.equal(enabled.status, 0, enabled.stderr || enabled.stdout);
+  assert.equal(enabled.outputs.get("authorization_stop"), "true");
+  assert.equal(
+    enabled.outputs.get("authorization_stop_reason"),
+    "orchestrate requests require agent-self-approve access; agent-self-approve currently requires MEMBER access.",
+  );
+});
+
+test("preflight checks self-merge delegated access only when enabled", () => {
+  const accessPolicy = JSON.stringify({
+    route_overrides: {
+      "agent-self-merge": ["MEMBER"],
+    },
+  });
+  const disabled = runPreflight({
+    AUTHOR_ASSOCIATION: "CONTRIBUTOR",
+    ACCESS_POLICY: accessPolicy,
+    REPOSITORY_PRIVATE: "false",
+    AGENT_ALLOW_SELF_APPROVE: "true",
+    AGENT_ALLOW_SELF_MERGE: "false",
+  });
+  assert.equal(disabled.status, 0, disabled.stderr || disabled.stdout);
+  assert.equal(disabled.outputs.get("authorization_stop"), "false");
+
+  const enabled = runPreflight({
+    AUTHOR_ASSOCIATION: "CONTRIBUTOR",
+    ACCESS_POLICY: accessPolicy,
+    REPOSITORY_PRIVATE: "false",
+    AGENT_ALLOW_SELF_APPROVE: "true",
+    AGENT_ALLOW_SELF_MERGE: "true",
+  });
+  assert.equal(enabled.status, 0, enabled.stderr || enabled.stdout);
+  assert.equal(enabled.outputs.get("authorization_stop"), "true");
+  assert.equal(
+    enabled.outputs.get("authorization_stop_reason"),
+    "orchestrate requests require agent-self-merge access; agent-self-merge currently requires MEMBER access.",
+  );
+});
+
 test("preflight keeps planner enabled for authorized PR orchestration", () => {
   const run = runPreflight({
     TARGET_KIND: "pull_request",

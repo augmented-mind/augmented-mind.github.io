@@ -29,25 +29,29 @@ concurrency:
 
 jobs:
   agent:
-    if: startsWith(github.event.label.name, 'agent/')
+    if: vars.AGENT_ENABLED != 'false' && startsWith(github.event.label.name, 'agent/')
     uses: ./.github/workflows/agent-router.yml
     with:
       runs_on: ${{ vars.AGENT_RUNS_ON || '["ubuntu-latest"]' }}
       access_policy: ${{ vars.AGENT_ACCESS_POLICY || '' }}
       automation_mode: ${{ vars.AGENT_AUTOMATION_MODE || 'agent' }}
-      automation_max_rounds: ${{ vars.AGENT_AUTOMATION_MAX_ROUNDS || '5' }}
+      automation_max_rounds: ${{ vars.AGENT_AUTOMATION_MAX_ROUNDS || '12' }}
       trigger_kind: label
       label_name: ${{ github.event.label.name }}
     secrets:
       AGENT_APP_ID: ${{ secrets.AGENT_APP_ID }}
       AGENT_APP_PRIVATE_KEY: ${{ secrets.AGENT_APP_PRIVATE_KEY }}
       AGENT_PAT: ${{ secrets.AGENT_PAT }}
+      AGENT_INSTALL_PAT: ${{ secrets.AGENT_INSTALL_PAT }}
+      AGENT_SECONDARY_GITHUB_TOKEN: ${{ secrets.AGENT_SECONDARY_GITHUB_TOKEN }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
   cleanup-label:
     needs: agent
     if: >-
+      vars.AGENT_ENABLED != 'false' &&
       needs.agent.result == 'success' &&
       needs.agent.outputs.should_respond == 'true'
     runs-on: ${{ fromJson(vars.AGENT_RUNS_ON || '["ubuntu-latest"]') }}

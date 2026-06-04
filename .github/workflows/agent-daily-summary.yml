@@ -28,6 +28,7 @@ concurrency:
 
 jobs:
   pre_gate:
+    if: vars.AGENT_ENABLED != 'false'
     runs-on: ${{ fromJson(vars.AGENT_RUNS_ON || '["ubuntu-latest"]') }}
     outputs:
       skip: ${{ steps.gate.outputs.skip }}
@@ -51,7 +52,7 @@ jobs:
 
   signals:
     needs: pre_gate
-    if: needs.pre_gate.outputs.skip != 'true'
+    if: vars.AGENT_ENABLED != 'false' && needs.pre_gate.outputs.skip != 'true'
     runs-on: ${{ fromJson(vars.AGENT_RUNS_ON || '["ubuntu-latest"]') }}
     env:
       DISCUSSION_CATEGORY: ${{ inputs.discussion_category || vars.AGENT_PROJECT_MANAGEMENT_DISCUSSION_CATEGORY || 'General' }}
@@ -147,7 +148,10 @@ jobs:
 
   daily-summary:
     needs: signals
-    if: needs.signals.result == 'success' && needs.signals.outputs.skip != 'true'
+    if: >-
+      vars.AGENT_ENABLED != 'false' &&
+      needs.signals.result == 'success' &&
+      needs.signals.outputs.skip != 'true'
     runs-on: ${{ fromJson(vars.AGENT_RUNS_ON || '["ubuntu-latest"]') }}
     env:
       DISCUSSION_CATEGORY: ${{ inputs.discussion_category || vars.AGENT_PROJECT_MANAGEMENT_DISCUSSION_CATEGORY || 'General' }}
@@ -184,6 +188,8 @@ jobs:
           default_provider: ${{ vars.AGENT_DEFAULT_PROVIDER || 'auto' }}
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}
           claude_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          model_policy: ${{ vars.AGENT_MODEL_POLICY || '' }}
 
       - name: Setup selected provider
         uses: ./.github/actions/setup-agent-runtime
@@ -205,8 +211,12 @@ jobs:
         with:
           agent: ${{ steps.provider.outputs.provider }}
           github_token: ${{ steps.auth.outputs.token }}
+          secondary_github_token: ${{ secrets.AGENT_SECONDARY_GITHUB_TOKEN }}
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}
           claude_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          model: ${{ steps.provider.outputs.model }}
+          display_model: ${{ vars.AGENT_DISPLAY_MODEL || '' }}
           permission_mode: approve-all
           prompt: daily-summary
           route: answer
@@ -221,7 +231,7 @@ jobs:
           target_kind: repository
           target_number: '0'
           target_url: ${{ github.server_url }}/${{ github.repository }}
-          reasoning_effort: medium
+          reasoning_effort: ${{ steps.provider.outputs.reasoning_effort || 'medium' }}
           workflow: agent-daily-summary.yml
 
       - name: Create summary discussion

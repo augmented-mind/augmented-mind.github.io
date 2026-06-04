@@ -1,6 +1,31 @@
-# Session continuity
+---
+title: "Session continuity"
+---
 
 Persistent session continuity can optionally use GitHub Actions artifacts to carry local agent session files across runs. This is useful when the next run lands on a fresh machine and local `HOME` state is not sticky.
+
+## Session policies
+
+The shared `run-agent-task` action accepts `session_policy`:
+
+- `none`: run one-shot with `acpx <agent> exec` and do not write thread state
+- `track-only`: run one-shot without a stable named ACP session while still updating thread state for run metadata
+- `resume-best-effort`: use a persistent named ACP session when a resumable identity is available, but fall back fresh when continuity cannot be restored
+- `resume-required`: use a persistent named ACP session and fail when an existing thread cannot satisfy the continuity requirement
+
+Codex `none` exec runs that receive a configured reasoning effort may create a
+fresh per-run ACP session only to apply `thought_level`, because ACPX exposes
+that option through session configuration rather than a global exec flag. That
+session name is random, is not written as thread state, and is not restored or
+reused by later runs.
+
+`track-only` intentionally does not ensure or prompt a stable named ACP session.
+Codex `track-only` runs that need a `thought_level` may use a fresh per-run ACP
+session to apply that option; `track-only` runs that upload debug bundles also
+use a fresh per-run ACP session. Neither path reuses the target/lane session
+identity. `track-only` is for jobs that need observability without
+conversational continuity, such as review synthesis, reviewer lanes,
+self-approval checks, and scheduled one-shot actions.
 
 ## Session bundle modes
 
@@ -8,9 +33,14 @@ The shared `run-agent-task` action accepts `session_bundle_mode`:
 
 - `never`: disable bundle restore and backup
 - `auto`: enable restore and backup only for routes that attempt session resume
-- `always`: enable restore and backup for any persistent session policy
+- `always`: enable restore and backup for resume policies, and upload debug-only
+  bundles for `track-only`
 
-The shared action also accepts `session_bundle_retention_days` with a default of `30`.
+Because `track-only` is one-shot execution, bundle modes do not restore or
+download a session for it. With `session_bundle_mode: always`, `track-only`
+runs may still upload a debug-only bundle, but that artifact is marked
+non-restorable and is ignored by later restore and fork lookup. The shared
+action also accepts `session_bundle_retention_days` with a default of `30`.
 
 ## Session forks
 
@@ -64,11 +94,12 @@ flowchart TD
 ## Current repository behavior
 
 - reusable workflows and direct route workflows fall back to repository variable `AGENT_SESSION_BUNDLE_MODE` before using the built-in `auto` default
+- `track-only` routes still write thread state but run as one-shot executions, so repeated review synthesis does not reuse a prior named ACP conversation
 - `fix-pr` uses `resume-best-effort` so repeated fix attempts resume when a session identity is available, but can start fresh instead of deadlocking when older thread state lacks an `acpxSessionId`
 - resumed orchestrator-launched `fix-pr` runs with non-empty handoff context replay the full current route prompt so the latest planner instructions are not lost to a lightweight continuation prompt
 - self-hosted runners can choose to set `AGENT_SESSION_BUNDLE_MODE=never` to prefer local session state over artifact-backed continuity, but the backend does not switch this automatically
 
-See [Self-hosted GitHub Action runner](../deployment/self-hosted-github-action-runner.md) for the runner side of that trade-off.
+See [Self-hosted GitHub Action runner](../setup/self-hosted-github-action-runner.md) for the runner side of that trade-off.
 
 ## Backed-up session files
 

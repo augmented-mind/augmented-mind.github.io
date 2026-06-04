@@ -21,6 +21,7 @@ concurrency:
 
 jobs:
   check:
+    if: vars.AGENT_ENABLED != 'false'
     runs-on: ${{ fromJson(vars.AGENT_RUNS_ON || '["ubuntu-latest"]') }}
     env:
       MEMORY_REF: ${{ inputs.memory_ref || vars.AGENT_MEMORY_REF || 'agent/memory' }}
@@ -45,6 +46,8 @@ jobs:
           default_provider: ${{ vars.AGENT_DEFAULT_PROVIDER || 'auto' }}
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}
           claude_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          model_policy: ${{ vars.AGENT_MODEL_POLICY || '' }}
           required: "false"
 
       - name: Setup agent runtime
@@ -60,6 +63,7 @@ jobs:
           AGENT_PROVIDER: ${{ steps.provider.outputs.provider }}
           AGENT_PROVIDER_REASON: ${{ steps.provider.outputs.reason }}
           CLAUDE_CODE_OAUTH_TOKEN_CONFIGURED: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
+          ANTHROPIC_API_KEY_CONFIGURED: ${{ secrets.ANTHROPIC_API_KEY != '' }}
           GH_TOKEN: ${{ steps.auth.outputs.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           MEMORY_REF: ${{ env.MEMORY_REF }}

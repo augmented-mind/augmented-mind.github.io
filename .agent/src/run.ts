@@ -4,8 +4,8 @@
 // the prompt template (base + route), runs acpx directly, and outputs the
 // result.
 
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { readFileSync, writeFileSync, existsSync, statSync } from "node:fs";
+import { isAbsolute, join, resolve } from "node:path";
 import { randomBytes } from "node:crypto";
 
 import {
@@ -54,6 +54,12 @@ import {
   buildContinuationPrompt,
   selectContinuationPromptForResume,
 } from "./prompt-continuation.js";
+import {
+  parseSessionBundleMode,
+  shouldBackupSessionBundles,
+} from "./session-bundle.js";
+import { buildSharedEnv } from "./runtime-env.js";
+import { buildAnswerReviewContext } from "./answer-review-context.js";
 
 // --- Logging ---
 
@@ -78,12 +84,18 @@ const SUPPLEMENTAL_PROMPT_VAR_NAMES = [
   "CODEX_REVIEW_FILE",
   "ORCHESTRATOR_SOURCE_ACTION",
   "ORCHESTRATOR_SOURCE_CONCLUSION",
+  "ORCHESTRATOR_SOURCE_RECOMMENDED_NEXT_STEP",
   "ORCHESTRATOR_SOURCE_RUN_ID",
   "ORCHESTRATOR_NEXT_TARGET_NUMBER",
   "ORCHESTRATOR_SOURCE_HANDOFF_CONTEXT",
+  "ORCHESTRATOR_SELF_APPROVE_ENABLED",
+  "ORCHESTRATOR_SELF_MERGE_ENABLED",
   "ORCHESTRATOR_CONTEXT",
   "ORCHESTRATOR_CURRENT_ROUND",
   "ORCHESTRATOR_MAX_ROUNDS",
+  "SELF_APPROVE_EXPECTED_HEAD_SHA",
+  "SELF_APPROVE_SOURCE_CONCLUSION",
+  "SELF_APPROVE_SOURCE_RECOMMENDED_NEXT_STEP",
 ] as const;
 
 // --- Envelope from env ---
@@ -118,17 +130,34 @@ const PROMPT_TEMPLATES: Record<string, string> = {
   "fix-pr": ".github/prompts/agent-fix-pr.md",
   answer: ".github/prompts/agent-answer.md",
   "create-action": ".github/prompts/agent-create-action.md",
+  install: ".github/prompts/agent-install.md",
+  "update-agent": ".github/prompts/agent-update.md",
   dispatch: ".github/prompts/agent-dispatch.md",
   "rubrics-review": ".github/prompts/rubrics-review.md",
   "rubrics-initialization": ".github/prompts/rubrics-initialization.md",
   "rubrics-update": ".github/prompts/rubrics-update.md",
   orchestrator: ".github/prompts/agent-orchestrator.md",
+  "agent-self-approve": ".github/prompts/agent-self-approve.md",
 };
+
+const VALID_SKILL_NAME = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
+
+function isRegularFile(path: string): boolean {
+  try {
+    return statSync(path).isFile();
+  } catch {
+    return false;
+  }
+}
+
+function isSafeRelativePath(path: string): boolean {
+  return path !== "" && !isAbsolute(path) && !path.split(/[\\/]+/).includes("..");
+}
 
 /**
  * Resolves the prompt template path from multiple sources:
  * 1. PROMPT_NAME env var → look up in PROMPT_TEMPLATES or .github/prompts/<name>.md
- * 2. SKILL_NAME env var → .skills/<name>/SKILL.md
+ * 2. SKILL_NAME env var → <skill_root>/<name>/SKILL.md
  * 3. Fall back to route-based lookup in PROMPT_TEMPLATES
  */
 function resolveTemplatePath(route: string, repoRoot: string): string | null {
@@ -147,9 +176,10 @@ function resolveTemplatePath(route: string, repoRoot: string): string | null {
   }
 
   if (skillName) {
-    // Named skill: .skills/<name>/SKILL.md
-    const p = join(repoRoot, ".skills", skillName, "SKILL.md");
-    if (existsSync(p)) return p;
+    const skillRoot = process.env.SKILL_ROOT?.trim() || ".skills";
+    if (!VALID_SKILL_NAME.test(skillName) || !isSafeRelativePath(skillRoot)) return null;
+    const p = join(repoRoot, skillRoot, skillName, "SKILL.md");
+    if (isRegularFile(p)) return p;
     return null;
   }
 
@@ -250,25 +280,63 @@ function persistFailureOutputs(
   return { rawStdoutFile, rawStderrFile };
 }
 
-function buildSharedEnv(): Record<string, string> {
-  const env: Record<string, string> = {};
-  if (process.env.INPUT_GITHUB_TOKEN) {
-    env.GH_TOKEN = process.env.INPUT_GITHUB_TOKEN;
-    env.GITHUB_TOKEN = process.env.INPUT_GITHUB_TOKEN;
+function parseBooleanFlag(value: string | undefined, defaultValue = false): boolean {
+  const normalized = String(value || "").trim().toLowerCase();
+  if (!normalized) return defaultValue;
+  return ["true", "1", "yes", "on"].includes(normalized);
+}
+
+function extractSessionModel(sessionLog: string): string {
+  for (const raw of sessionLog.split("\n")) {
+    if (!raw.trim()) continue;
+    try {
+      const entry = JSON.parse(raw) as Record<string, unknown>;
+      if (entry.type === "session" && typeof entry.model === "string" && entry.model.trim()) {
+        return entry.model.trim();
+      }
+    } catch {
+      // Ignore malformed compact log entries.
+    }
   }
-  if (process.env.INPUT_OPENAI_API_KEY) {
-    env.OPENAI_API_KEY = process.env.INPUT_OPENAI_API_KEY;
+  return "";
+}
+
+const CODEX_REASONING_MODEL_SUFFIX = /(?:\/(?:low|medium|high|xhigh)|\[(?:low|medium|high|xhigh)\])$/u;
+
+function displayReasoningEffort(options: {
+  agent: string;
+  model: string;
+  reasoningEffort: string;
+}): string {
+  const reasoningEffort = options.reasoningEffort.trim();
+  if (!reasoningEffort) return "";
+  if (
+    options.agent.trim().toLowerCase() === "codex" &&
+    CODEX_REASONING_MODEL_SUFFIX.test(options.model.trim())
+  ) {
+    return "";
   }
-  if (process.env.MODEL_REASONING_EFFORT) {
-    env.MODEL_REASONING_EFFORT = process.env.MODEL_REASONING_EFFORT;
-    // Claude Code reads effort from this env var directly, so both the
-    // flow path and the direct path pick it up without session setup.
-    env.CLAUDE_CODE_EFFORT_LEVEL = process.env.MODEL_REASONING_EFFORT;
-  }
-  if (process.env.CLAUDE_CODE_OAUTH_TOKEN) {
-    env.CLAUDE_CODE_OAUTH_TOKEN = process.env.CLAUDE_CODE_OAUTH_TOKEN;
-  }
-  return env;
+  return reasoningEffort;
+}
+
+function buildModelDisplay(options: {
+  agent: string;
+  model: string;
+  reasoningEffort: string;
+  runnerName: string;
+}): string {
+  const model = options.model.trim();
+  const parts = [
+    options.agent.trim(),
+    model || "default model",
+    displayReasoningEffort({
+      agent: options.agent,
+      model,
+      reasoningEffort: options.reasoningEffort,
+    }),
+    options.runnerName.trim(),
+  ].filter(Boolean);
+  return parts.length > 0 ? parts.map((part) => `\`${part}\``).join(" | ") : "";
 }
 
 // --- Main ---
@@ -316,6 +384,18 @@ function main(): void {
   for (const name of SUPPLEMENTAL_PROMPT_VAR_NAMES) {
     if (process.env[name]) promptVars[name] = process.env[name]!;
   }
+  if (envelope.route === "answer") {
+    const answerReviewContext = buildAnswerReviewContext({
+      repoSlug: promptVars.REPO_SLUG,
+      targetNumber: promptVars.TARGET_NUMBER,
+      sourceKind: promptVars.REQUEST_SOURCE_KIND || promptVars.SOURCE_KIND,
+      commentId: promptVars.REQUEST_COMMENT_ID || "",
+      commentUrl: promptVars.REQUEST_COMMENT_URL || "",
+    });
+    if (answerReviewContext) {
+      promptVars.ANSWER_REVIEW_CONTEXT = answerReviewContext;
+    }
+  }
   if (promptVars.RUBRICS_CONTEXT_FILE && existsSync(promptVars.RUBRICS_CONTEXT_FILE)) {
     promptVars.RUBRICS_CONTEXT = readFileSync(promptVars.RUBRICS_CONTEXT_FILE, "utf8");
   }
@@ -352,6 +432,8 @@ function main(): void {
   setOutput("envelope_route", envelope.route);
   setOutput("raw_stdout_file", "");
   setOutput("raw_stderr_file", "");
+  setOutput("model", process.env.MODEL_ID?.trim() || "");
+  setOutput("model_display", "");
   setOutput("resume_status", "not_attempted");
   setOutput("last_resume_error", "");
   setOutput(
@@ -514,15 +596,20 @@ function runDirectPath(opts: {
   }
 
   log("info", "Running acpx", { agent, route: envelope.route, permission_mode: permissionMode });
+  const sessionBundleMode = parseSessionBundleMode(process.env.SESSION_BUNDLE_MODE);
+  const requestedModel = process.env.MODEL_ID?.trim() || "";
 
   const result = runAcpx({
     agent,
+    model: requestedModel,
     prompt,
     cwd: repoRoot,
     sessionMode: sessionModeForPolicy(sessionPolicy),
     threadKey: envelope.thread_key,
     permissionMode,
     thoughtLevel: process.env.MODEL_REASONING_EFFORT,
+    preserveExecSession:
+      sessionPolicy === "track-only" && shouldBackupSessionBundles(sessionBundleMode, sessionPolicy),
     resumeSessionId,
     continuationPrompt: continuationPromptAllowed ? continuationPrompt : undefined,
     env: sharedEnv,
@@ -541,6 +628,17 @@ function runDirectPath(opts: {
     session_log_length: result.sessionLog.length,
     session_ensure_outcome: result.sessionEnsureOutcome.kind,
   });
+
+  const reportedModel = extractSessionModel(result.sessionLog) || requestedModel;
+  setOutput("model", reportedModel);
+  if (parseBooleanFlag(process.env.DISPLAY_MODEL, true)) {
+    setOutput("model_display", buildModelDisplay({
+      agent,
+      model: reportedModel,
+      reasoningEffort: process.env.MODEL_REASONING_EFFORT || "",
+      runnerName: process.env.RUNNER_NAME || "",
+    }));
+  }
 
   // Display session activity in CI logs
   process.stderr.write("\n--- acpx session log ---\n");

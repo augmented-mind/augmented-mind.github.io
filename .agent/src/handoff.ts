@@ -1,6 +1,6 @@
 import { extractJsonObject } from "./response.js";
 
-export type AgentAction = "implement" | "review" | "fix-pr";
+export type AgentAction = "implement" | "review" | "fix-pr" | "agent-self-approve" | "agent-self-merge";
 export type HandoffDecisionKind = "dispatch" | "delegate_issue" | "stop" | "skip";
 export type AutomationMode = "disabled" | "heuristics" | "agent";
 export type HandoffMarkerState = "pending" | "dispatched" | "failed";
@@ -10,12 +10,15 @@ export interface HandoffInput {
   automationMode: string;
   sourceAction: string;
   sourceConclusion: string;
+  sourceRecommendedNextStep?: string;
   sourceHandoffContext?: string;
   targetKind?: string;
   targetNumber: string;
   nextTargetNumber?: string;
   currentRound: number;
   maxRounds: number;
+  allowSelfApprove?: boolean;
+  allowSelfMerge?: boolean;
   plannerDecision?: PlannerDecision | null;
 }
 
@@ -66,6 +69,7 @@ export interface PlannerDecision {
 }
 
 const REVIEW_TO_FIX_PR = new Set(["minor_issues", "needs_rework", "changes_requested"]);
+const SELF_APPROVAL_TO_FIX_PR = new Set(["request_changes", "changes_requested"]);
 const PLANNER_DECISION_KINDS: Partial<Record<string, PlannerDecisionKind>> = {
   handoff: "handoff",
   delegate_issue: "delegate_issue",
@@ -77,6 +81,10 @@ const HANDOFF_MARKER_PREFIX = "sepo-agent-handoff";
 const DEFAULT_FIX_PR_HANDOFF_CONTEXT = [
   "Address only the latest unresolved review synthesis action items.",
   "Ignore optional INFO notes, metadata-only polish, already-fixed findings, and human-judgment nits unless required by the selected fix.",
+].join(" ");
+const DEFAULT_SELF_APPROVAL_FIX_PR_HANDOFF_CONTEXT = [
+  "Address only the self-approval REQUEST_CHANGES findings.",
+  "Preserve the reviewed-head and deterministic approval safeguards; avoid unrelated changes.",
 ].join(" ");
 const ANY_HANDOFF_MARKER_RE = new RegExp(
   `<!--\\s*${HANDOFF_MARKER_PREFIX}(?:\\s+state:(pending|dispatched|failed))?(?:\\s+created:(\\d+))?\\s+base64:[A-Za-z0-9_-]+\\s*-->`,
@@ -122,6 +130,14 @@ export function normalizeConclusion(value: string): string {
   if (normalized === "needs_rework") return "needs_rework";
   if (normalized === "changes_requested") return "changes_requested";
   return normalized || "unknown";
+}
+
+export function normalizeRecommendedNextStep(value: string): string {
+  const normalized = normalizeToken(value);
+  if (normalized === "fix_pr") return "fix_pr";
+  if (normalized === "human_decision") return "human_decision";
+  if (normalized === "no_automated_action") return "no_automated_action";
+  return normalized;
 }
 
 export function formatMarkdownTableCell(value: string | number): string {
@@ -202,11 +218,17 @@ function resolveFixPrHandoffContext(input: HandoffInput): string {
   return String(input.sourceHandoffContext || "").trim() || defaultFixPrHandoffContext();
 }
 
+function resolveSelfApprovalFixPrHandoffContext(input: HandoffInput): string {
+  return String(input.sourceHandoffContext || "").trim() || DEFAULT_SELF_APPROVAL_FIX_PR_HANDOFF_CONTEXT;
+}
+
 function normalizeAgentAction(value: string): AgentAction | null {
   const normalized = normalizeToken(value);
   if (normalized === "implement") return "implement";
   if (normalized === "review") return "review";
   if (normalized === "fix_pr") return "fix-pr";
+  if (normalized === "agent_self_approve") return "agent-self-approve";
+  if (normalized === "agent_self_merge") return "agent-self-merge";
   return null;
 }
 
@@ -268,6 +290,13 @@ export function extractReviewConclusion(markdown: string): string {
 
   const inlineMatch = text.match(/\b(SHIP|MINOR[_ -]ISSUES|NEEDS[_ -]REWORK|CHANGES[_ -]REQUESTED)\b/i);
   return inlineMatch ? normalizeConclusion(inlineMatch[1]) : "unknown";
+}
+
+export function extractReviewRecommendedNextStep(markdown: string): string {
+  const section = extractMarkdownSection(markdown, "Recommended Next Step");
+  const text = section || markdown || "";
+  const match = text.match(/\b(FIX_PR|HUMAN_DECISION|NO_AUTOMATED_ACTION)\b/i);
+  return match ? normalizeRecommendedNextStep(match[1]) : "";
 }
 
 export function buildHandoffDedupeKey(input: HandoffDedupeInput): string {
@@ -446,7 +475,29 @@ function decideHeuristicHandoff(input: HandoffInput): HandoffDecision {
   }
 
   if (sourceAction === "review") {
+    const recommendedNextStep = normalizeRecommendedNextStep(input.sourceRecommendedNextStep || "");
+    if (recommendedNextStep === "human_decision") {
+      if (input.allowSelfApprove) {
+        return {
+          decision: "dispatch",
+          nextAction: "agent-self-approve",
+          targetNumber: nextTarget,
+          reason: `review recommended HUMAN_DECISION after ${conclusion}; dispatching agent-self-approve`,
+          nextRound,
+        };
+      }
+      return { decision: "stop", reason: `review recommended HUMAN_DECISION after ${conclusion}`, nextRound };
+    }
     if (conclusion === "ship") {
+      if (input.allowSelfApprove) {
+        return {
+          decision: "dispatch",
+          nextAction: "agent-self-approve",
+          targetNumber: nextTarget,
+          reason: "review verdict is SHIP; dispatching agent-self-approve",
+          nextRound,
+        };
+      }
       return { decision: "stop", reason: "review verdict is SHIP", nextRound };
     }
     if (REVIEW_TO_FIX_PR.has(conclusion)) {
@@ -460,6 +511,33 @@ function decideHeuristicHandoff(input: HandoffInput): HandoffDecision {
       };
     }
     return { decision: "stop", reason: `review verdict ${conclusion} has no handoff`, nextRound };
+  }
+
+  if (sourceAction === "agent_self_approve") {
+    if (SELF_APPROVAL_TO_FIX_PR.has(conclusion)) {
+      return {
+        decision: "dispatch",
+        nextAction: "fix-pr",
+        targetNumber: nextTarget,
+        reason: `agent-self-approve concluded ${conclusion}; dispatching fix-pr`,
+        nextRound,
+        handoffContext: resolveSelfApprovalFixPrHandoffContext(input),
+      };
+    }
+    if (conclusion === "approved" && input.allowSelfMerge) {
+      return {
+        decision: "dispatch",
+        nextAction: "agent-self-merge",
+        targetNumber: nextTarget,
+        reason: "agent-self-approve concluded approved; dispatching agent-self-merge",
+        nextRound,
+      };
+    }
+    return { decision: "stop", reason: `agent-self-approve concluded ${conclusion}`, nextRound };
+  }
+
+  if (sourceAction === "agent_self_merge") {
+    return { decision: "stop", reason: `agent-self-merge concluded ${conclusion}`, nextRound };
   }
 
   return { decision: "stop", reason: `unsupported source action ${input.sourceAction}`, nextRound };
