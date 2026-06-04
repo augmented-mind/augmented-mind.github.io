@@ -5,5 +5,4 @@ Augmented Mind is a podcast website (augmented-mind.github.io) built with a JS/T
 
 ## Open Questions
 - PR #41 (caption-infra/Transcript.tsx) OPEN/SHIP — ignorePatterns fix applied, ARIA + window.addCleanup added; awaiting human merge. PR #44 (caption-workflow) OPEN/SHIP — stacks on #41; closes #37/#43. Both need human merge before smoke-testing the VTT→MD→ZH pipeline.
-- PR #53 now CLOSED (not merged).
 - Issue #58 (Wire Guest Post/Discussions to website): opened by external contributor shaoyijia 2026-06-01; sepo-agent blocked (needs OWNER/MEMBER/COLLABORATOR access); maintainer has not responded — needs triage or access grant.
