@@ -2,24 +2,31 @@ name: Preview (sepo)
 on:
   pull_request:
     types: [opened, synchronize, reopened, labeled, closed]
-permissions: { id-token: write, contents: read, pull-requests: write }
+# No workflow-level permissions. The build job runs PR-controlled code but holds no
+# token; the deploy job holds id-token/PR-write but runs no PR-controlled code.
+permissions: {}
 concurrency:
   group: sepo-preview-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 jobs:
-  deploy:
-    # AGENT_PREVIEW_POLICY: unset/auto = public repos only, `all` = include private, `off` = disabled.
+  build:
+    # AGENT_PREVIEW_POLICY: unset/auto = public repos only, `all` = include private, `off` = off.
     # Within that, auto-preview every agent PR (agent/ branch prefix). Label overrides:
-    # `sepo-preview` opts any PR in, `no-preview` opts an agent PR out.
+    # `sepo-preview` opts any same-repo PR in, `no-preview` opts an agent PR out. Fork PRs are
+    # excluded (the head.repo guard) because they cannot mint OIDC tokens.
     if: >-
+      github.event.action != 'closed' &&
       vars.AGENT_PREVIEW_POLICY != 'off' &&
       (vars.AGENT_PREVIEW_POLICY == 'all' || github.event.repository.private == false) &&
       github.event.pull_request.head.repo.full_name == github.repository &&
-      github.event.action != 'closed' &&
       (github.event.action != 'labeled' || github.event.label.name == 'sepo-preview') &&
       !contains(github.event.pull_request.labels.*.name, 'no-preview') &&
       (startsWith(github.event.pull_request.head.ref, 'agent/') || contains(github.event.pull_request.labels.*.name, 'sepo-preview'))
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      artifact-id: ${{ steps.upload.outputs.artifact-id }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -31,18 +38,32 @@ jobs:
       - name: Upload artifact
         id: upload
         uses: actions/upload-artifact@v4
-        with: { name: sepo-preview-site, path: ./public, retention-days: 1, if-no-files-found: error }
+        with:
+          name: sepo-preview-site
+          path: ./public
+          retention-days: 1
+          if-no-files-found: error
+  deploy:
+    # Trusted path: holds id-token + PR-write but runs NO PR-controlled code (no checkout/build).
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      pull-requests: write
+    steps:
       - name: Deploy preview
         id: deploy
         env:
           SERVER_URL: https://preview-api.sepo.sh
-          ARTIFACT_ID: ${{ steps.upload.outputs.artifact-id }}
+          ARTIFACT_ID: ${{ needs.build.outputs.artifact-id }}
         run: |
           set -euo pipefail
-          TOK=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+          TOK=$(curl -sS --retry 3 --retry-connrefused --retry-delay 2 --connect-timeout 10 --max-time 30 \
+                -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
                 "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sepo-preview" | jq -r '.value')
           [[ "$TOK" != "null" && -n "$TOK" ]] || { echo "::error::OIDC token fetch failed"; exit 1; }
-          RESP=$(curl -sS -X POST "$SERVER_URL/api/deploy/preview" -H 'Content-Type: application/json' \
+          RESP=$(curl -sS --connect-timeout 10 --max-time 120 -X POST "$SERVER_URL/api/deploy/preview" \
+                 -H 'Content-Type: application/json' \
                  --data "$(jq -nc --arg t "$TOK" --argjson a "$ARTIFACT_ID" '{oidc_token:$t,artifact_id:$a}')" \
                  -w '\n%{http_code}')
           CODE=$(tail -n1 <<<"$RESP"); BODY=$(sed '$d' <<<"$RESP"); echo "$BODY"
@@ -50,32 +71,43 @@ jobs:
           URL=$(jq -r .url <<<"$BODY")
           echo "url=$URL" >> "$GITHUB_OUTPUT"
           echo "### Preview: $URL" >> "$GITHUB_STEP_SUMMARY"
-      - name: Comment URL
+      - name: Comment preview URL
         if: steps.deploy.outputs.url != ''
         env:
           GH_TOKEN: ${{ github.token }}
           URL: ${{ steps.deploy.outputs.url }}
           PR: ${{ github.event.pull_request.number }}
         run: |
-          gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body "Sepo preview: $URL" --edit-last \
-            || gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body "Sepo preview: $URL"
+          set -euo pipefail
+          MARKER='<!-- sepo-preview-comment -->'
+          BODY="$MARKER"$'\n'"Sepo preview: $URL"
+          ID=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" \
+               --jq "[.[] | select(.body | contains(\"$MARKER\"))][-1].id // empty")
+          if [ -n "$ID" ]; then
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$ID" -f body="$BODY" >/dev/null
+          else
+            gh api -X POST "repos/$GITHUB_REPOSITORY/issues/$PR/comments" -f body="$BODY" >/dev/null
+          fi
   teardown:
     if: >-
       github.event.action == 'closed' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       (startsWith(github.event.pull_request.head.ref, 'agent/') || contains(github.event.pull_request.labels.*.name, 'sepo-preview'))
     runs-on: ubuntu-latest
-    permissions: { id-token: write }
+    permissions:
+      id-token: write
     steps:
       - name: Teardown preview
         env:
           SERVER_URL: https://preview-api.sepo.sh
         run: |
           set -euo pipefail
-          TOK=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+          TOK=$(curl -sS --retry 3 --retry-connrefused --retry-delay 2 --connect-timeout 10 --max-time 30 \
+                -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
                 "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sepo-preview" | jq -r '.value')
           [[ "$TOK" != "null" && -n "$TOK" ]] || { echo "::error::OIDC token fetch failed"; exit 1; }
-          RESP=$(curl -sS -X POST "$SERVER_URL/api/deploy/teardown" -H 'Content-Type: application/json' \
+          RESP=$(curl -sS --connect-timeout 10 --max-time 60 -X POST "$SERVER_URL/api/deploy/teardown" \
+                 -H 'Content-Type: application/json' \
                  --data "$(jq -nc --arg t "$TOK" '{oidc_token:$t}')" -w '\n%{http_code}')
           CODE=$(tail -n1 <<<"$RESP"); echo "$RESP"
           [[ "$CODE" == 200 || "$CODE" == 404 ]] || { echo "::error::teardown failed ($CODE)"; exit 1; }
