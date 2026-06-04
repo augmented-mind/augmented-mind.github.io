@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@zed-industries/codex-acp": "0.15.0",
-    "acpx": "^0.6.1",
+    "acpx": "0.10.0",
     "yaml": "^2.8.3"
   },
   "devDependencies": {
