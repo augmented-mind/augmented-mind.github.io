@@ -12,6 +12,7 @@ interface Options {
   limit: number
   linkToMore: SimpleSlug | false
   showTags: boolean
+  itemNoun: string
   filter: (f: QuartzPluginData) => boolean
   sort: (f1: QuartzPluginData, f2: QuartzPluginData) => number
 }
@@ -20,6 +21,7 @@ const defaultOptions = (cfg: GlobalConfiguration): Options => ({
   limit: 10,
   linkToMore: false,
   showTags: true,
+  itemNoun: "episode",
   filter: () => true,
   sort: byDateAndAlphabetical(cfg),
 })
@@ -52,7 +54,7 @@ export default ((userOpts?: Partial<Options>) => {
             {pages.slice(0, opts.limit).map((page) => {
               const title = page.frontmatter?.title ?? "Untitled"
               const tags = page.frontmatter?.tags ?? []
-              const episodeId = page.frontmatter?.episodeId as string | undefined
+              const episodeId = (page.frontmatter?.episodeId ?? page.frontmatter?.streamId) as string | undefined
               const coverImage = (page.frontmatter?.coverImage as string) || DEFAULT_COVER
               const youtubeUrl = page.frontmatter?.youtubeUrl as string | undefined
               const guestOffset = (page.frontmatter?.guestOffset as number) ?? 0
@@ -111,7 +113,7 @@ export default ((userOpts?: Partial<Options>) => {
         {opts.linkToMore && remaining > 0 && (
           <p class="see-more">
             <a href={resolveRelative(fileData.slug!, opts.linkToMore)}>
-              See {remaining} more episode{remaining > 1 ? "s" : ""} →
+              See {remaining} more {opts.itemNoun}{remaining > 1 ? "s" : ""} →
             </a>
           </p>
         )}

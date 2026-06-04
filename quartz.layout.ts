@@ -2,7 +2,9 @@ import { PageLayout, SharedLayout } from "./quartz/cfg"
 import * as Component from "./quartz/components"
 import { SimpleSlug } from "./quartz/util/path"
 
-const isEpisodePage = (slug?: string) => slug?.startsWith("episodes/") && slug !== "episodes/index"
+const isSeriesPage = (slug?: string) =>
+  (slug?.startsWith("episodes/") && slug !== "episodes/index") ||
+  (slug?.startsWith("livestreams/") && slug !== "livestreams/index")
 
 // Sidebar episodes list (vertical, compact)
 const episodesSection = Component.RecentNotes({
@@ -20,6 +22,25 @@ const episodesCarousel = Component.EpisodeCarousel({
   showTags: true,
   filter: (f) => f.slug!.startsWith("episodes/") && f.slug! !== "episodes/index",
   linkToMore: "episodes/" as SimpleSlug,
+})
+
+// Sidebar livestreams list (vertical, compact)
+const livestreamsSection = Component.RecentNotes({
+  title: "Livestreams",
+  limit: 20,
+  showTags: true,
+  filter: (f) => f.slug!.startsWith("livestreams/") && f.slug! !== "livestreams/index",
+  linkToMore: "livestreams/" as SimpleSlug,
+})
+
+// Landing page livestreams carousel (horizontal cards with images)
+const livestreamsCarousel = Component.EpisodeCarousel({
+  title: "Livestreams",
+  limit: 20,
+  showTags: true,
+  itemNoun: "livestream",
+  filter: (f) => f.slug!.startsWith("livestreams/") && f.slug! !== "livestreams/index",
+  linkToMore: "livestreams/" as SimpleSlug,
 })
 
 // Subscribe links for podcast platforms
@@ -48,6 +69,7 @@ const left = [
     }),
   ),
   Component.DesktopOnly(episodesSection),
+  Component.DesktopOnly(livestreamsSection),
 ]
 
 // components shared across all pages
@@ -60,6 +82,11 @@ export const sharedPageComponents: SharedLayout = {
       component: episodesCarousel,
       condition: (page) => page.fileData.slug === "index",
     }),
+    // Show livestreams carousel on index page (in center content area)
+    Component.ConditionalRender({
+      component: livestreamsCarousel,
+      condition: (page) => page.fileData.slug === "index",
+    }),
     Component.ConditionalRender({
       component: Component.GuestSuggestion(),
       condition: (page) => page.fileData.slug === "index",
@@ -68,6 +95,13 @@ export const sharedPageComponents: SharedLayout = {
     Component.MobileOnly(
       Component.ConditionalRender({
         component: episodesSection,
+        condition: (page) => page.fileData.slug !== "index",
+      }),
+    ),
+    // On mobile for non-index pages, show livestreams list
+    Component.MobileOnly(
+      Component.ConditionalRender({
+        component: livestreamsSection,
         condition: (page) => page.fileData.slug !== "index",
       }),
     ),
@@ -101,11 +135,11 @@ export const defaultContentPageLayout: PageLayout = {
     // Show date above title on non-index pages
     Component.ConditionalRender({
       component: Component.ContentMeta({ showReadingTime: false }),
-      condition: (page) => page.fileData.slug !== "index" && !isEpisodePage(page.fileData.slug),
+      condition: (page) => page.fileData.slug !== "index" && !isSeriesPage(page.fileData.slug),
     }),
     Component.ConditionalRender({
       component: Component.ArticleTitle(),
-      condition: (page) => !isEpisodePage(page.fileData.slug),
+      condition: (page) => !isSeriesPage(page.fileData.slug),
     }),
     // Show subscribe links only on index page
     Component.ConditionalRender({

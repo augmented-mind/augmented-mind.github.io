@@ -42,7 +42,7 @@ export default ((userOpts?: Partial<Options>) => {
           {pages.slice(0, opts.limit).map((page) => {
             const title = page.frontmatter?.title ?? i18n(cfg.locale).propertyDefaults.title
             const tags = page.frontmatter?.tags ?? []
-            const episodeId = page.frontmatter?.episodeId as string | undefined
+            const episodeId = (page.frontmatter?.episodeId ?? page.frontmatter?.streamId) as string | undefined
 
             return (
               <li class="recent-li">

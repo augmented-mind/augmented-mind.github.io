@@ -112,12 +112,14 @@ const Content: QuartzComponent = ({ fileData, tree, cfg }: QuartzComponentProps)
   const root = tree as Root
   const title = (fileData.frontmatter?.title as string | undefined) ?? "YouTube video"
   const youtubeUrl = fileData.frontmatter?.youtubeUrl as string | undefined
-  const episodeId = fileData.frontmatter?.episodeId as string | undefined
-  const isEpisodePage = fileData.slug?.startsWith("episodes/") && fileData.slug !== "episodes/index"
+  const episodeId = (fileData.frontmatter?.episodeId ?? fileData.frontmatter?.streamId) as string | undefined
+  const isSeriesPage =
+    (fileData.slug?.startsWith("episodes/") && fileData.slug !== "episodes/index") ||
+    (fileData.slug?.startsWith("livestreams/") && fileData.slug !== "livestreams/index")
   const pageDate = getDate(cfg, fileData)
 
   if (youtubeUrl) {
-    injectYouTubeEmbed(root, title, youtubeUrl, isEpisodePage)
+    injectYouTubeEmbed(root, title, youtubeUrl, isSeriesPage)
   }
 
   const content = htmlToJsx(fileData.filePath!, root) as ComponentChildren
@@ -126,7 +128,7 @@ const Content: QuartzComponent = ({ fileData, tree, cfg }: QuartzComponentProps)
 
   return (
     <>
-      {isEpisodePage && (
+      {isSeriesPage && (
         <div class="episode-inline-header popover-hint">
           {episodeId && <span class="episode-id">{episodeId}</span>}
           {episodeId && <span class="meta-sep">·</span>}
@@ -141,17 +143,20 @@ const Content: QuartzComponent = ({ fileData, tree, cfg }: QuartzComponentProps)
 }
 
 Content.css = `
-body[data-slug^="episodes/"] .page-header {
+body[data-slug^="episodes/"] .page-header,
+body[data-slug^="livestreams/"] .page-header {
   display: none;
 }
 
-body[data-slug^="episodes/"] .page > #quartz-body .center {
+body[data-slug^="episodes/"] .page > #quartz-body .center,
+body[data-slug^="livestreams/"] .page > #quartz-body .center {
   padding-top: calc(2rem + 16px);
   overflow: hidden;
 }
 
 @media all and (max-width: 800px) {
-  body[data-slug^="episodes/"] .page > #quartz-body .center {
+  body[data-slug^="episodes/"] .page > #quartz-body .center,
+  body[data-slug^="livestreams/"] .page > #quartz-body .center {
     padding-top: calc(1.5rem + 16px);
   }
 }
