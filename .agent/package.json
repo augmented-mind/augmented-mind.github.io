@@ -9,9 +9,8 @@
     "test": "npm run build && node --test $(find dist -name '*.test.js' -type f | sort) $(find scripts -path '*/test/*.test.cjs' -type f | sort)"
   },
   "dependencies": {
-    "@agentclientprotocol/claude-agent-acp": "0.41.0",
     "@zed-industries/codex-acp": "0.15.0",
-    "acpx": "^0.6.1",
+    "acpx": "0.10.0",
     "yaml": "^2.8.3"
   },
   "devDependencies": {
