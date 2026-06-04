@@ -41,6 +41,7 @@ jobs:
           set -euo pipefail
           TOK=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
                 "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sepo-preview" | jq -r '.value')
+          [[ "$TOK" != "null" && -n "$TOK" ]] || { echo "::error::OIDC token fetch failed"; exit 1; }
           RESP=$(curl -sS -X POST "$SERVER_URL/api/deploy/preview" -H 'Content-Type: application/json' \
                  --data "$(jq -nc --arg t "$TOK" --argjson a "$ARTIFACT_ID" '{oidc_token:$t,artifact_id:$a}')" \
                  -w '\n%{http_code}')
@@ -64,6 +65,7 @@ jobs:
       github.event.pull_request.head.repo.full_name == github.repository &&
       (startsWith(github.event.pull_request.head.ref, 'agent/') || contains(github.event.pull_request.labels.*.name, 'sepo-preview'))
     runs-on: ubuntu-latest
+    permissions: { id-token: write }
     steps:
       - name: Teardown preview
         env:
@@ -72,6 +74,7 @@ jobs:
           set -euo pipefail
           TOK=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
                 "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sepo-preview" | jq -r '.value')
+          [[ "$TOK" != "null" && -n "$TOK" ]] || { echo "::error::OIDC token fetch failed"; exit 1; }
           RESP=$(curl -sS -X POST "$SERVER_URL/api/deploy/teardown" -H 'Content-Type: application/json' \
                  --data "$(jq -nc --arg t "$TOK" '{oidc_token:$t}')" -w '\n%{http_code}')
           CODE=$(tail -n1 <<<"$RESP"); echo "$RESP"
