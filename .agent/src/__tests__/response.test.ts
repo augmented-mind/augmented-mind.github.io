@@ -138,6 +138,17 @@ test("formatFixPrComment formats success", () => {
   assert.match(body, /@alice/);
 });
 
+test("formatFixPrComment includes preview redeploy reference", () => {
+  const body = formatFixPrComment({
+    status: "success",
+    branch: "feat/my-branch",
+    previewUrl: "https://example-pr-12.surge.sh",
+  });
+  assert.match(body, /Preview: https:\/\/example-pr-12\.surge\.sh/);
+  assert.match(body, /redeploys automatically after each push/);
+  assert.match(body, /this update should appear there shortly/);
+});
+
 test("formatFixPrComment accepts preformatted agent handles", () => {
   const body = formatFixPrComment({
     status: "success",
@@ -167,6 +178,14 @@ test("formatReviewComment builds synthesis header", () => {
   assert.match(body, /<!-- sepo-agent-review-synthesis-head: abc123 -->/);
   assert.match(body, /@bob/);
   assert.match(body, /Looks good/);
+});
+
+test("formatReviewComment includes preview reference", () => {
+  const body = formatReviewComment({
+    synthesisBody: "## Summary\nLooks good.",
+    previewUrl: "https://example-pr-12.surge.sh",
+  });
+  assert.match(body, /> Preview: https:\/\/example-pr-12\.surge\.sh/);
 });
 
 test("appendRunDisplayFooter appends optional run metadata", () => {
