@@ -1,0 +1,72 @@
+name: Preview (sepo)
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, closed]
+permissions: { id-token: write, contents: read, pull-requests: write }
+concurrency:
+  group: sepo-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  deploy:
+    # Auto-preview every agent PR (branch prefix is present at open, no label needed).
+    # Humans can opt a PR in with `sepo-preview`, or opt an agent PR out with `no-preview`.
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.action != 'closed' &&
+      (github.event.action != 'labeled' || github.event.label.name == 'sepo-preview') &&
+      !contains(github.event.pull_request.labels.*.name, 'no-preview') &&
+      (startsWith(github.event.pull_request.head.ref, 'agent/') || contains(github.event.pull_request.labels.*.name, 'sepo-preview'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Build site
+        run: |
+          npm ci
+          npx quartz build
+      - name: Upload artifact
+        id: upload
+        uses: actions/upload-artifact@v4
+        with: { name: sepo-preview-site, path: ./public, retention-days: 1, if-no-files-found: error }
+      - name: Deploy preview
+        id: deploy
+        env:
+          SERVER_URL: https://preview-api.sepo.sh
+          ARTIFACT_ID: ${{ steps.upload.outputs.artifact-id }}
+        run: |
+          set -euo pipefail
+          TOK=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+                "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sepo-preview" | jq -r '.value')
+          RESP=$(curl -sS -X POST "$SERVER_URL/api/deploy/preview" -H 'Content-Type: application/json' \
+                 --data "$(jq -nc --arg t "$TOK" --argjson a "$ARTIFACT_ID" '{oidc_token:$t,artifact_id:$a}')" \
+                 -w '\n%{http_code}')
+          CODE=$(tail -n1 <<<"$RESP"); BODY=$(sed '$d' <<<"$RESP"); echo "$BODY"
+          [[ "$CODE" == 200 ]] || { echo "::error::deploy failed ($CODE)"; exit 1; }
+          URL=$(jq -r .url <<<"$BODY")
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "### Preview: $URL" >> "$GITHUB_STEP_SUMMARY"
+      - name: Comment URL
+        if: steps.deploy.outputs.url != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          URL: ${{ steps.deploy.outputs.url }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body "Sepo preview: $URL"
+  teardown:
+    if: >-
+      github.event.action == 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      (startsWith(github.event.pull_request.head.ref, 'agent/') || contains(github.event.pull_request.labels.*.name, 'sepo-preview'))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Teardown preview
+        env:
+          SERVER_URL: https://preview-api.sepo.sh
+        run: |
+          set -euo pipefail
+          TOK=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+                "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sepo-preview" | jq -r '.value')
+          curl -sS -X POST "$SERVER_URL/api/deploy/teardown" -H 'Content-Type: application/json' \
+               --data "$(jq -nc --arg t "$TOK" '{oidc_token:$t}')" -w '\n%{http_code}'

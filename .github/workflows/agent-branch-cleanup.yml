@@ -83,23 +83,3 @@ jobs:
 
               throw error;
             }
-
-  teardown-preview:
-    if: >-
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      startsWith(github.event.pull_request.head.ref, 'agent/implement-issue-')
-    runs-on: ubuntu-latest
-    environment: preview
-    steps:
-      - name: Teardown surge preview
-        continue-on-error: true
-        env:
-          SURGE_LOGIN: ${{ secrets.SURGE_LOGIN }}
-          SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          if [[ -z "$SURGE_LOGIN" || -z "$SURGE_TOKEN" ]]; then
-            echo "::error::Surge credentials are empty; skipping teardown."
-            exit 1
-          fi
-          npx surge teardown "augmented-mind-preview-${PR_NUMBER}.surge.sh" --token "$SURGE_TOKEN"
