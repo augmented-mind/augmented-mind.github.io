@@ -1,0 +1,47 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "baseRefName": "main",
+  "body": "## What\n\nA standalone `preview.yml` that deploys a per-branch preview of this site through the **Sepo preview-deploy server** (`preview-api.sepo.sh`) instead of an inline `npx surge` — using GitHub Actions **OIDC**, so **no Surge secrets live in this repo**.\n\nOn each PR it builds the Quartz site, uploads it as an artifact, mints an OIDC token (`audience=sepo-preview`), and POSTs `{oidc_token, artifact_id}` to the server. The server verifies the token against GitHub's JWKS, mints a short-lived App `actions:read` token, pulls the artifact via a pre-signed URL, repacks ZIP→tar.gz, and deploys it to a deterministic `*.surge.sh` slug. Teardown on PR close calls the server's teardown endpoint.\n\n## Why\n\nFirst end-to-end test of **centralizing** preview deploys behind one server (one shared Surge token held server-side, server-derived slug) instead of per-repo Surge credentials baked into every repo.\n\n## How to test\n\n- This PR auto-runs the workflow on open (same-repo PR → OIDC available); the deploy step comments the preview URL.\n- Or trigger manually: **Actions → \"Preview (sepo)\" → Run workflow**.\n\n## Notes\n\n- The existing inline-surge deploy steps in `agent-implement.yml` / `agent-fix-pr.yml` are left **untouched and dormant** (they only fire on `preview`-labeled agent runs), so nothing collides. They'll be retired in a follow-up once this is proven.\n- Requires the Sepo GitHub App to be installed on this repo (it is — the agent workflows use it). If the deploy returns `403 GitHub App is not installed`, that's the thing to check.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n",
+  "closedAt": "2026-06-04T05:09:54Z",
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABE1HNAw",
+      "author": {
+        "login": "github-actions"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo preview: https://augmented-mind-augmented-mind-pr-61-680eb5.surge.sh",
+      "createdAt": "2026-06-04T04:56:34Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/61#issuecomment-4619095299",
+      "viewerDidAuthor": false
+    }
+  ],
+  "createdAt": "2026-06-04T04:52:05Z",
+  "files": [
+    {
+      "path": ".github/workflows/preview.yml",
+      "additions": 63,
+      "deletions": 0,
+      "changeType": "ADDED"
+    }
+  ],
+  "headRefName": "feat/sepo-preview-deploy",
+  "labels": [],
+  "mergedAt": null,
+  "number": 61,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "CLOSED",
+  "title": "Test per-branch previews via Sepo preview-api (OIDC, no Surge secrets)",
+  "updatedAt": "2026-06-04T05:09:54Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/61"
+}
