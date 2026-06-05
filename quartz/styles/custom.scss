@@ -218,6 +218,15 @@ body[data-slug^="livestreams/"] .explorer {
   & > div:first-child .recent-notes > h3 {
     margin-top: 0;
   }
+
+  & > div + div::before {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 0;
+    margin: 0 0 1.1rem;
+    border-top: 1px solid var(--lightgray);
+  }
 }
 
 // Explorer card styling

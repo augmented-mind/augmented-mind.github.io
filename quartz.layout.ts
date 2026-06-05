@@ -47,7 +47,7 @@ const livestreamsCarousel = Component.EpisodeCarousel({
 const sidebarSeriesSections = Component.Flex({
   className: "sidebar-series-sections",
   direction: "column",
-  gap: "1.2rem",
+  gap: "0",
   components: [
     { Component: episodesSection, shrink: false, align: "stretch" },
     { Component: livestreamsSection, shrink: false, align: "stretch" },
