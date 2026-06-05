@@ -1,0 +1,37 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n- Bump `.agent` from `acpx` 0.6.1 to 0.10.0.\n- Keep Sepo's Claude default pinned to `claude-opus-4-8`.\n- Remove the earlier adapter workaround; local testing shows newer acpx can set the pinned Claude model directly.\n\n## Why\nThe failed PR #66 `/fix-pr` run used old acpx/Claude ACP behavior that rejected `claude-opus-4-8` because the adapter only advertised `default`, `opus`, and `haiku`.\n\nI tested locally:\n- `acpx` 0.6.1 failed around Claude model setting.\n- `acpx` 0.10.0 successfully ran `claude set model claude-opus-4-8` and recorded `session_options.model = claude-opus-4-8`.\n\nSo the least invasive fix is to update acpx rather than adding Sepo-specific model env glue.\n\n## Verification\n- Local probe: `.agent/node_modules/.bin/acpx --format json claude set model claude-opus-4-8 -s <session>` succeeds with acpx 0.10.0.\n- `npm --prefix .agent test`\n- `git diff --check`\n",
+  "closedAt": "2026-06-04T22:23:19Z",
+  "comments": [],
+  "createdAt": "2026-06-04T21:31:37Z",
+  "files": [
+    {
+      "path": ".agent/package-lock.json",
+      "additions": 128,
+      "deletions": 147,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/package.json",
+      "additions": 1,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "fix/claude-acp-opus-model",
+  "labels": [],
+  "mergedAt": "2026-06-04T22:23:19Z",
+  "number": 70,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "MERGED",
+  "title": "Fix Claude ACP model selection",
+  "updatedAt": "2026-06-04T22:23:19Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/70"
+}
