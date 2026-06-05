@@ -6,7 +6,7 @@
     "name": "Shannon Shen"
   },
   "body": "Right now we have a podcast series section for different series\n\nCan we add a new section for live streams\n\nAnd we can add this image as the first one.\n\n\n<img width=\"1792\" height=\"1080\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/321e04f5-18a2-4ce1-893f-1d49efe8f8d5\" />\n\n\n\n@sepo-agent /answer can you implement it? \n\n\n\n1. can we adapt the design of episode pages (e.g., the header, the content organization) for the live stream page? \n\n2. the main content is not correct (I think you've hallucinated this!)\n\n```\nCaleb Ziems, Dora Zhao, and Diyi Yang join us for a live stream exploring how a class collaboratively wrote a research paper on human-centered large language models.\n\nThis session dives into the process of large-scale collaborative research, the challenges of coordinating student contributions into a coherent academic paper, and the broader questions around human-centered approaches to LLM development.\n\n```\n\n\n\nWe hosted\n[@cjziems](https://x.com/cjziems)\n, \n[@dorazhao9](https://x.com/dorazhao9)\n, and \n[@Diyi_Yang](https://x.com/Diyi_Yang)\n for a discussion on their new paper \"Reflections and New Directions for Human-Centered Large Language Models\"!\n\nyou can also check their paper -- it's coming out of a class project. \n\n\nPost\n[Diyi Yang](https://x.com/Diyi_Yang)\n[@Diyi_Yang](https://x.com/Diyi_Yang)\nThe next frontier of AI is not only more capable model; it is an AI that *humans* can meaningfully live and work with :)\n\nWith all students in my cs329x Human-Centered LLM class, we present 60+ pages of insights for developing Human-Centered LLMs (HCLLMs), from design & data sourcing to training, eval & deployment 🧵\nhttps://x.com/Diyi_Yang/status/2057127600024432838\n\nWe can just include a one paragraph tldr of the topic, and we can later add additional details \n\nhere is the livestream video \nhttps://www.youtube.com/watch?v=2d49pMXiJOA",
-  "closedAt": null,
+  "closedAt": "2026-06-05T16:06:14Z",
   "comments": [
     {
       "id": "IC_kwDOQ106188AAAABE59RzA",
@@ -92,8 +92,8 @@
     }
   ],
   "number": 65,
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "Design a new livestream section on our website:",
-  "updatedAt": "2026-06-04T17:28:47Z",
+  "updatedAt": "2026-06-05T16:06:14Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/65"
 }

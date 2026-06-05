@@ -5,7 +5,7 @@
   },
   "baseRefName": "main",
   "body": "## Summary\n\nAdds a new **Livestreams** section to the site, parallel to the existing Episodes/podcast section and sharing the same page chrome.\n\n- New content folder `content/livestreams/` with an `index.md` (\"All Livestreams\") and the first entry `ls01.md` — *Human-Centered LLMs* with [Caleb Ziems](https://x.com/cjziems), [Dora Zhao](https://x.com/dorazhao9) & [Diyi Yang](https://x.com/Diyi_Yang). Uses a `streamId: \"LIVE 01\"` frontmatter field (mirroring `episodeId`) and the supplied cover image at `quartz/static/covers/LS01-cover.png`.\n- Generalized `Content.tsx` (`isEpisodePage` → `isSeriesPage`) so the inline header (`LIVE 01 · title · date`), title-hiding CSS, and top-of-article YouTube embed also apply to `livestreams/` pages. `EpisodeCarousel` and `RecentNotes` now read `episodeId ?? streamId`.\n- Added an optional `itemNoun` option to `EpisodeCarousel` and wired a **Livestreams** carousel (index page) plus a sidebar list into `quartz.layout.ts`, alongside the existing Episodes components.\n- Replaced the hallucinated description from the issue with corrected copy linking the [arXiv paper](https://arxiv.org/pdf/2605.06901) and [Diyi Yang's announcement thread](https://x.com/Diyi_Yang/status/2057127600024432838).\n\n## Test plan\n\n- [x] `node ./quartz/bootstrap-cli.mjs build` succeeds (15 input files, 75 emitted)\n- [x] `public/livestreams/ls01.html` renders the `LIVE 01` inline header + top-of-article YouTube embed; cover emitted to `public/static/covers/LS01-cover.png`\n- [x] Index page shows both **Episodes** and **Livestreams** carousels\n- [x] Existing episode pages (e.g. `ep00`) render unchanged — no regression\n- [x] `prettier --check` passes on all modified TS files\n\nCloses #65\n",
-  "closedAt": null,
+  "closedAt": "2026-06-05T16:06:12Z",
   "comments": [
     {
       "id": "IC_kwDOQ106188AAAABE6YI3A",
@@ -232,6 +232,21 @@
       "reactionGroups": [],
       "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/66#issuecomment-4626556170",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFCvPkA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nNo changes were committed to [`agent/rubrics`](https://github.com/augmented-mind/augmented-mind.github.io/tree/agent/rubrics) from PR #66.\n\nDone. Both rubrics are valid YAML.\n\n## Summary\n\nAdded **2 new rubrics** (no `/rubrics/` existed before — this initialized it), learned from trusted admin contributor **lolipopshock** (verified `admin` permission, also the PR merger and run requester) across issue #65 and PR #66:\n\n1. **`coding_workflow/no-fabricated-content.yaml`** — Ground site content in provided/authoritative sources, never fabricate. Anchored to lolipopshock flagging the agent-drafted livestream description as hallucinated (\"the main content is not correct (I think you've hallucinated this!)\") and supplying the real arXiv link and announcement thread. (severity: should, weight: 6)\n\n2. **`coding_style/reuse-existing-design.yaml`** — Generalize existing components instead of duplicating. Anchored to lolipopshock asking to \"adapt the design of episode pages... for the live stream page,\" which drove the PR's `isEpisodePage → isSeriesPage` generalization and `EpisodeCarousel` reuse. (severity: should, weight: 4)\n\n**Skipped** as one-off/non-durable: the header light-color tweak, removing guests on the index page, and the sidebar-scroll Option-A choice. Bot-authored review findings (e.g., the prettier/test-plan inaccuracy) were treated as advisory only since no trusted contributor endorsed them.\n\n---\n`claude` | `default` | `medium` | `GitHub Actions 1000001745`",
+      "createdAt": "2026-06-05T16:09:06Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/66#issuecomment-4633382800",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-06-04T17:28:43Z",
@@ -286,7 +301,7 @@
     },
     {
       "path": "quartz/styles/custom.scss",
-      "additions": 55,
+      "additions": 56,
       "deletions": 9,
       "changeType": "MODIFIED"
     }
@@ -300,7 +315,7 @@
       "color": "0e8a16"
     }
   ],
-  "mergedAt": null,
+  "mergedAt": "2026-06-05T16:06:12Z",
   "number": 66,
   "reviewDecision": "",
   "reviews": [
@@ -320,8 +335,8 @@
       }
     }
   ],
-  "state": "OPEN",
+  "state": "MERGED",
   "title": "Add Livestreams section reusing episode page design",
-  "updatedAt": "2026-06-05T05:05:54Z",
+  "updatedAt": "2026-06-05T16:09:06Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/66"
 }
