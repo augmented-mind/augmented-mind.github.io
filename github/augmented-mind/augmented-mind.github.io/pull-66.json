@@ -285,15 +285,9 @@
       "changeType": "ADDED"
     },
     {
-      "path": "quartz/styles/base.scss",
-      "additions": 8,
-      "deletions": 0,
-      "changeType": "MODIFIED"
-    },
-    {
       "path": "quartz/styles/custom.scss",
-      "additions": 2,
-      "deletions": 1,
+      "additions": 55,
+      "deletions": 9,
       "changeType": "MODIFIED"
     }
   ],
@@ -328,6 +322,6 @@
   ],
   "state": "OPEN",
   "title": "Add Livestreams section reusing episode page design",
-  "updatedAt": "2026-06-05T04:45:33Z",
+  "updatedAt": "2026-06-05T05:05:54Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/66"
 }
