@@ -232,6 +232,7 @@ a {
       z-index: 1;
       grid-area: grid-sidebar-left;
       flex-direction: column;
+      overflow-y: auto;
       @media all and ($mobile) {
         gap: 0;
         align-items: center;
