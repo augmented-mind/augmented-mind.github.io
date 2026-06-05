@@ -232,7 +232,14 @@ a {
       z-index: 1;
       grid-area: grid-sidebar-left;
       flex-direction: column;
-      overflow-y: auto;
+
+      & > .sidebar-series-sections {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        align-self: stretch;
+      }
+
       @media all and ($mobile) {
         gap: 0;
         align-items: center;

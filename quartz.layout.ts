@@ -43,6 +43,17 @@ const livestreamsCarousel = Component.EpisodeCarousel({
   linkToMore: "livestreams/" as SimpleSlug,
 })
 
+// Scrollable desktop sidebar group; keeps title/search pinned while the series lists scroll.
+const sidebarSeriesSections = Component.Flex({
+  className: "sidebar-series-sections",
+  direction: "column",
+  gap: "1.2rem",
+  components: [
+    { Component: episodesSection, shrink: false, align: "stretch" },
+    { Component: livestreamsSection, shrink: false, align: "stretch" },
+  ],
+})
+
 // Subscribe links for podcast platforms
 const subscribeLinks = Component.SubscribeLinks({
   rss: "https://anchor.fm/s/10dbf5b7c/podcast/rss",
@@ -68,8 +79,7 @@ const left = [
       ],
     }),
   ),
-  Component.DesktopOnly(episodesSection),
-  Component.DesktopOnly(livestreamsSection),
+  Component.DesktopOnly(sidebarSeriesSections),
 ]
 
 // components shared across all pages
