@@ -15,6 +15,7 @@ type FlexConfig = {
   direction?: "row" | "row-reverse" | "column" | "column-reverse"
   wrap?: "nowrap" | "wrap" | "wrap-reverse"
   gap?: string
+  className?: string
 }
 
 export default ((config: FlexConfig) => {
@@ -25,7 +26,11 @@ export default ((config: FlexConfig) => {
 
     return (
       <div
-        class={classNames(props.displayClass, "flex-component")}
+        class={classNames(
+          props.displayClass,
+          "flex-component",
+          ...(config.className ? [config.className] : []),
+        )}
         style={`flex-direction: ${direction}; flex-wrap: ${wrap}; gap: ${gap};`}
       >
         {config.components.map((c) => {

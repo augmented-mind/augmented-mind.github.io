@@ -51,18 +51,22 @@ body {
   letter-spacing: -0.02em;
 }
 
-body[data-slug^="episodes/"] {
+body[data-slug^="episodes/"],
+body[data-slug^="livestreams/"] {
   --episode-card-bg: var(--light);
   --episode-card-header-bg: var(--light);
 }
 
-body[data-slug^="episodes/"] .page > #quartz-body .center {
+body[data-slug^="episodes/"] .page > #quartz-body .center,
+body[data-slug^="livestreams/"] .page > #quartz-body .center {
   background: var(--episode-card-bg);
 }
 
-body[data-slug^="episodes/"] .sidebar.left {
+body[data-slug^="episodes/"] .sidebar.left,
+body[data-slug^="livestreams/"] .sidebar.left {
   .page-title,
-  .flex-component:has(.search) {
+  .flex-component:has(.search),
+  & > .sidebar-series-sections {
     background: var(--episode-card-bg);
   }
 }
@@ -80,21 +84,25 @@ body[data-slug^="episodes/"] .sidebar.left {
 }
 
 @media all and ($mobile) {
-  body[data-slug^="episodes/"] .page > #quartz-body .sidebar.left {
+  body[data-slug^="episodes/"] .page > #quartz-body .sidebar.left,
+  body[data-slug^="livestreams/"] .page > #quartz-body .sidebar.left {
     background: var(--episode-card-bg);
   }
 }
 
-body[data-slug^="episodes/"] .sidebar {
+body[data-slug^="episodes/"] .sidebar,
+body[data-slug^="livestreams/"] .sidebar {
   .backlinks,
   .toc,
   .graph,
-  .recent-notes {
+  .recent-notes,
+  &.left > .sidebar-series-sections {
     background: var(--episode-card-bg);
   }
 }
 
-body[data-slug^="episodes/"] .explorer {
+body[data-slug^="episodes/"] .explorer,
+body[data-slug^="livestreams/"] .explorer {
   background: var(--episode-card-bg);
 }
 
@@ -181,6 +189,44 @@ body[data-slug^="episodes/"] .explorer {
       0 1px 2px rgba(0, 0, 0, 0.03),
       0 2px 8px rgba(0, 0, 0, 0.02);
     border: 1px solid var(--lightgray);
+  }
+}
+
+.sidebar.left > .sidebar-series-sections {
+  flex: 0 1 auto;
+  max-height: min(42rem, calc(100vh - 16rem));
+  min-height: 0;
+  overflow-y: auto;
+  align-self: stretch;
+  box-sizing: border-box;
+  background: var(--light);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.03),
+    0 2px 8px rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--lightgray);
+
+  .recent-notes {
+    display: block;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  & > div:first-child .recent-notes > h3 {
+    margin-top: 0;
+  }
+
+  & > div + div::before {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 0;
+    margin: 0 0 1.1rem;
+    border-top: 1px solid var(--lightgray);
   }
 }
 
@@ -430,7 +476,8 @@ body:not([data-slug="index"]) {
   .sidebar .recent-notes,
   .explorer,
   .sidebar.left .page-title,
-  .sidebar.left .flex-component:has(.search) {
+  .sidebar.left .flex-component:has(.search),
+  .sidebar.left > .sidebar-series-sections {
     box-shadow: none;
   }
 }
