@@ -193,7 +193,8 @@ body[data-slug^="livestreams/"] .explorer {
 }
 
 .sidebar.left > .sidebar-series-sections {
-  flex: 1 1 auto;
+  flex: 0 1 auto;
+  max-height: min(42rem, calc(100vh - 16rem));
   min-height: 0;
   overflow-y: auto;
   align-self: stretch;
