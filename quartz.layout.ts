@@ -71,6 +71,11 @@ export const sharedPageComponents: SharedLayout = {
         condition: (page) => page.fileData.slug !== "index",
       }),
     ),
+    // Transcript block for episode pages (EN/ZH caption tabs when both exist)
+    Component.ConditionalRender({
+      component: Component.Transcript(),
+      condition: (page) => !!isEpisodePage(page.fileData.slug),
+    }),
     // Forum/Comments Section
     // Positioned in afterBody to ensure it appears at the bottom of the main content
     Component.ConditionalRender({
