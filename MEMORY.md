@@ -14,4 +14,4 @@
 - Never fabricate episode/stream description text — ls01.md content was hallucinated and required human correction. Use only source material (issue body, tweets, paper titles) for descriptions.
 - preview.yml concurrency (sepo-preview-<pr#>, cancel-in-progress) must live on deploy/teardown jobs, NOT workflow-level — workflow-level groups let skipped non-preview label runs cancel active previews (PR #66 race).
 - resolve-github-auth call sites must pass the full chain app_id → app_private_key → pat → fallback_token; omitting pat (as PR #68's first pass did) drops Sepo identity in PAT-only fallback configs.
-- Pinning a specific Claude model (e.g. claude-opus-4-8) via ACP needs acpx ≥0.10.0; acpx 0.6.1 only advertised default/opus/haiku and rejected explicit pins — bump acpx rather than adding adapter model-env glue.
+- Keep Claude default pinned to claude-opus-4-8; do NOT downgrade to ACP 'opus' alias (PR #72 closed for this). Pins need acpx ≥0.10.0 (0.6.1 only advertised default/opus/haiku). Resumed sessions advertise only default/opus/haiku, so fix the resume path to surface the pin to ACP — bump acpx, don't add adapter glue or alias fallbacks.
