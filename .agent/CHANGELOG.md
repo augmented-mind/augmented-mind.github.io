@@ -6,6 +6,7 @@
 
 - Codex ACPX runs now use the packaged Codex ACP adapter, normalize GPT-5 reasoning model IDs, avoid duplicate session model flags, and mirror OpenAI credentials into the ACPX Codex auth environment.
 - Provider defaults and model display metadata now expose consistent Codex and Claude model choices while preserving policy overrides and explicit display opt-outs.
+- Claude-backed runs now default to the ACP-advertised `opus` model alias so resumed Sepo sessions do not fail model validation on follow-up implementation runs.
 - Follow-up and answer routing now better distinguish answer-only discussion from authorized changes, preserve review context on resumed answers, and support targeted inline review replies.
 - Hosted OIDC authentication now retries transient broker failures while keeping deterministic auth errors terminal.
 - Onboarding setup check issues are now consistently labeled for agent tracking and stale cleanup.

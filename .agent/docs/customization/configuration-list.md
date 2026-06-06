@@ -38,12 +38,12 @@ title: "Configurations list"
 | `AGENT_COMMITTER_NAME` | Custom commit author name for implementation and PR-fix runs |
 | `AGENT_COMMITTER_EMAIL` | Custom commit author email for implementation and PR-fix runs |
 
-Built-in model defaults are intentionally small and pinned:
+Built-in model defaults are intentionally small and use provider-native model identifiers:
 
 | Provider | Default model |
 |---|---|
 | `codex` | `gpt-5.5` |
-| `claude` | `claude-opus-4-8` |
+| `claude` | `opus` |
 
 Sepo does not maintain a general model catalog. Use `AGENT_MODEL_POLICY` when a repository needs different models, route-specific choices, or reasoning effort overrides.
 
@@ -53,7 +53,7 @@ Sepo does not maintain a general model catalog. Use `AGENT_MODEL_POLICY` when a 
 {
   "providers": {
     "codex": { "model": "gpt-5.5", "reasoning_effort": "xhigh" },
-    "claude": { "model": "claude-opus-4-8", "reasoning_effort": "max" }
+    "claude": { "model": "opus", "reasoning_effort": "max" }
   },
   "route_overrides": {
     "answer": { "provider": "codex", "model": "gpt-5.4-mini", "reasoning_effort": "high" },
