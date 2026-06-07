@@ -6,6 +6,11 @@ const isSeriesPage = (slug?: string) =>
   (slug?.startsWith("episodes/") && slug !== "episodes/index") ||
   (slug?.startsWith("livestreams/") && slug !== "livestreams/index")
 
+// Guest posts render their own title/author header (see Content.tsx), so the
+// default ArticleTitle/ContentMeta are suppressed like series pages.
+const isGuestPost = (slug?: string) =>
+  Boolean(slug?.startsWith("guest-posts/") && slug !== "guest-posts/index")
+
 // Sidebar episodes list (vertical, compact)
 const episodesSection = Component.RecentNotes({
   title: "Episodes",
@@ -43,6 +48,25 @@ const livestreamsCarousel = Component.EpisodeCarousel({
   linkToMore: "livestreams/" as SimpleSlug,
 })
 
+// Sidebar guest posts list (vertical, compact)
+const guestPostsSection = Component.RecentNotes({
+  title: "Guest Posts",
+  limit: 20,
+  showTags: false,
+  filter: (f) => f.slug!.startsWith("guest-posts/") && f.slug! !== "guest-posts/index",
+  linkToMore: "guest-posts/" as SimpleSlug,
+})
+
+// Landing page guest posts carousel (horizontal cards with images)
+const guestPostsCarousel = Component.EpisodeCarousel({
+  title: "Guest Posts",
+  limit: 20,
+  showTags: true,
+  itemNoun: "guest post",
+  filter: (f) => f.slug!.startsWith("guest-posts/") && f.slug! !== "guest-posts/index",
+  linkToMore: "guest-posts/" as SimpleSlug,
+})
+
 // Scrollable desktop sidebar group; keeps title/search pinned while the series lists scroll.
 const sidebarSeriesSections = Component.Flex({
   className: "sidebar-series-sections",
@@ -51,6 +75,7 @@ const sidebarSeriesSections = Component.Flex({
   components: [
     { Component: episodesSection, shrink: false, align: "stretch" },
     { Component: livestreamsSection, shrink: false, align: "stretch" },
+    { Component: guestPostsSection, shrink: false, align: "stretch" },
   ],
 })
 
@@ -97,6 +122,11 @@ export const sharedPageComponents: SharedLayout = {
       component: livestreamsCarousel,
       condition: (page) => page.fileData.slug === "index",
     }),
+    // Show guest posts carousel on index page (in center content area)
+    Component.ConditionalRender({
+      component: guestPostsCarousel,
+      condition: (page) => page.fileData.slug === "index",
+    }),
     Component.ConditionalRender({
       component: Component.GuestSuggestion(),
       condition: (page) => page.fileData.slug === "index",
@@ -112,6 +142,13 @@ export const sharedPageComponents: SharedLayout = {
     Component.MobileOnly(
       Component.ConditionalRender({
         component: livestreamsSection,
+        condition: (page) => page.fileData.slug !== "index",
+      }),
+    ),
+    // On mobile for non-index pages, show guest posts list
+    Component.MobileOnly(
+      Component.ConditionalRender({
+        component: guestPostsSection,
         condition: (page) => page.fileData.slug !== "index",
       }),
     ),
@@ -145,11 +182,14 @@ export const defaultContentPageLayout: PageLayout = {
     // Show date above title on non-index pages
     Component.ConditionalRender({
       component: Component.ContentMeta({ showReadingTime: false }),
-      condition: (page) => page.fileData.slug !== "index" && !isSeriesPage(page.fileData.slug),
+      condition: (page) =>
+        page.fileData.slug !== "index" &&
+        !isSeriesPage(page.fileData.slug) &&
+        !isGuestPost(page.fileData.slug),
     }),
     Component.ConditionalRender({
       component: Component.ArticleTitle(),
-      condition: (page) => !isSeriesPage(page.fileData.slug),
+      condition: (page) => !isSeriesPage(page.fileData.slug) && !isGuestPost(page.fileData.slug),
     }),
     // Show subscribe links only on index page
     Component.ConditionalRender({

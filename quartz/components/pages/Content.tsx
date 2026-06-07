@@ -113,9 +113,13 @@ const Content: QuartzComponent = ({ fileData, tree, cfg }: QuartzComponentProps)
   const title = (fileData.frontmatter?.title as string | undefined) ?? "YouTube video"
   const youtubeUrl = fileData.frontmatter?.youtubeUrl as string | undefined
   const episodeId = (fileData.frontmatter?.episodeId ?? fileData.frontmatter?.streamId) as string | undefined
+  const author = fileData.frontmatter?.author as string | undefined
+  const authorUrl = fileData.frontmatter?.authorUrl as string | undefined
   const isSeriesPage =
     (fileData.slug?.startsWith("episodes/") && fileData.slug !== "episodes/index") ||
     (fileData.slug?.startsWith("livestreams/") && fileData.slug !== "livestreams/index")
+  const isGuestPost =
+    (fileData.slug?.startsWith("guest-posts/") && fileData.slug !== "guest-posts/index") ?? false
   const pageDate = getDate(cfg, fileData)
 
   if (youtubeUrl) {
@@ -137,6 +141,28 @@ const Content: QuartzComponent = ({ fileData, tree, cfg }: QuartzComponentProps)
           {pageDate && <Date date={pageDate} locale={cfg.locale} />}
         </div>
       )}
+      {isGuestPost && (
+        <div class="guest-post-header popover-hint">
+          <div class="guest-post-meta">
+            <span class="guest-post-badge">Guest Post</span>
+            {pageDate && <span class="meta-sep">·</span>}
+            {pageDate && <Date date={pageDate} locale={cfg.locale} />}
+          </div>
+          <h1 class="guest-post-title">{title}</h1>
+          {author && (
+            <div class="guest-post-byline">
+              <span class="guest-post-byline-label">by</span>{" "}
+              {authorUrl ? (
+                <a href={authorUrl} target="_blank" rel="noopener noreferrer">
+                  {author}
+                </a>
+              ) : (
+                <span class="guest-post-author">{author}</span>
+              )}
+            </div>
+          )}
+        </div>
+      )}
       <article class={classString}>{content}</article>
     </>
   )
@@ -144,20 +170,83 @@ const Content: QuartzComponent = ({ fileData, tree, cfg }: QuartzComponentProps)
 
 Content.css = `
 body[data-slug^="episodes/"] .page-header,
-body[data-slug^="livestreams/"] .page-header {
+body[data-slug^="livestreams/"] .page-header,
+body[data-slug^="guest-posts/"] .page-header {
   display: none;
 }
 
 body[data-slug^="episodes/"] .page > #quartz-body .center,
-body[data-slug^="livestreams/"] .page > #quartz-body .center {
+body[data-slug^="livestreams/"] .page > #quartz-body .center,
+body[data-slug^="guest-posts/"] .page > #quartz-body .center {
   padding-top: calc(2rem + 16px);
   overflow: hidden;
 }
 
 @media all and (max-width: 800px) {
   body[data-slug^="episodes/"] .page > #quartz-body .center,
-  body[data-slug^="livestreams/"] .page > #quartz-body .center {
+  body[data-slug^="livestreams/"] .page > #quartz-body .center,
+  body[data-slug^="guest-posts/"] .page > #quartz-body .center {
     padding-top: calc(1.5rem + 16px);
+  }
+}
+
+.guest-post-header {
+  margin: calc(-2rem + 16px) -2rem 1.75rem;
+  padding: 1.1rem 2rem 1.4rem;
+  background: var(--episode-card-header-bg, var(--lightgray));
+  border-bottom: 1px solid var(--lightgray);
+  border-radius: 16px 16px 0 0;
+}
+
+.guest-post-header .guest-post-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--gray);
+  font-size: 0.85rem;
+}
+
+.guest-post-header .guest-post-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.45rem;
+  color: var(--secondary);
+  border: 1px solid var(--secondary);
+  border-radius: 4px;
+}
+
+.guest-post-header .guest-post-title {
+  margin: 0.7rem 0 0.5rem;
+  font-size: 1.85rem;
+  line-height: 1.2;
+}
+
+.guest-post-header .guest-post-byline {
+  color: var(--gray);
+  font-size: 0.95rem;
+}
+
+.guest-post-header .guest-post-byline-label {
+  opacity: 0.8;
+}
+
+.guest-post-header .guest-post-byline a,
+.guest-post-header .guest-post-author {
+  color: var(--secondary);
+  font-weight: 600;
+}
+
+@media all and (max-width: 800px) {
+  .guest-post-header {
+    margin: calc(-1.5rem + 16px) -1.5rem 1.5rem;
+    padding: 0.9rem 1.5rem 1.2rem;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .guest-post-header .guest-post-title {
+    font-size: 1.5rem;
   }
 }
 
