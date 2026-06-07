@@ -1,0 +1,92 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n\n- Change Sepo's built-in Claude model default from the date/version-pinned Claude Code ID `claude-opus-4-8` to the ACP-advertised `opus` alias.\n- Update the provider resolver regression test and Sepo docs/changelog to match.\n\n## Why\n\nFollow-up implementation runs fork/resume the prior answer session. On that resume path, acpx validates requested models against the Claude ACP adapter's advertised model IDs before prompting. In CI the resumed session advertises `default`, `opus`, and `haiku`, so the old default `claude-opus-4-8` caused `/implement` to fail before the agent could run.\n\nUsing `opus` keeps the default on the ACP-native model identifier and avoids relying on Claude Code fresh-session `_meta.claudeCode.options.model` behavior.\n\n## Test plan\n\n- `cd .agent && npm test`\n- Manual resolver check: `DEFAULT_PROVIDER=claude ROUTE=implement GITHUB_OUTPUT=$(mktemp) node .github/actions/resolve-agent-provider/resolve-provider.js` outputs `model=opus`.\n\nFixes the model-selection failure observed on issue #71 follow-up implementation runs.",
+  "closedAt": "2026-06-06T20:57:35Z",
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABFJX52Q",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "Closing: this changed the Claude default to the ACP alias, but the intended fix is to keep the pinned Claude model () and make resumed sessions surface that model to Claude ACP.",
+      "createdAt": "2026-06-06T20:57:34Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/72#issuecomment-4640340441",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFJX6tQ",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "Correction: closing this because it changed the Claude default to the ACP alias. The intended fix is to keep the pinned Claude model `claude-opus-4-8` and make resumed sessions surface that model to Claude ACP.",
+      "createdAt": "2026-06-06T20:57:41Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/72#issuecomment-4640340661",
+      "viewerDidAuthor": false
+    }
+  ],
+  "createdAt": "2026-06-06T20:53:07Z",
+  "files": [
+    {
+      "path": ".agent/CHANGELOG.md",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/customization/configuration-list.md",
+      "additions": 3,
+      "deletions": 3,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/setup/self-hosted-github-action-runner.md",
+      "additions": 1,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/usage/supported-workflows.md",
+      "additions": 1,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/resolve-agent-provider.test.ts",
+      "additions": 1,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/actions/resolve-agent-provider/resolve-provider.js",
+      "additions": 5,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "fix/claude-acp-opus-alias",
+  "labels": [],
+  "mergedAt": null,
+  "number": 72,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "CLOSED",
+  "title": "Use Claude ACP opus alias by default",
+  "updatedAt": "2026-06-06T20:57:41Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/72"
+}

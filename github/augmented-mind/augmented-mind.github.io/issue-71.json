@@ -46,13 +46,13 @@
       "viewerDidAuthor": true
     },
     {
-      "id": "IC_kwDOQ106188AAAABFI2_5Q",
+      "id": "IC_kwDOQ106188AAAABFJ2h5g",
       "author": {
         "login": "lolipopshock"
       },
       "authorAssociation": "CONTRIBUTOR",
-      "body": "@sepo-agent /implement \n",
-      "createdAt": "2026-06-06T17:10:55Z",
+      "body": "@sepo-agent /implement",
+      "createdAt": "2026-06-07T00:00:57Z",
       "includesCreatedEdit": false,
       "isMinimized": false,
       "minimizedReason": "",
@@ -70,36 +70,27 @@
           }
         }
       ],
-      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/71#issuecomment-4639801317",
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/71#issuecomment-4640842214",
       "viewerDidAuthor": false
     },
     {
-      "id": "IC_kwDOQ106188AAAABFI3QAQ",
-      "author": {
-        "login": "sepo-agent-app"
-      },
-      "authorAssociation": "NONE",
-      "body": "**Sepo could not complete the implementation run.**\n\nInspect the workflow logs and retry if appropriate.\n\n---\n`claude` | `default` | `xhigh` | `GitHub Actions 1000001785`",
-      "createdAt": "2026-06-06T17:12:39Z",
-      "includesCreatedEdit": false,
-      "isMinimized": false,
-      "minimizedReason": "",
-      "reactionGroups": [],
-      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/71#issuecomment-4639805441",
-      "viewerDidAuthor": true
-    },
-    {
-      "id": "IC_kwDOQ106188AAAABFJDvxw",
+      "id": "IC_kwDOQ106188AAAABFJ2lOw",
       "author": {
         "login": "lolipopshock"
       },
       "authorAssociation": "CONTRIBUTOR",
-      "body": "> **Sepo could not complete the implementation run.**\n> \n> Inspect the workflow logs and retry if appropriate.\n> \n> ---\n> `claude` | `default` | `xhigh` | `GitHub Actions 1000001785`\n\nWhy did this happen? ",
-      "createdAt": "2026-06-06T18:46:13Z",
+      "body": "> Here's my plan for wiring the guest post into the site. Since you pinged with no extra instructions, I'm staying in **plan-only mode** — I'll wait for your go-ahead (and the answers to the questions at the bottom) before writing code.\n> \n> ## What I found\n> This is a [Quartz v4](https://quartz.jzhao.xyz/) static site. The relevant machinery:\n> \n> * **Episode pages** live in [`content/episodes/*.md`](https://github.com/augmented-mind/augmented-mind.github.io/tree/main/content/episodes) with frontmatter `title`, `episodeId`, `date`, `coverImage`, `youtubeUrl`, `guestOffset`, `tags`.\n> * **Series rendering** is in [`quartz/components/pages/Content.tsx`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/pages/Content.tsx). The `isSeriesPage` check is **hardcoded to the `episodes/` and `livestreams/` prefixes** — it injects the YouTube embed, renders the inline header (`episode-id · title · date`), and hides the default page header. A new content type won't get this styling unless we extend that check.\n> * **Cards / guest name**: [`EpisodeCarousel.tsx`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/EpisodeCarousel.tsx) shows `tags[0]` as the guest name, positioned via `guestOffset`. Carousels + sidebar lists are wired per-section in [`quartz.layout.ts`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz.layout.ts).\n> * **Graph View** ([`quartz/components/Graph.tsx`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/Graph.tsx)) is built from `[[wikilinks]]` / backlinks between pages. So \"reflect on Graph View\" = the post must wikilink to the episode (and ideally an author page), and the episode should link back.\n> * **People pages** ([`content/people/*.md`](https://github.com/augmented-mind/augmented-mind.github.io/tree/main/content/people)) use an `## Appearances` section that wikilinks to episodes — this is the existing pattern for connecting a person into the graph.\n> * **The target post**: discussion [#46](https://github.com/orgs/augmented-mind/discussions/46) by **CongJie-Pan** (\"The Human Measure…\"). It explicitly references **Episode 01** (Omar Shaikh), and embeds 4 images hosted on `hackmd.io` (external hotlinks — fragile, should be localized).\n> \n> ## Proposed approach\n> Create a **dedicated `content/guest-posts/` section** that reuses the episode page chrome but highlights the _external author_ instead of treating them like a team-member guest tag.\n> \n> 1. **Content + slug**: new `content/guest-posts/` folder (slug `guest-posts/`), plus a `guest-posts/index.md` list page. Convert discussion [Guest Post_ CongJie Pan_The Human Measure: AI Needs Personalization Beyond \"One-Size-Fits-All\" #46](https://github.com/orgs/augmented-mind/discussions/46) → `content/guest-posts/the-human-measure.md`. Frontmatter would add an `author` field (e.g. `author: \"CongJie Pan\"`, `authorUrl: https://congjie-pan.github.io/`) and a `coverImage`.\n> 2. **Author highlight**: extend `Content.tsx` `isSeriesPage` (or add a parallel `isGuestPost` branch) so the inline header reads e.g. `GUEST POST · author name · date` with the author styled prominently (distinct from team-member styling). No YouTube embed for posts.\n> 3. **Graph wiring**: add `[[ep01]]` wikilink in the post body where it references Episode 01, and add an `## Appearances`-style backlink. Optionally create `content/people/congjie-pan.md` so the author becomes its own graph node.\n> 4. **Images**: download the 4 hackmd.io images into `quartz/static/guest-posts/` and rewrite the markdown to point at local paths (avoids hotlink breakage + privacy leakage). Same for a cover image.\n> 5. **Discovery**: add a guest-posts sidebar list + landing carousel entry in `quartz.layout.ts`, mirroring the episodes/livestreams pattern.\n> 6. **The \"workflow\" piece**: a small Node script (`scripts/fetch-guest-post.ts`) that takes a discussion number, pulls it via the GitHub GraphQL Discussions API, and scaffolds the markdown + downloads images. Whether this also becomes a GitHub Action (auto-run on a labeled discussion) vs. a manual `npm run fetch-guest-post 46` depends on your answer below.\n> \n> ## Step-by-step execution (once approved)\n> 1. Build the fetch script and run it against [Guest Post_ CongJie Pan_The Human Measure: AI Needs Personalization Beyond \"One-Size-Fits-All\" #46](https://github.com/orgs/augmented-mind/discussions/46) to scaffold the markdown + localize images.\n> 2. Hand-clean the generated markdown (reference list, episode wikilink, frontmatter).\n> 3. Extend `Content.tsx` + `custom.scss` for the guest-post header/author styling.\n> 4. Add author page + episode backlink for graph connectivity.\n> 5. Wire sidebar list + carousel in `quartz.layout.ts`.\n> 6. Build locally (`npx quartz build --serve`), verify the post renders, the author is highlighted, and the node appears connected to EP01 in Graph View.\n> \n> ## Questions before I start\n> 1. **Episode link** — [Guest Post_ CongJie Pan_The Human Measure: AI Needs Personalization Beyond \"One-Size-Fits-All\" #46](https://github.com/orgs/augmented-mind/discussions/46) references **Episode 01 (Omar Shaikh)**. Link the post to `ep01`, correct? Or a different episode?\n> 2. **Workflow scope** — do you want a full **GitHub Action** that auto-publishes when a discussion is labeled (e.g. `guest-post`), or is a **manually-run script** enough for now? (Auto-publishing from discussions adds review/safety considerations I'd want to scope carefully.)\n> 3. **Dedicated place** — is `/guest-posts/` the URL/section you want, surfaced as its own sidebar list + landing carousel like Episodes? Or nested under episodes?\n> 4. **Author node** — OK to create a `content/people/congjie-pan.md` page so the author shows as a distinct Graph node, or just inline byline + external link?\n> 5. **Images** — OK to localize the hackmd.io images into the repo's `static/` (recommended), and do you have a preferred **cover image** for the post's card?\n> \n> `claude` | `default` | `high` | `GitHub Actions 1000001764`\n\n@sepo-agent /implement ",
+      "createdAt": "2026-06-07T00:01:23Z",
       "includesCreatedEdit": false,
       "isMinimized": false,
       "minimizedReason": "",
       "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
         {
           "content": "EYES",
           "users": {
@@ -107,8 +98,66 @@
           }
         }
       ],
-      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/71#issuecomment-4640010183",
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/71#issuecomment-4640843067",
       "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFJ3Odg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo could not complete the implementation run.**\n\nInspect the workflow logs and retry if appropriate.\n\n",
+      "createdAt": "2026-06-07T00:06:29Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/71#issuecomment-4640853622",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFJ3-oA",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /implement",
+      "createdAt": "2026-06-07T00:12:16Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/71#issuecomment-4640865952",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFJ5i1g",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo implementation finished**\n\n- Branch: `agent/implement-issue-71/claude-27077733334`\n- Pull request: https://github.com/augmented-mind/augmented-mind.github.io/pull/73\n\nImplemented issue #71 by adding a dedicated `content/guest-posts/` section and wiring GitHub Discussion #46 (CongJie Pan, \"The Human Measure\") into the site. `Content.tsx` now renders a guest-post header that highlights the external author (badge + title + byline linking to their site) instead of treating them as a team-member guest, reusing the episode page's card chrome; `quartz.layout.ts` suppresses the default title/meta for guest posts and adds a sidebar list + landing-page carousel; `custom.scss` extends the episode card styling to `guest-posts/`. The post links to `[[ep01]]`, which resolves to an internal link so it appears connected to Episode 01 in Graph View (with a matching backlink on the EP01 page). The 4 hackmd.io images were localized into `quartz/static/guest-posts/the-human-measure/`. A reusable importer (`scripts/import-guest-post.mjs`, `npm run import:guest-post`) fetches a discussion via the GraphQL API, downloads its images, and scaffolds the markdown. Verified with a full `quartz build` (clean, 84 files emitted): the post renders with the author-highlight header, no duplicate title, localized images, and a bidirectional graph link to EP01. `tsc` shows only 7 pre-existing errors (0 introduced); new files pass Prettier.\n\n---\n`claude` | `claude-opus-4-8` | `xhigh` | `GitHub Actions 1000001807`",
+      "createdAt": "2026-06-07T00:24:25Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/71#issuecomment-4640891606",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-06-06T06:30:36Z",
@@ -123,6 +172,6 @@
   "number": 71,
   "state": "OPEN",
   "title": "Goal: Wire Guest Post in Discussions to our website",
-  "updatedAt": "2026-06-06T18:46:59Z",
+  "updatedAt": "2026-06-07T00:24:25Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/71"
 }

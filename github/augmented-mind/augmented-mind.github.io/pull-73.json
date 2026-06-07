@@ -1,0 +1,149 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n\nWires the guest post in GitHub Discussion [#46](https://github.com/orgs/augmented-mind/discussions/46) (CongJie Pan — _The Human Measure_) into the website as a new **Guest Posts** content type, connected to Episode 01 in Graph View.\n\n- **Dedicated section**: new `content/guest-posts/` with an index page and the converted post. Surfaced via a sidebar list and a landing-page carousel, mirroring Episodes/Livestreams.\n- **Author-highlighted page**: `quartz/components/pages/Content.tsx` renders a guest-post header (a `Guest Post` badge, the title, and a byline linking to the author's site) that reuses the episode page's card chrome but spotlights the external author rather than a team member. `quartz.layout.ts` suppresses the default title/meta for these pages, and `custom.scss` extends the episode card styling to `guest-posts/`.\n- **Graph View**: the post links to `[[ep01]]`, which resolves to an internal link, so the post node connects to Episode 01 (with a matching backlink on the EP01 page).\n- **Localized images**: the 4 hackmd.io images are downloaded into `quartz/static/guest-posts/the-human-measure/` and referenced by local path (no external hotlinks).\n- **Repeatable workflow**: `scripts/import-guest-post.mjs` (`npm run import:guest-post <discussion#> [--slug ...] [--episode ep01]`) fetches a discussion via the GraphQL API, downloads its images, and scaffolds the markdown for review.\n\n## Verification\n\n- `quartz build` completes cleanly (84 files emitted); the post renders with the author header, no duplicate title, local image paths, and a bidirectional graph link to EP01.\n- `tsc --noEmit` reports only the 7 pre-existing errors present on `main` (none introduced by this change); new files pass `prettier --check`.\n\n## Notes\n\nDefaults chosen in the absence of answers to the earlier planning questions: episode link → EP01 (the post explicitly references it); workflow → a manually-run importer script (no auto-publishing Action, to avoid review/safety concerns); author shown as an inline highlighted byline rather than a separate `people/` node. These are easy to adjust on request.\n\nCloses #71\n",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABFJ5oCQ",
+      "author": {
+        "login": "github-actions"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo preview: https://augmented-mind-augmented-mind-pr-73-42b412.surge.sh",
+      "createdAt": "2026-06-07T00:25:04Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/73#issuecomment-4640892937",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFJ7PaA",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /answer ok this seems to be a good starting point. \r\n\r\nI am thinking about perhaps slightly different direction: \r\n1. can we directly render the content from github (in a way similar to giscus)\r\n2. all the routes can go to something like /forum and it can list the content dynamically \r\n3. we do not need to display the guest post on the main page. ",
+      "createdAt": "2026-06-07T00:38:19Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/73#issuecomment-4640919400",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFJ7m7Q",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Here's my read on the three asks, grounded in how the site actually builds and deploys.\n\n## Context: this is a static site\n\nThe site is **Quartz (SSG)** — [`deploy.yml`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.github/workflows/deploy.yml) runs `npx quartz build` on push to `main` and publishes `public/` to GitHub Pages. Routes are folders under [`content/`](https://github.com/augmented-mind/augmented-mind.github.io/tree/main/content) (e.g. `episodes/`, `livestreams/`), and pages are generated at build time. There's no server at runtime.\n\nThat one fact drives everything below.\n\n## 1. \"Render directly from GitHub, like giscus\"\n\nWorth being precise about *why* giscus can do this: giscus is a **hosted GitHub App backend** (giscus.app) that the [`Comments`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/Comments.tsx) widget loads as an iframe. The static page never touches the GitHub API itself.\n\nA page on *our* static site can't replicate that for arbitrary post bodies, because client-side rendering of Discussions would need the GitHub GraphQL API at runtime, which means a token (can't be safely embedded in a public static bundle), plus rate limits (60/hr unauthenticated per IP) and CORS. So there are two honest models:\n\n- **A — Build-time sync (recommended).** Discussions stay the source of truth; a step/Action fetches them via GraphQL and generates markdown into `content/forum/` *before* `quartz build`. \"Dynamic\" in the sense that the site auto-syncs from GitHub, but you keep Graph View, search, popovers, and SEO. This is essentially generalizing the importer already in this PR ([`scripts/import-guest-post.mjs`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/scripts/import-guest-post.mjs)) from manual → automatic.\n- **B — Runtime client fetch (true giscus-style).** A `/forum` page whose JS calls GitHub at load time. Gets you \"live\" content but needs a hosted proxy/token to be safe, and loses the SSG benefits above (graph, search index, link resolution). Higher effort, more moving parts.\n\nMy recommendation is **A**: it satisfies \"content comes from GitHub\" and \"lists dynamically\" while staying inside the architecture that already exists.\n\n## 2. Everything under `/forum`, listed dynamically\n\nStraightforward under model A. Quartz already has [`FolderContent`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/pages/FolderContent.tsx) which auto-lists a folder's children — so `content/forum/index.md` becomes the dynamic index for free, and each synced discussion lands at `/forum/<slug>`. We'd rename/move the guest-posts concept in this PR to `forum/`.\n\n## 3. Don't show on the main page\n\nEasy and independent of the above — drop the two index-page injections this PR adds in [`quartz.layout.ts`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz.layout.ts): the `guestPostsCarousel` `ConditionalRender` (and we'd reconsider whether the homepage `GuestSuggestion` still belongs).\n\n## Proposed plan (pending your approval)\n\n1. **Rename `guest-posts/` → `forum/`** across content, layout, `Content.tsx`, and `custom.scss`.\n2. **Index page**: use `FolderContent` for `/forum` instead of the bespoke carousel; remove the landing-page carousel + sidebar injections so it's off the homepage (ask 3).\n3. **Sync mechanism**: turn the manual importer into a scheduled GitHub Action (e.g. nightly + manual dispatch) that pulls a designated Discussions category into `content/forum/*.md`, downloads images locally (as it does now), and commits — which retriggers `deploy.yml`. Discussions stay the editable source of truth.\n4. **Keep the per-post header/author chrome** already built in [`Content.tsx`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/pages/Content.tsx); it works the same under `/forum`.\n5. Graph linking (e.g. `[[ep01]]`) stays as-is.\n\nA few questions before I touch code:\n\n- **Which Discussions category** maps to `/forum`? (One dedicated category keeps the sync unambiguous.)\n- **Sync cadence** — scheduled Action committing markdown (my rec), or are you actually after model B's runtime fetch despite the SSG tradeoffs?\n- **Author → markdown**: auto-publish every post in the category, or keep a light review gate (e.g. a label like `approved`) before it syncs to the site?\n\nIf model A + these defaults look right, say the word and I'll restructure this PR accordingly.\n\n---\n`claude` | `claude-opus-4-8` | `high` | `GitHub Actions 1000001811`",
+      "createdAt": "2026-06-07T00:40:57Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/73#issuecomment-4640925421",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-07T00:24:22Z",
+  "files": [
+    {
+      "path": "content/guest-posts/index.md",
+      "additions": 5,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "content/guest-posts/the-human-measure.md",
+      "additions": 101,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "package.json",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz.layout.ts",
+      "additions": 42,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/components/pages/Content.tsx",
+      "additions": 92,
+      "deletions": 3,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/static/guest-posts/the-human-measure/hero.png",
+      "additions": 0,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "quartz/static/guest-posts/the-human-measure/pluralistic-alignment.png",
+      "additions": 0,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "quartz/static/guest-posts/the-human-measure/style-personalization.png",
+      "additions": 0,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "quartz/static/guest-posts/the-human-measure/user-modeling.png",
+      "additions": 0,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "quartz/styles/custom.scss",
+      "additions": 12,
+      "deletions": 6,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "scripts/import-guest-post.mjs",
+      "additions": 149,
+      "deletions": 0,
+      "changeType": "ADDED"
+    }
+  ],
+  "headRefName": "agent/implement-issue-71/claude-27077733334",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": null,
+  "number": 73,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "OPEN",
+  "title": "Wire guest posts from Discussions into a dedicated section",
+  "updatedAt": "2026-06-07T00:40:57Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/73"
+}
