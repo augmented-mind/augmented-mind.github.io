@@ -13,13 +13,13 @@
   "session_bundle_artifact_id": "",
   "session_bundle_artifact_name": "",
   "session_bundle_run_id": "",
-  "bundle_restore_status": "not_available",
+  "bundle_restore_status": "restored_from_fork",
   "last_bundle_restore_error": "",
   "forked_from_thread_key": "augmented-mind/augmented-mind.github.io:issue:71:answer:default",
   "forked_from_acpx_session_id": "d505a2c4-471e-4513-96b7-5c3f2be30632",
-  "last_run_url": "https://github.com/augmented-mind/augmented-mind.github.io/actions/runs/27077502680",
+  "last_run_url": "https://github.com/augmented-mind/augmented-mind.github.io/actions/runs/27077733334",
   "last_comment_url": "",
-  "attempt_count": 2,
+  "attempt_count": 3,
   "created_at": "2026-06-06T17:12:26.104Z",
-  "updated_at": "2026-06-07T00:13:44.355Z"
+  "updated_at": "2026-06-07T00:13:47.428Z"
 }
