@@ -1,0 +1,41 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "body": "We can have sub categories like meetup, etc. And we do not need to name the LIVE as LIVE 01 etc. \n\nWhat do you think? \n\n@sepo-agent /answer ",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABFTkcAg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "I have a clear picture of the architecture. Here's my answer.\n\n---\n\nYes, this is very doable. I dug into how \"livestreams\" is wired up today so we can scope it properly.\n\n## How it works now\n\nThe livestream series is driven by a folder + frontmatter convention, mirrored on the episodes series:\n\n- **Content**: [`content/livestreams/`](https://github.com/augmented-mind/augmented-mind.github.io/tree/main/content/livestreams) — currently just [`ls01.md`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/content/livestreams/ls01.md) (with `streamId: \"LIVE 01\"`) and an `index.md`.\n- **Layout**: [`quartz.layout.ts`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz.layout.ts) defines `livestreamsSection` (sidebar) and `livestreamsCarousel` (landing page), both titled `\"Livestreams\"` and filtered on the `livestreams/` slug prefix.\n- **Rendering**: [`EpisodeCarousel.tsx`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/EpisodeCarousel.tsx#L57-L85), [`RecentNotes.tsx`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/RecentNotes.tsx#L45), and [`Content.tsx`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/pages/Content.tsx#L115-L138) all read `streamId` (falling back from `episodeId`) and render it as a small badge — that's the \"LIVE 01\" label.\n- **Styling**: [`custom.scss`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/styles/custom.scss#L55-L105) and `Content.tsx` target `body[data-slug^=\"livestreams/\"]`.\n\nSo three distinct things map to your request:\n1. **Display label** \"Livestreams\" → \"Special Events\" (titles in `quartz.layout.ts`).\n2. **The \"LIVE 01\" badge** → drop it (stop rendering `streamId`), and optionally show a **sub-category** badge instead (Meetup, etc.).\n3. **The URL/slug** `/livestreams/...` — separate decision (see below).\n\n## Proposed approach\n\n- **Sub-categories**: add a `category` frontmatter field (e.g. `category: \"Meetup\"`) to each event page, and reuse the existing badge slot — render `category` where `streamId` is rendered today. That keeps the visual design identical, just swaps \"LIVE 01\" for \"Meetup\". No new component needed.\n- **Drop numbering**: remove the `streamId` field from content and stop reading it for this series. Episodes keep `episodeId` untouched.\n- **Rename**: change the carousel/section titles and `itemNoun` to \"Special Events\" / \"special event\".\n\n## Step-by-step plan\n\n1. Decide the **slug question** (clarification below) — folder rename vs. display-only.\n2. In `quartz.layout.ts`: rename `livestreamsSection`/`livestreamsCarousel` titles to `\"Special Events\"`, set `itemNoun: \"special event\"`.\n3. Add `category` rendering: update `EpisodeCarousel.tsx`, `RecentNotes.tsx`, and `Content.tsx` to use `frontmatter.category` for the badge on this series (and remove `streamId` from the fallback for it).\n4. Update content: drop `streamId` from `ls01.md`, add `category`, rename `index.md` title (\"All Livestreams\" → \"All Special Events\"), update its body text.\n5. Update slug-targeted CSS in `custom.scss` and `Content.tsx` if we rename the folder.\n6. Build locally (`npx quartz build`) and verify the carousel, sidebar list, and event page render.\n\n## One thing I need from you\n\n**Do you want to change the URL too** (`/livestreams/...` → `/special-events/...`)?\n- **Display-only** (keep the `livestreams/` folder/slug): fastest, zero broken links, but the URL still reads \"livestreams\".\n- **Full rename** (folder → `special-events/`): cleaner, but changes the public URL of [`ls01.md`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/content/livestreams/ls01.md) — I'd want to confirm there are no external links to it first.\n\nAlso: confirm **\"Special Events\"** as the final label, and give me the initial **sub-category list** (Meetup, …) so I can set up the values. Once you pick, I'll implement it.\n\n---\n`claude` | `claude-opus-4-8` | `high` | `GitHub Actions 1000001862`",
+      "createdAt": "2026-06-08T16:18:16Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/74#issuecomment-4651031554",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-08T16:15:39Z",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "number": 74,
+  "state": "OPEN",
+  "title": "Can we rename live stream into something like \"special events\"",
+  "updatedAt": "2026-06-08T16:18:16Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/74"
+}
