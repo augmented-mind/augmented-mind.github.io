@@ -118,8 +118,8 @@ const Content: QuartzComponent = ({ fileData, tree, cfg }: QuartzComponentProps)
   const isSeriesPage =
     (fileData.slug?.startsWith("episodes/") && fileData.slug !== "episodes/index") ||
     (fileData.slug?.startsWith("livestreams/") && fileData.slug !== "livestreams/index")
-  const isGuestPost =
-    (fileData.slug?.startsWith("guest-posts/") && fileData.slug !== "guest-posts/index") ?? false
+  const isForumPost =
+    (fileData.slug?.startsWith("forum/") && fileData.slug !== "forum/index") ?? false
   const pageDate = getDate(cfg, fileData)
 
   if (youtubeUrl) {
@@ -141,7 +141,7 @@ const Content: QuartzComponent = ({ fileData, tree, cfg }: QuartzComponentProps)
           {pageDate && <Date date={pageDate} locale={cfg.locale} />}
         </div>
       )}
-      {isGuestPost && (
+      {isForumPost && (
         <div class="guest-post-header popover-hint">
           <div class="guest-post-meta">
             <span class="guest-post-badge">Guest Post</span>
@@ -171,13 +171,13 @@ const Content: QuartzComponent = ({ fileData, tree, cfg }: QuartzComponentProps)
 Content.css = `
 body[data-slug^="episodes/"] .page-header,
 body[data-slug^="livestreams/"] .page-header,
-body[data-slug^="guest-posts/"] .page-header {
+body[data-slug^="forum/"] .page-header {
   display: none;
 }
 
 body[data-slug^="episodes/"] .page > #quartz-body .center,
 body[data-slug^="livestreams/"] .page > #quartz-body .center,
-body[data-slug^="guest-posts/"] .page > #quartz-body .center {
+body[data-slug^="forum/"] .page > #quartz-body .center {
   padding-top: calc(2rem + 16px);
   overflow: hidden;
 }
@@ -185,7 +185,7 @@ body[data-slug^="guest-posts/"] .page > #quartz-body .center {
 @media all and (max-width: 800px) {
   body[data-slug^="episodes/"] .page > #quartz-body .center,
   body[data-slug^="livestreams/"] .page > #quartz-body .center,
-  body[data-slug^="guest-posts/"] .page > #quartz-body .center {
+  body[data-slug^="forum/"] .page > #quartz-body .center {
     padding-top: calc(1.5rem + 16px);
   }
 }

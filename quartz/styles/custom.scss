@@ -53,20 +53,20 @@ body {
 
 body[data-slug^="episodes/"],
 body[data-slug^="livestreams/"],
-body[data-slug^="guest-posts/"] {
+body[data-slug^="forum/"] {
   --episode-card-bg: var(--light);
   --episode-card-header-bg: var(--light);
 }
 
 body[data-slug^="episodes/"] .page > #quartz-body .center,
 body[data-slug^="livestreams/"] .page > #quartz-body .center,
-body[data-slug^="guest-posts/"] .page > #quartz-body .center {
+body[data-slug^="forum/"] .page > #quartz-body .center {
   background: var(--episode-card-bg);
 }
 
 body[data-slug^="episodes/"] .sidebar.left,
 body[data-slug^="livestreams/"] .sidebar.left,
-body[data-slug^="guest-posts/"] .sidebar.left {
+body[data-slug^="forum/"] .sidebar.left {
   .page-title,
   .flex-component:has(.search),
   & > .sidebar-series-sections {
@@ -89,14 +89,14 @@ body[data-slug^="guest-posts/"] .sidebar.left {
 @media all and ($mobile) {
   body[data-slug^="episodes/"] .page > #quartz-body .sidebar.left,
   body[data-slug^="livestreams/"] .page > #quartz-body .sidebar.left,
-  body[data-slug^="guest-posts/"] .page > #quartz-body .sidebar.left {
+  body[data-slug^="forum/"] .page > #quartz-body .sidebar.left {
     background: var(--episode-card-bg);
   }
 }
 
 body[data-slug^="episodes/"] .sidebar,
 body[data-slug^="livestreams/"] .sidebar,
-body[data-slug^="guest-posts/"] .sidebar {
+body[data-slug^="forum/"] .sidebar {
   .backlinks,
   .toc,
   .graph,
@@ -108,7 +108,7 @@ body[data-slug^="guest-posts/"] .sidebar {
 
 body[data-slug^="episodes/"] .explorer,
 body[data-slug^="livestreams/"] .explorer,
-body[data-slug^="guest-posts/"] .explorer {
+body[data-slug^="forum/"] .explorer {
   background: var(--episode-card-bg);
 }
 

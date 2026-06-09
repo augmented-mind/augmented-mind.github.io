@@ -1,13 +1,13 @@
 #!/usr/bin/env node
-// Scaffold a guest-post page from a GitHub Discussion.
+// Scaffold a forum post page from a GitHub Discussion.
 //
 // Usage:
-//   node scripts/import-guest-post.mjs <discussion-number> [--slug my-post] [--episode ep01]
+//   node scripts/import-forum-post.mjs <discussion-number> [--slug my-post] [--episode ep01]
 //
 // Requires the `gh` CLI (authenticated). It fetches the discussion via the
 // GraphQL API, downloads any embedded images into
-// quartz/static/guest-posts/<slug>/, rewrites the image URLs to local paths,
-// and writes content/guest-posts/<slug>.md with author frontmatter.
+// quartz/static/forum/<slug>/, rewrites the image URLs to local paths,
+// and writes content/forum/<slug>.md with author frontmatter.
 //
 // The generated markdown is a starting point: review the prose, set the
 // `coverImage`, and add a `[[<episode>]]` wikilink so the post connects to its
@@ -71,7 +71,7 @@ function fetchDiscussion(number) {
 }
 
 async function localizeImages(body, slug) {
-  const staticDir = join(repoRoot, "quartz", "static", "guest-posts", slug)
+  const staticDir = join(repoRoot, "quartz", "static", "forum", slug)
   const imageRe = /!\[([^\]]*)\]\((https?:\/\/[^)]+)\)/g
   const matches = [...body.matchAll(imageRe)]
   if (matches.length === 0) return body
@@ -91,7 +91,7 @@ async function localizeImages(body, slug) {
     }
     const buf = Buffer.from(await res.arrayBuffer())
     writeFileSync(join(staticDir, name), buf)
-    const localPath = `/static/guest-posts/${slug}/${name}`
+    const localPath = `/static/forum/${slug}/${name}`
     result = result.replace(`![${alt}](${url})`, `![${alt}](${localPath})`)
     console.log(`  + ${name} (${buf.length} bytes)`)
   }
@@ -109,7 +109,7 @@ function frontmatter(d, slug, episode) {
     `date: ${date}`,
     `author: "${author}"`,
     `authorUrl: "${authorUrl}"`,
-    `coverImage: "/static/guest-posts/${slug}/image-1.png"`,
+    `coverImage: "/static/forum/${slug}/image-1.png"`,
     "guestOffset: 1.275",
     "tags:",
     `  - "${author}"`,
@@ -126,7 +126,7 @@ async function main() {
   const { number, slug: slugArg, episode } = parseArgs(process.argv.slice(2))
   if (!number) {
     console.error(
-      "Usage: node scripts/import-guest-post.mjs <discussion-number> [--slug ...] [--episode ep01]",
+      "Usage: node scripts/import-forum-post.mjs <discussion-number> [--slug ...] [--episode ep01]",
     )
     process.exit(1)
   }
@@ -136,10 +136,10 @@ async function main() {
   console.log(`Slug: ${slug}`)
   const localizedBody = await localizeImages(d.body, slug)
   const md = frontmatter(d, slug, episode) + localizedBody.trim() + "\n"
-  const outPath = join(repoRoot, "content", "guest-posts", `${slug}.md`)
+  const outPath = join(repoRoot, "content", "forum", `${slug}.md`)
   mkdirSync(dirname(outPath), { recursive: true })
   writeFileSync(outPath, md)
-  console.log(`\nWrote content/guest-posts/${slug}.md`)
+  console.log(`\nWrote content/forum/${slug}.md`)
   console.log("Next: review the prose, set coverImage, and add the [[episode]] wikilink.")
 }
 

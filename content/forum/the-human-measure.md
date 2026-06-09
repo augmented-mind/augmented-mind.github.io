@@ -3,13 +3,13 @@ title: 'The Human Measure: AI Needs Personalization Beyond "One-Size-Fits-All"'
 date: 2026-05-17
 author: "CongJie Pan"
 authorUrl: "https://congjie-pan.github.io/"
-coverImage: "/static/guest-posts/the-human-measure/hero.png"
+coverImage: "/static/forum/the-human-measure/hero.png"
 guestOffset: 1.275
 tags:
   - "CongJie Pan"
 ---
 
-![Hero illustration](/static/guest-posts/the-human-measure/hero.png)
+![Hero illustration](/static/forum/the-human-measure/hero.png)
 
 > As the ancient Greek philosopher Protagoras once stated, "Man is the measure of all things." In today's era of rapid AI advancement, this quote reminds us that the true value of technology needs to be measured by how well it connects with real human needs and everyday situations.
 
@@ -37,7 +37,7 @@ But for the designer, the AI switches to an inspiring, storytelling style to spa
 
 > Imagine a campaign centered around the feeling of freedom. We can tell a visual story of a traveler using our product to connect with nature at sunset, paired with the tagline: 'Unleash your journey.'
 
-![Style-level personalization](/static/guest-posts/the-human-measure/style-personalization.png)
+![Style-level personalization](/static/forum/the-human-measure/style-personalization.png)
 
 While this kind of stylistic adaptation makes daily communication much more pleasant, adjusting the outer packaging of an answer is only the first step. To genuinely help a user think and work, the AI needs to overcome what researchers call the "inversion problem". Often, algorithms merely predict surface-level behavior — like how a user prefers to be spoken to — but fail to infer the deeper mental states, such as what the user actually knows, values, and needs. Bridging this gap requires moving beyond interaction style and building true User Modeling ([Kleinberg et al., 2024](https://doi.org/10.1177/17456916231212138)).
 
@@ -49,7 +49,7 @@ To fix this issue (the "grounding gap"), a General User Model slowly builds a de
 
 For example, imagine an AI tutor for a literature class reading _To Kill a Mockingbird_. The AI guides students based on their reading levels. If a beginner sees old 1930s slang, the AI knows they might struggle and quickly explains the words. But for advanced literature students, the AI won't just give a basic plot summary. Instead, it explores the deeper meanings of the book and helps the student debate difficult moral questions.
 
-![Deep user modeling](/static/guest-posts/the-human-measure/user-modeling.png)
+![Deep user modeling](/static/forum/the-human-measure/user-modeling.png)
 
 At the same time, building such a deep model of a person is not only a technical challenge; it also raises humanity questions about privacy, comfort, and control. In education, for example, students and teachers need to agree on simple but important rules:
 
@@ -61,7 +61,7 @@ User Modeling can only work in the long run if people feel that the system is cl
 
 ## 3. Pluralistic Alignment: Respecting Diverse Cultural Values
 
-![Pluralistic alignment](/static/guest-posts/the-human-measure/pluralistic-alignment.png)
+![Pluralistic alignment](/static/forum/the-human-measure/pluralistic-alignment.png)
 
 Finally, AI needs to handle not just different people, but also different cultures and communities. Right now, the safety rules and alignment of most AI models are heavily shaped by Western viewpoints, which often leads to cultural bias and the flattening of non-Western norms ([Tao et al., 2024](https://arxiv.org/abs/2311.14096)). Future models can develop Pluralistic Sensitivity so they can include and respect different voices.
 
