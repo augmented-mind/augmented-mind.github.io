@@ -58,18 +58,98 @@
       "reactionGroups": [],
       "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/73#issuecomment-4640925421",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFYgX_A",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "Can we actually try to implement the idea of \r\n\r\n```\r\n2. Everything under /forum, listed dynamically\r\nStraightforward under model A. Quartz already has [FolderContent](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/pages/FolderContent.tsx) which auto-lists a folder's children — so content/forum/index.md becomes the dynamic index for free, and each synced discussion lands at /forum/<slug>. We'd rename/move the guest-posts concept in this PR to forum/.\r\n```\r\n\r\n@sepo-agent /fix-pr ",
+      "createdAt": "2026-06-09T04:42:49Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/73#issuecomment-4656207868",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFYja2g",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo pushed fixes for this PR.** Branch: `agent/implement-issue-71/claude-27077733334`. Requested by @lolipopshock.\n\n<!-- sepo-agent-fix-pr-status -->\n\nImplements the maintainer's quoted **item 2**: renames the `guest-posts` concept to `forum/`, so `/forum` becomes a dynamic index and each post lands at `/forum/<slug>`.\n\n- **Dynamic `/forum` index for free**: Quartz's `FolderPage` emitter already renders folder `index.md` pages via [`FolderContent`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/pages/FolderContent.tsx) (ContentPage skips `/index` slugs), so `content/forum/index.md` auto-lists children. Verified the built `/forum` page shows a `page-listing` linking to `/forum/the-human-measure`.\n- **Moved** `content/guest-posts/` → `content/forum/`, `quartz/static/guest-posts/` → `quartz/static/forum/`, and `scripts/import-guest-post.mjs` → `import-forum-post.mjs` (via `git mv`, preserving history).\n- **Updated** all slug/path references (`forum/`), titles (“Forum”), variable names (`forumSection`, `forumCarousel`, `isForumPost`), image paths, the npm script (`import:forum-post`), and the importer's output paths.\n- Kept the per-post author header chrome and the Graph link to EP01 (still resolves).\n\n<details><summary>Scope note & verification</summary>\n\nThe `/fix-pr` trigger quoted **only item 2** (rename + dynamic listing), so I left the homepage carousel/sidebar in place (renamed) — removing forum posts from the main page was a separate ask (item 3) not included in this trigger. The podcast-guest helpers (`GuestSuggestion`, `guestOffset`, `guest-criteria`) are unrelated and untouched.\n\n- `quartz build`: clean, 84 files; images resolve to `/static/forum/...`.\n- `tsc --noEmit`: only the 7 pre-existing errors on `main` (none new).\n- `prettier --check`: the 3 flagged files (`quartz.layout.ts`, `Content.tsx`, `custom.scss`) already failed on `HEAD` before this change — no new formatting issues introduced, so I avoided unrelated reformatting churn.\n</details>\n\n---\n`claude` | `claude-opus-4-8` | `xhigh` | `GitHub Actions 1000001882`",
+      "createdAt": "2026-06-09T04:53:26Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/73#issuecomment-4656257754",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFYldOg",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /answer this is not what we expected. we should render the post text directly from github instead of adding a static markdown.",
+      "createdAt": "2026-06-09T05:00:35Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/73#issuecomment-4656291130",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFYmJVw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Got it — you want the post body to live in GitHub Discussions as the single source of truth and be rendered on the page, with no committed `.md` copy. Let me be straight about what that takes on this site, because there's a hard constraint.\n\n## The constraint\n\nThe site is a static Quartz build on GitHub Pages — there's no server at runtime. And the post you're pointing at, [discussion #46](https://github.com/orgs/augmented-mind/discussions/46), is an **org-level Discussion**, which is only readable through GitHub's **GraphQL API, and that requires an auth token**. There's no unauthenticated/public REST endpoint for it.\n\nThat's exactly why giscus works the way it does: the [`Comments`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/Comments.tsx) widget doesn't call GitHub at all — it loads an iframe from **giscus.app**, a hosted GitHub App backend that holds the credentials and proxies the API. The browser never touches a token.\n\nSo \"render the text directly from GitHub in the browser\" can't be done from a static page alone — a token can't be safely embedded in public JS, and there's no anonymous read for org discussions. We need a credentialed middle layer. Two ways to get one:\n\n## Option A — Runtime fetch via a hosted proxy (true giscus-style, \"live\")\n\nStand up a tiny serverless proxy (Cloudflare Worker / Vercel function) that holds a **read-only** token and exposes a CORS-friendly endpoint. A client-side `/forum` script calls *that*, gets `discussion.bodyHTML` (GitHub renders the markdown for us), and injects it.\n\n- ✅ Truly live — edit the discussion, the page reflects it on next load. Nothing committed to the repo.\n- ⚠️ Adds infra **outside** GitHub Pages (a Worker + a stored token + caching to respect rate limits).\n- ⚠️ Content rendered client-side isn't in the static build → no Graph View node, no search index, weaker SEO for those pages.\n\n## Option B — Build-time fetch, nothing committed, rebuild on change\n\nFetch `bodyHTML` from Discussions **during `quartz build`** and generate the `/forum` pages on the fly (transient files, never committed). Keep it fresh by having a Discussion webhook fire `repository_dispatch` to re-run [`deploy.yml`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.github/workflows/deploy.yml).\n\n- ✅ No `.md` committed; Discussions stay the source of truth.\n- ✅ Stays a static page → keeps Graph View, search, popovers, SEO.\n- ✅ No new always-on infra; the token lives in Actions secrets.\n- ⚠️ Updates on a rebuild (seconds–minutes after an edit), not instantly. Not \"browser fetches GitHub live,\" but the *content* is pulled straight from Discussions with nothing duplicated in the repo.\n\n## Which do you want?\n\nThe real fork is **live runtime render (Option A, needs a hosted proxy + accepts losing graph/search on those pages)** vs. **auto-synced static render with no committed markdown (Option B)**. Your \"like giscus\" framing points at A; your concern about static markdown is fully satisfied by either.\n\nA couple of things I need regardless:\n\n- **Which Discussions category** maps to `/forum`, and do all posts in it publish, or is there a gate (e.g. an `approved` label)?\n- For **Option A**, are you OK adding a small hosted proxy (Worker/Vercel) and storing a read-only token there? Without some backend, a static page genuinely can't read org discussions.\n\nTell me A or B and I'll draft the concrete implementation plan against this PR before writing any code.\n\n---\n`claude` | `claude-opus-4-8` | `high` | `GitHub Actions 1000001886`",
+      "createdAt": "2026-06-09T05:03:04Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/73#issuecomment-4656302423",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-06-07T00:24:22Z",
   "files": [
     {
-      "path": "content/guest-posts/index.md",
+      "path": "content/forum/index.md",
       "additions": 5,
       "deletions": 0,
       "changeType": "ADDED"
     },
     {
-      "path": "content/guest-posts/the-human-measure.md",
+      "path": "content/forum/the-human-measure.md",
       "additions": 101,
       "deletions": 0,
       "changeType": "ADDED"
@@ -93,25 +173,25 @@
       "changeType": "MODIFIED"
     },
     {
-      "path": "quartz/static/guest-posts/the-human-measure/hero.png",
+      "path": "quartz/static/forum/the-human-measure/hero.png",
       "additions": 0,
       "deletions": 0,
       "changeType": "ADDED"
     },
     {
-      "path": "quartz/static/guest-posts/the-human-measure/pluralistic-alignment.png",
+      "path": "quartz/static/forum/the-human-measure/pluralistic-alignment.png",
       "additions": 0,
       "deletions": 0,
       "changeType": "ADDED"
     },
     {
-      "path": "quartz/static/guest-posts/the-human-measure/style-personalization.png",
+      "path": "quartz/static/forum/the-human-measure/style-personalization.png",
       "additions": 0,
       "deletions": 0,
       "changeType": "ADDED"
     },
     {
-      "path": "quartz/static/guest-posts/the-human-measure/user-modeling.png",
+      "path": "quartz/static/forum/the-human-measure/user-modeling.png",
       "additions": 0,
       "deletions": 0,
       "changeType": "ADDED"
@@ -123,7 +203,7 @@
       "changeType": "MODIFIED"
     },
     {
-      "path": "scripts/import-guest-post.mjs",
+      "path": "scripts/import-forum-post.mjs",
       "additions": 149,
       "deletions": 0,
       "changeType": "ADDED"
@@ -144,6 +224,6 @@
   "reviews": [],
   "state": "OPEN",
   "title": "Wire guest posts from Discussions into a dedicated section",
-  "updatedAt": "2026-06-07T00:40:57Z",
+  "updatedAt": "2026-06-09T05:03:04Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/73"
 }
