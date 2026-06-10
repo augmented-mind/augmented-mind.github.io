@@ -5,7 +5,7 @@
   },
   "baseRefName": "main",
   "body": "## Summary\n\nAdds Episode 5 of the AM Podcast to the website, following the existing ep03/ep04 patterns.\n\n- **`content/episodes/ep05.md`** — \"It's Our Mathematics: AI, Verification, and the Future of Math with Jeremy Avigad\" (`EP05`, date `2026-06-09`, YouTube `Vh_j64tVGFQ`), with a guest blurb wikilinking to the new profile, a `## Timestamps` section, and a `## References` section (homepage, Lean Theorem Prover paper, Lean projects).\n- **`content/people/jeremy-avigad.md`** — guest profile matching the ken-liu/woosuk-kwon pattern, with `Appearances` linking back to `ep05`, `Key Contributions`, and `Links`.\n- **`quartz/static/covers/EP05-cover.png`** — cover art downloaded from the uploaded issue attachment (1920×1080 PNG, consistent with existing covers).\n\n## Verification\n\n- Confirmed episodes are auto-discovered (no episode-list config to update).\n- Episode and profile cross-link via wikilinks (`[[jeremy-avigad|…]]` ↔ `[[ep05|…]]`), and both targets exist.\n- Cover image verified as a valid 1920×1080 PNG matching the format of EP00–EP04.\n\nCloses #75\n",
-  "closedAt": null,
+  "closedAt": "2026-06-10T06:14:33Z",
   "comments": [
     {
       "id": "IC_kwDOQ106188AAAABFhJ01A",
@@ -203,6 +203,21 @@
       "reactionGroups": [],
       "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/77#issuecomment-4666204836",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFi74pQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nNo changes were committed to [`agent/rubrics`](https://github.com/augmented-mind/augmented-mind.github.io/tree/agent/rubrics) from PR #77.\n\nCreated one new rubric.\n\n**Summary of changes:**\n\nAdded `rubrics/coding_workflow/split-sub-issues-into-stacked-previewable-prs.yml` (first rubric in the repo — `agent/rubrics` branch didn't exist yet).\n\n- **Preference captured:** When a distinct sub-issue surfaces mid-PR, split the fix into a separate/stacked PR (separation of concerns) rather than folding it in — but ensure it ships immediately after the parent and is previewable together with the parent's changes via surge.sh.\n- **Basis:** XenonMolecule (REQUESTED_BY, the approving/merging maintainer who grants implementation permissions) gave this as an explicit, well-reasoned workflow instruction; lolipopshock independently reinforced the stacked-PR structure. `severity: should`, `status: active`.\n\n**Skipped** as one-off/non-durable: the acknowledgments-section request (content-specific to issue #75) and the \"surge.sh instead of local build\" remark (already how the repo's preview works, folded into the rubric's preview clause rather than its own rubric).\n\n---\n`claude` | `claude-opus-4-8` | `medium` | `GitHub Actions 1000001987`",
+      "createdAt": "2026-06-10T06:16:59Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/77#issuecomment-4667144357",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-06-10T00:18:43Z",
@@ -241,12 +256,12 @@
       "color": "0e8a16"
     }
   ],
-  "mergedAt": null,
+  "mergedAt": "2026-06-10T06:14:33Z",
   "number": 77,
   "reviewDecision": "",
   "reviews": [],
-  "state": "OPEN",
+  "state": "MERGED",
   "title": "Add Episode 5: Jeremy Avigad (Lean, AI for Math)",
-  "updatedAt": "2026-06-10T04:28:11Z",
+  "updatedAt": "2026-06-10T06:16:59Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/77"
 }

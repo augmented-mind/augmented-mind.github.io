@@ -3,9 +3,9 @@
     "is_bot": true,
     "login": "app/sepo-agent-app"
   },
-  "baseRefName": "agent/implement-issue-75/claude-27244386885",
+  "baseRefName": "main",
   "body": "## Summary\n\nFixes the handwritten guest-name signature overlapping the episode title on carousel cards when a title is long enough to fill both clamped lines (currently only **EP05**). As diagnosed in #77, `.card-title` is clamped to 2 lines and EP05's title fills both, running under the absolutely-positioned `.episode-guest` signature.\n\nThis applies **option 3** (agreed with @XenonMolecule): a subtle frosted backdrop behind the signature so it stays legible over any title length, with no per-episode tuning.\n\n## Change\n\nScoped entirely to `.episode-guest` in [`episodeCarousel.scss`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/styles/episodeCarousel.scss):\n\n- Soft frosted pill — `color-mix(in srgb, var(--light) 82%, transparent)` + `backdrop-filter: blur(3px)` (themed, works in light/dark).\n- `text-shadow` halo in `var(--light)` to lift the glyphs off the title text.\n- Small `padding` + `border-radius` for the pill shape — no heavy badge look, preserves the floating-signature aesthetic.\n\nNo `guestOffset` changes were needed; ep02–ep04 (single-line titles) are visually unaffected.\n\n## Preview / sequencing\n\n- This PR is based on the **EP5 branch** (`agent/implement-issue-75/claude-27244386885`), not `main`, so the surge.sh deploy preview renders EP05 **and** the fix together — the only way to see the long-title card. The diff here is just the `.episode-guest` change.\n- The Sepo preview bot will post the preview URL automatically once the build deploys.\n- After EP5 (#77) merges to `main`, GitHub will auto-retarget this PR to `main` so it ships immediately after.\n\n## Verification\n\n- `quartz build` compiles cleanly; confirmed the new `.episode-guest` rules are present in the emitted `public/index.css`.\n- Visual confirmation of legibility at desktop (300px) and mobile (260px/240px) widths is intended via the attached surge.sh preview.\n\nCloses #78\n",
-  "closedAt": null,
+  "closedAt": "2026-06-10T06:17:09Z",
   "comments": [
     {
       "id": "IC_kwDOQ106188AAAABFhwmbA",
@@ -45,8 +45,8 @@
   "number": 79,
   "reviewDecision": "",
   "reviews": [],
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "Fix guest-name overlap on long-title carousel cards",
-  "updatedAt": "2026-06-10T02:30:28Z",
+  "updatedAt": "2026-06-10T06:17:09Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/79"
 }

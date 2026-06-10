@@ -6,7 +6,7 @@
     "name": "Michael Ryan"
   },
   "body": "@sepo-agent /answer\n\nCan you update the website to include episode 5?  Here are the links and details!!  Please use episodes 1-4 as examples.\n\n**Title:** It's Our Mathematics: AI, Verification, and the Future of Math with Jeremy Avigad | AM Podcast #5\n**Description:** \n\n```\nJeremy Avigad is a professor in the Department of Philosophy and the Department of Mathematical Sciences at Carnegie Mellon University. Jeremy is a pioneer in using AI for Mathematics and the co-creator of the Lean Theorem Prover. Currently, he is the director of the Hoskinson Center for Formal Mathematics at CMU, Dean's Chair in Logic and Philosophy of Mathematics, and the director of the newly-established Institute for Computer-Aided Reasoning in Mathematics under NSF.\n\n\nOutline:\n0:00 - Teaser\n1:04 - Monologue\n2:50 - The Historical Landscape of AI for Mathematics\n7:28 - Formalization and Computer-Aided Proof\n11:56 - The Birth of the Lean Project\n21:21 - Lean Blueprint, Model Training with Lean, Using Lean in Agentic Systems\n29:48 - Making AI Actually Useful for Mathematicians\n32:46 - How AI is Changing Mathematics\n36:29 - \"It's Our Mathematics, and Us Doing Mathematics\"\n43:04 - The Verification Gap in Human-AI Collaboration\n47:46 - The Future of Math Education\n52:23 - Capital, Startups, and the Mathematicians' Ecosystem\n1:01:08 - Predictions\n\nReferences:\nJeremy’s Homepage: https://www.andrew.cmu.edu/user/avigad/\nThe Lean Theorem Prover: https://lean-lang.org/papers/system.pdf\nLean projects: https://leanprover-community.github.io/lean_projects.html\n\n\nPodcast Links:\nPodcast website: https://augmented-mind.github.io/\nApple Podcasts: https://podcasts.apple.com/us/podcast/augmented-mind-podcast/id1868102170\nSpotify: https://open.spotify.com/show/40KculkYTe2tOpqJm6TAYr?si=PU_UncsMT4mXjVNCRwoXog&nd=1&dlsi=6d9bed7a43d64085\nRSS: https://anchor.fm/s/10dbf5b7c/podcast/rss\n\nSpecial Thanks to [Zixiao Jolene Wang](https://zixiaowang17.github.io/) and [Rajarshi Mukherjee](https://hsph.harvard.edu/profile/rajarshi-mukherjee/) for their help with this episode!\n\nAbout the Hosts:\nThe AM Podcast is hosted by Yijia Shao, Shannon Shen, and Michael Ryan, CS PhD students at Stanford University and MIT.\n```\n\n**Youtube:** https://youtu.be/Vh_j64tVGFQ\n**Spotify:** https://open.spotify.com/episode/7GRrw4m3GDq4thvQUff4TV?si=p1QsY_TJSoaUgwAmCoSpbw\n**Apple Podcasts:** https://podcasts.apple.com/us/podcast/its-our-mathematics-ai-verification-and-the-future/id1868102170?i=1000771878436\n",
-  "closedAt": null,
+  "closedAt": "2026-06-10T06:14:34Z",
   "comments": [
     {
       "id": "IC_kwDOQ106188AAAABFhDblw",
@@ -145,8 +145,8 @@
     }
   ],
   "number": 75,
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "Release Episode 5",
-  "updatedAt": "2026-06-10T00:18:46Z",
+  "updatedAt": "2026-06-10T06:14:34Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/75"
 }

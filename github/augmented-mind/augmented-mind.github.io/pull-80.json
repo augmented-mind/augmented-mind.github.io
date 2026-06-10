@@ -21,6 +21,58 @@
       "reactionGroups": [],
       "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/80#issuecomment-4666153113",
       "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFi8QLA",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@lolipopshock I am thinking of merging this.  Should automate our website updates on episode release in the future.  Any thoughts?",
+      "createdAt": "2026-06-10T06:18:04Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/80#issuecomment-4667150380",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFi84Aw",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /answer Would this pipeline break if we ever update an episode title?  Or what if we want to trigger an episode change like fixing a thumbnail?  I assume this wouldn't propagate that change?  This isn't a big deal, but the pipeline actually breaking is a big deal so might be something to flag if it would be brittle.",
+      "createdAt": "2026-06-10T06:19:31Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/80#issuecomment-4667160579",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFi9tFw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Good — your assumption is correct, and the reassuring part is that updates can't *break* the pipeline. Here's the precise behavior:\n\n## Would a title change break it? No.\n\nDetection keys off the **episode number**, not the title. [`findNewEpisode`](https://github.com/augmented-mind/augmented-mind.github.io/blob/pr80/.agent/src/episode-ingest.ts#L123-L128) only returns feed items whose number is **not** already present as a `content/episodes/epNN.md` file ([`getExistingEpisodeNumbers`](https://github.com/augmented-mind/augmented-mind.github.io/blob/pr80/.agent/src/episode-ingest.ts#L104-L117)). The number itself comes from the feed's `<itunes:episode>` tag, with a `#N` / \"episode N\" title fallback ([`parseFeedItems`](https://github.com/augmented-mind/augmented-mind.github.io/blob/pr80/.agent/src/episode-ingest.ts#L80-L101)).\n\nSo if you rename episode 5's title after `ep05.md` exists, the collector sees `5 ∈ existing`, filters it out, and does nothing. No error, no refile. The run is a clean no-op.\n\n## Would a thumbnail fix (or any edit) propagate? No — by design.\n\nThere is **no update/sync path**. The pipeline is strictly *create-once*: it only ever acts on episode numbers that have no `epNN.md` yet. Any edit to an already-ingested episode — cover art, description, links, title — will simply not propagate to the site. Your assumption is exactly right.\n\nThis is reinforced by two independent guards, so even forcing a re-run won't double-file:\n- **File existence** gates detection (above).\n- **Issue-title dedup** in the workflow skips creation if a `Release Episode N` issue exists in **any** state — open *or closed* ([workflow L91-103](https://github.com/augmented-mind/augmented-mind.github.io/blob/pr80/.github/workflows/agent-episode-ingest.yml#L91-L103)).\n\n## The one brittleness worth noting (minor)\n\nThe dedup guard matches on the **exact issue title** `Release Episode N`. The body carries a stable `guid:` marker ([L297](https://github.com/augmented-mind/augmented-mind.github.io/blob/pr80/.agent/src/episode-ingest.ts#L296-L299)), but the workflow doesn't use it for dedup — only the title. So if someone manually renames the filed issue *before* `epNN.md` lands, the next hourly run could refile a duplicate. That's a duplicate-issue annoyance, not a pipeline break, and the file-existence guard closes it permanently once the PR merges.\n\n## Bottom line\n\n- **Title/thumbnail edits won't break the pipeline** — worst case is a silent no-op.\n- **They won't propagate either** — re-publishing an episode's metadata is out of scope here; updating live episode content stays a manual edit (or a future enhancement).\n\nIf you ever *want* update propagation, the natural extension would be a content-hash marker per episode that the collector diffs against the feed — but that's a deliberate feature, not a gap that makes the current design fragile.\n\n---\n`claude` | `claude-opus-4-8` | `high` | `GitHub Actions 1000001993`",
+      "createdAt": "2026-06-10T06:21:31Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/80#issuecomment-4667174167",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-06-10T03:24:44Z",
@@ -65,6 +117,6 @@
   "reviews": [],
   "state": "OPEN",
   "title": "Automate new-episode ingest from podcast RSS feed",
-  "updatedAt": "2026-06-10T03:25:24Z",
+  "updatedAt": "2026-06-10T06:21:31Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/80"
 }
