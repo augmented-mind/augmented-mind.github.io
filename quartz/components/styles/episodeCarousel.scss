@@ -229,6 +229,17 @@
     font-weight: 500;
     font-size: 1rem;
     color: var(--secondary);
+
+    // Frosted pill + halo keep the signature legible where a long title
+    // wraps onto the second clamped line behind it (e.g. EP05).
+    padding: 0.05rem 0.4rem;
+    border-radius: 0.7rem;
+    background: color-mix(in srgb, var(--light) 82%, transparent);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    text-shadow:
+      0 0 4px var(--light),
+      0 0 8px var(--light);
   }
 
   .see-more {
