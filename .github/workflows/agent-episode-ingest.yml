@@ -1,0 +1,112 @@
+name: Agent / Episode Ingest
+
+# Polls the podcast RSS feed and, when a newly published episode is not yet
+# on the website, files a templated `/implement` issue (mirroring #31/#75)
+# so the existing agent-router -> agent-implement pipeline can open the PR.
+#
+# Deterministic collection only: it gathers links (Apple/Spotify via no-auth
+# endpoints, YouTube via yt-dlp) and the cover URL, then hands the judgment
+# work to the agent. No API keys are stored in the repo.
+
+on:
+  schedule:
+    - cron: "17 * * * *" # hourly; offset to avoid top-of-hour congestion
+  workflow_dispatch:
+    inputs:
+      force_episode_number:
+        description: "Override: treat this episode number as new (for testing)."
+        required: false
+        default: ""
+
+permissions:
+  actions: read
+  contents: read
+  issues: write
+  id-token: write # required for GitHub Actions OIDC broker exchange
+
+concurrency:
+  group: agent-episode-ingest-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    if: vars.AGENT_ENABLED != 'false'
+    runs-on: ${{ fromJson(vars.AGENT_RUNS_ON || '["ubuntu-latest"]') }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+          ref: ${{ github.event.repository.default_branch }}
+          token: ${{ github.token }}
+
+      - name: Resolve GitHub auth
+        id: auth
+        uses: ./.github/actions/resolve-github-auth
+        with:
+          app_id: ${{ secrets.AGENT_APP_ID }}
+          app_private_key: ${{ secrets.AGENT_APP_PRIVATE_KEY }}
+          pat: ${{ secrets.AGENT_PAT }}
+          fallback_token: ${{ github.token }}
+
+      - name: Setup agent runtime
+        uses: ./.github/actions/setup-agent-runtime
+
+      - name: Install yt-dlp
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          sudo curl -fsSL \
+            https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp \
+            -o /usr/local/bin/yt-dlp
+          sudo chmod a+rx /usr/local/bin/yt-dlp
+          yt-dlp --version
+
+      - name: Detect new episode
+        id: ingest
+        env:
+          AGENT_HANDLE: ${{ vars.AGENT_HANDLE || '@sepo-agent' }}
+          COVER_OUTPUT: ${{ runner.temp }}/episode-cover.img
+        run: node .agent/dist/cli/episode-ingest.js
+
+      - name: Upload cover artifact
+        if: steps.ingest.outputs.has_new_episode == 'true' && steps.ingest.outputs.cover_path != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: episode-cover
+          path: ${{ steps.ingest.outputs.cover_path }}
+          if-no-files-found: ignore
+
+      - name: File implement issue
+        if: steps.ingest.outputs.has_new_episode == 'true'
+        env:
+          GH_TOKEN: ${{ steps.auth.outputs.token }}
+          REPO: ${{ github.repository }}
+          EPISODE_NUMBER: ${{ steps.ingest.outputs.episode_number }}
+          ISSUE_TITLE: ${{ steps.ingest.outputs.issue_title }}
+          ISSUE_BODY_FILE: ${{ steps.ingest.outputs.issue_body_file }}
+        run: |
+          set -euo pipefail
+
+          # Dedup: skip if an ingest issue for this episode already exists
+          # (open or closed) so the hourly cron does not refile it.
+          existing="$(gh issue list \
+            --repo "$REPO" \
+            --state all \
+            --search "${ISSUE_TITLE} in:title" \
+            --json title \
+            --jq '.[].title')"
+
+          if printf '%s\n' "$existing" | grep -Fxq "$ISSUE_TITLE"; then
+            echo "Issue \"$ISSUE_TITLE\" already exists — skipping."
+            exit 0
+          fi
+
+          url="$(gh issue create \
+            --repo "$REPO" \
+            --title "$ISSUE_TITLE" \
+            --body-file "$ISSUE_BODY_FILE" \
+            --label agent)"
+
+          echo "Filed episode issue: $url"
+          echo "### Filed [$ISSUE_TITLE]($url) for episode $EPISODE_NUMBER" >> "$GITHUB_STEP_SUMMARY"
