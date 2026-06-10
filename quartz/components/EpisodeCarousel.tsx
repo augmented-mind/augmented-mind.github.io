@@ -58,6 +58,7 @@ export default ((userOpts?: Partial<Options>) => {
               const coverImage = (page.frontmatter?.coverImage as string) || DEFAULT_COVER
               const youtubeUrl = page.frontmatter?.youtubeUrl as string | undefined
               const guestOffset = (page.frontmatter?.guestOffset as number) ?? 0
+              const titleLetterSpacing = page.frontmatter?.titleLetterSpacing as string | undefined
 
               // Always jump to the internal episode page when the card is clicked
               const linkUrl = resolveRelative(fileData.slug!, page.slug!)
@@ -89,7 +90,12 @@ export default ((userOpts?: Partial<Options>) => {
                         </span>
                       )}
                     </div>
-                    <h4 class="card-title">{title}</h4>
+                    <h4
+                      class="card-title"
+                      style={titleLetterSpacing ? { letterSpacing: titleLetterSpacing } : undefined}
+                    >
+                      {title}
+                    </h4>
                     {opts.showTags && tags.length > 0 && (
                       <span
                         class="episode-guest"
