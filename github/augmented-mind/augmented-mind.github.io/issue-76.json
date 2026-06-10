@@ -1,0 +1,232 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjE0MjA1MTY2",
+    "is_bot": false,
+    "login": "XenonMolecule",
+    "name": "Michael Ryan"
+  },
+  "body": "**Is your feature request related to a problem? Please describe.**\nWe have to create new PR's for each episode.  It is actually quite simple, but I imagine it could be even easier!!  Our episodes are released to this RSS feed: https://anchor.fm/s/10dbf5b7c/podcast/rss and this YouTube channel: https://www.youtube.com/@Augmented-Mind\n\nBoth the feed and the YouTube video include the full description of the episode.  I imagine there are possibly Spotify and Apple Podcast API's or ways of looking up episode links.  It feels as though once the episode is released to the RSS feed we could trigger a GitHub action to automatically submit a PR to add the episode to our website.\n\n**Describe the solution you'd like**\nWrite a GitHub workflow that automatically triggers on RSS feed update to detect if there is a new episode.  If there is we query the related API's (YouTube, Spotify, Apple Podcasts) to get the episode links and we get the description directly from the RSS feed.  Then we automatically submit a templated PR including the episode information and send it off to sepo for review.\n\n**Describe alternatives you've considered**\nThe main alternative is either (1) manually updating the website ourselves or (2) Creating a PR with the episode info which we currently do.   This is easy, but can you imagine how easy it would be if uploading was the ONLY step in the release pipeline? :) \n\n**Additional context**\nI think everything is included above although at one point we considered several linked together pages on the website so might be useful for us to tag sepo or similar code agents to add proper links to other pages on our website.  This can be done when the PR is created and can serve as the \"intelligence\" layer in this process.\n",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABFhIKfw",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "I noticed that for episode releases we need to upload the thumbnail too.  This should also be possible to download with either RSS feed or YouTube API, but worth explicitly commenting on here as a reminder when we build this pipeline.  It is possible the better pipeline would even be to have the GitHub action collect the important files and write them into an issue which tags sepo-agent to handle the rest.\n\nExample issues created in a similarly formulaic manner: #31  #75 ",
+      "createdAt": "2026-06-10T00:13:45Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/76#issuecomment-4665248383",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFhJf-A",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /answer Could you plan the above feature request and write up a plan for how to implement this?  As a part of the plan can you research the related API's and triage which things I would need to do (human in the loop) and what things you could handle for me as the agent in the loop?",
+      "createdAt": "2026-06-10T00:18:22Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/76#issuecomment-4665270264",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFhKj0w",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "I have what I need. Here's my plan response.\n\n---\n\nThanks Michael — I dug through the RSS feed, the existing episode files, and the agent workflows. Here's a concrete plan with API research and a human-vs-agent triage. **This is plan-only; I haven't written any code — let me know if you want me to proceed.**\n\n## What I found in the codebase\n\nAdding an episode is genuinely simple and fully templated, which makes this very automatable:\n\n- **Episodes are auto-listed from frontmatter** — [`quartz/components/EpisodeCarousel.tsx`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/EpisodeCarousel.tsx) reads `episodeId`, `coverImage`, `youtubeUrl`, `guestOffset`, `tags` straight off each file in [`content/episodes/`](https://github.com/augmented-mind/augmented-mind.github.io/tree/main/content/episodes). There is **no index/list to hand-edit** — dropping a new `epNN.md` is enough.\n- **Per-episode shape** is fixed: see [`content/episodes/ep04.md`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/content/episodes/ep04.md) (frontmatter + intro + `## Timestamps` + `## References`).\n- **Cover images** live in [`quartz/static/covers/`](https://github.com/augmented-mind/augmented-mind.github.io/tree/main/quartz/static/covers) as `EPNN-cover.png`.\n- **Guest pages** are separate notes ([`content/people/ken-liu.md`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/content/people/ken-liu.md)) cross-linked via `[[wikilink]]`.\n- **The \"intelligence layer\" already exists.** Issues [#31](https://github.com/augmented-mind/augmented-mind.github.io/issues/31) and [#75](https://github.com/augmented-mind/augmented-mind.github.io/issues/75) show the exact pattern: a formatted issue → sepo opens the PR. The `/implement` route ([`agent-router.yml`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.github/workflows/agent-router.yml) → [`agent-implement.yml`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.github/workflows/agent-implement.yml)) is what turns such an issue into a PR.\n\n## API research — what each source gives us\n\nI fetched your RSS feed and checked each provider. Key finding: **the RSS feed already contains almost everything except the three external player links.**\n\n| Field needed | Source | Auth required? |\n|---|---|---|\n| Title, full description/outline/references | RSS `<title>` / `<description>` | No |\n| Episode number, date, duration | RSS `itunes:episode`, `pubDate`, `itunes:duration` | No |\n| Cover/thumbnail (high-res JPG) | RSS per-item `itunes:image` | No |\n| Stable dedup key | RSS `<guid>` | No |\n| **Apple Podcasts** episode link | iTunes Lookup API: `itunes.apple.com/lookup?id=1868102170&entity=podcastEpisode` → `trackViewUrl`, matched on `episodeGuid` == RSS guid | **No** |\n| **YouTube** link | Channel uploads feed `youtube.com/feeds/videos.xml?channel_id=…` (match by title/date) | **No** (needs channel_id once) |\n| **Spotify** clean episode link | Web API `GET /v1/shows/40KculkYTe2tOpqJm6TAYr/episodes` → `external_urls.spotify` | **Yes** (Client ID + Secret) |\n\nNotable gaps: the RSS `<link>` is a `podcasters.spotify.com` URL, **not** the clean `open.spotify.com/episode/...` link, and there's no YouTube URL in the feed at all. So Apple is free, YouTube is free via the channel XML feed, and **only Spotify's clean link requires credentials.**\n\n## Proposed approach (matches your follow-up comment)\n\nA **two-stage, issue-first pipeline** — deterministic collection in a workflow, intelligence handled by the existing sepo pipeline:\n\n1. **Collector workflow** (`agent-episode-ingest.yml`, scheduled cron — RSS has no webhook GitHub can subscribe to). A small Node script under [`.agent`](https://github.com/augmented-mind/augmented-mind.github.io/tree/main/.agent) (consistent with the existing CLI there) that:\n   - polls the RSS feed, computes new-episode detection by comparing `guid`/episode-number against existing `content/episodes/*.md`;\n   - on a new episode, parses description + metadata, queries Apple (no auth) + YouTube channel feed (no auth) [+ Spotify if secrets present], downloads the cover image;\n   - opens a **templated `/implement` issue** in the exact #31/#75 format with all links and the cover attached/referenced.\n2. **Existing sepo pipeline** takes that issue and does the judgment work it already does: write `content/episodes/epNN.md` modeled on ep01–ep04, create/update the guest `content/people/*.md` page, add cross-links, commit the cover as `EPNN-cover.png`, and open the PR for human review.\n\nIssue-first (vs. the workflow opening the PR directly) keeps the deterministic part dumb and reuses sepo as the \"intelligence layer\" you described — and you still get the PR review as the final gate.\n\n## Triage: human-in-the-loop vs. agent-in-the-loop\n\n**You (one-time setup / decisions):**\n- Confirm trigger cadence (recommend hourly cron; episodes publish infrequently).\n- Provide the **YouTube channel ID** for `@Augmented-Mind` (one lookup — I can fetch it).\n- Decide whether the Spotify clean link is worth credentials. If yes: create a Spotify developer app and add `SPOTIFY_CLIENT_ID` / `SPOTIFY_CLIENT_SECRET` repo secrets. If no, we ship with YouTube + Apple and leave Spotify blank/manual.\n- **Review and merge** each auto-generated PR (timestamps and links are the things worth a human glance).\n\n**Me / the automation (recurring, no human):**\n- Detect new episodes, parse RSS, query Apple + YouTube (and Spotify if configured), download the thumbnail.\n- File the formatted `/implement` issue.\n- Generate the episode markdown + guest page + cross-links + cover, and open the PR.\n\n## Step-by-step execution plan\n\n1. Add `.agent/.../episode-ingest.ts` (+ unit test, since [`test-scripts.yml`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.github/workflows/test-scripts.yml) runs `.agent` tests): RSS parse + dedup + Apple/YouTube lookups + cover download.\n2. Add `.github/workflows/agent-episode-ingest.yml` (cron + `workflow_dispatch`) that runs the script and creates the issue (guarded with `GH_TOKEN`, per the workflow lint).\n3. Define the issue template body mirroring #31/#75 so the existing `/implement` route consumes it cleanly.\n4. (Optional) Wire Spotify behind the secrets, no-op'd if unset.\n5. Test end-to-end via `workflow_dispatch` against the already-published episode 5, confirm the generated PR matches ep04's structure.\n\n## Questions before I build\n\n1. **Cron cadence** — hourly OK, or do you prefer a manual `workflow_dispatch` + scheduled fallback?\n2. **Spotify** — worth setting up the developer-app secrets, or ship YouTube + Apple now and add Spotify later?\n3. **Issue-first vs. PR-direct** — I recommend issue-first (reuses sepo as the intelligence layer); confirm that's what you want.\n\nIf you approve the issue-first approach and answer those three, I'll start implementing.\n\n---\n`claude` | `claude-opus-4-8` | `high` | `GitHub Actions 1000001928`",
+      "createdAt": "2026-06-10T00:22:12Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/76#issuecomment-4665287635",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFhnHdg",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent Okay nice exploration but have some thoughts.\n1. Cron cadence -- to me this depends on if we have to pay for GitHub workflows or not.  I think this is a public repo so we may not.  Also how do other services subscribe to RSS feeds?  Is everything on a poll-based model?  Either way if it is free, then hourly is fine since the pre-check will probably be cheap.  If we have to pay I would consider switching to once per day.  Please explore and let me know with this.\n2. Spotify -- is it possible to scrape the link from here: https://open.spotify.com/show/40KculkYTe2tOpqJm6TAYr?trackId=4BBKXNzJ5JeKhWUAg4NZ1x == That is our \"show\" page and the latest episode should just pop up there.\n3. Issue-first vs. PR-direct -- Issue-first with a /implement permission for sepo-agent feels right to me :)\n\nAlso the YouTube channel is indeed  @Augmented-Mind so that is correct.  Let me know if there is anything else you want from me!",
+      "createdAt": "2026-06-10T01:57:36Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/76#issuecomment-4665755510",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFhoFSg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "All three questions answered, with a nice surprise on Spotify. Here's what I found.\n\n---\n\nGreat questions — I tested all three rather than guessing. Good news: **two of the three external links need no credentials at all**, including Spotify.\n\n## 1. Billing & the RSS subscription model\n\n- **Cost:** This is a public repo, and GitHub Actions is **free with unlimited minutes on standard runners for public repositories** — billing only applies to private repos (beyond the free tier) or larger/self-hosted runners. So an **hourly** cron costs nothing. The pre-check is also genuinely cheap: one `curl` of the feed + a string compare against existing `content/episodes/*.md`, exiting in seconds when there's nothing new.\n- **Is everything poll-based?** Mostly, but not entirely. The push standard is **WebSub (a.k.a. PubSubHubbub)**, and I checked — **your feed actually advertises a hub**: `<atom:link rel=\"hub\" href=\"https://pubsubhubbub.appspot.com/\"/>`. The catch is that consuming a push requires a **public HTTPS callback URL** to receive the ping, which a GitHub repo doesn't have. You'd need a tiny relay (a serverless function that converts the WebSub ping into a GitHub `repository_dispatch`) to go fully event-driven. Not worth it for a low-frequency podcast.\n- **Recommendation:** **hourly cron** (`schedule:` + a manual `workflow_dispatch` for testing). It's free, simple, and near-instant on the no-op path. We can always bolt on the WebSub relay later if you ever want zero-latency.\n\n## 2. Spotify — solved without credentials 🎉\n\nScraping the **show page** you linked won't work: it's fully client-side rendered (I pulled 112 KB of HTML and there are zero episode links in it — Spotify loads them via JS after page load). The `?trackId=4BBKXNzJ5JeKhWUAg4NZ1x` you saw *is* the episode id, but it's injected by JS, not present in the raw HTML.\n\n**However** — Spotify's **embed endpoint is server-rendered** and exposes the latest episode id directly:\n\n```\nhttps://open.spotify.com/embed/show/40KculkYTe2tOpqJm6TAYr\n```\n\nI fetched it (12 KB) and its embedded `__NEXT_DATA__` contains `spotify:episode:7GRrw4m3GDq4thvQUff4TV` — which is **exactly episode 5's id** (matches the Spotify link in issue #75). We just extract that id and build `https://open.spotify.com/episode/{id}`. Since the pipeline fires when a new episode appears (and the new one is always the latest), this is reliable.\n\n**Net: no Spotify developer app, no secrets needed.** That removes the only credential requirement from my earlier plan.\n\n## 3. Issue-first + `/implement`\n\nConfirmed — that's the design. The collector workflow files a templated issue in the #31/#75 format and tags sepo with `/implement`; the existing [`agent-router`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.github/workflows/agent-router.yml) → [`agent-implement`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.github/workflows/agent-implement.yml) pipeline does the content writing and opens the PR for your review.\n\n## One new wrinkle: YouTube reliability\n\nThe no-auth YouTube channel feed (`youtube.com/feeds/videos.xml?channel_id=UCBmSWsvdWuhWO8TUjPDaeyA` — I resolved your channel ID) **returned 404 then 500 from the Actions runner IP**. That's Google throttling datacenter IP ranges, not a bad URL. So the free feed works from a browser but is flaky from CI. Two options:\n\n- **(a) Retry-with-backoff on the free feed** — zero setup, but an episode could occasionally land with the YouTube link missing (sepo would flag it for you to add).\n- **(b) YouTube Data API v3 + a `YOUTUBE_API_KEY` secret** — rock-solid, well within the free quota, but it's the **one** one-time secret you'd create (Google Cloud project → enable API → key → add as repo secret).\n\nThis is now the **only** thing that might need you. Everything else (RSS, Apple via the no-auth iTunes Lookup API, Spotify via the embed endpoint, cover image, description) the agent handles with no credentials.\n\n## Updated triage\n\n| Source | How | Auth? |\n|---|---|---|\n| Title / description / outline / episode # / date / cover | RSS feed | None |\n| Apple Podcasts link | iTunes Lookup API, matched on guid | None |\n| **Spotify** link | `open.spotify.com/embed/show/…` → `__NEXT_DATA__` | **None** ✅ |\n| YouTube link | channel feed (flaky from CI) **or** Data API key | None / 1 secret |\n\n**You:** just decide YouTube **(a)** vs **(b)**, then review/merge each PR.\n**Agent:** detect, parse, fetch all three links, download cover, file the `/implement` issue, then write the episode page + guest page + cross-links + PR.\n\n---\n\nSo the only open decision is **YouTube (a) retry-the-free-feed vs (b) add an API key**. Tell me which, and I'll start building (Node ingest script under `.agent` with a unit test + the `agent-episode-ingest.yml` workflow). Want me to proceed?\n\n---\n`claude` | `claude-opus-4-8` | `high` | `GitHub Actions 1000001936`",
+      "createdAt": "2026-06-10T02:01:06Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/76#issuecomment-4665771338",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFhu0_g",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent Okay, I did some research and I think the YouTube videos.xml thing breaks because we are a small channel.  It works for larger channels, but our trust score or similar might not be high enough.  Can you do some research to see if FreeTube is an option for getting this since all we need is the video url?  Ideally the RSS feed gives us everything else we need.  I basically want to avoid API keys in the repo as much as possible but will get you the API key for the Youtube API if that is truly the only reliable and valid solution.  Let me know.",
+      "createdAt": "2026-06-10T02:23:57Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/76#issuecomment-4665881854",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFhvnqw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Tested both. Here's the verdict — **you won't need an API key.**\n\n## FreeTube specifically\n\nFreeTube itself is a **desktop Electron app**, so it can't run inside a GitHub workflow. But your instinct is right: it gets video data **without any API key**, and it does so by building on two things we *can* use programmatically — `youtubei.js` (the \"InnerTube\" private API YouTube's own clients use) and Invidious. So the useful answer is \"yes, the tech behind FreeTube is an option,\" and I tested the practical forms of it:\n\n## What I tested from this exact runner\n\n- **`yt-dlp` ✅ works perfectly, no key.** One command listed your channel's latest uploads with titles + URLs:\n  ```\n  It's Our Mathematics... | https://youtu.be/Vh_j64tVGFQ   (ep5 ✓)\n  The Privacy Layer...    | https://youtu.be/rFyHnK7PGrY   (ep4 ✓)\n  A User-Centric Perspective... | https://youtu.be/TRiiPw-M2Pw\n  ```\n  Those IDs match the YouTube links in issues #75 and #31 exactly. yt-dlp is a single, heavily-maintained package (`pip install yt-dlp`), handles YouTube's bot-gating that breaks the raw `videos.xml` feed, and runs fine from CI. It also gives us **titles**, so we can match the new RSS episode to the right video instead of blindly grabbing \"latest.\"\n- **`youtubei.js` (the Node lib FreeTube uses)** — installed fine, but my quick channel-fetch returned empty (likely InnerTube bot-gating the datacenter IP). Inconclusive, and it'd be more fragile to maintain than yt-dlp.\n- **Invidious public instances** — exist and are keyless, but they're frequently rate-limited or down. Not reliable enough to depend on.\n\n## Recommendation\n\n**Use `yt-dlp` in the ingest workflow. No API key, nothing stored in the repo** — which meets your \"avoid keys\" goal *and* is reliable (it's the proven solution your `videos.xml` 404 was missing). Matching logic: take the new episode's title from the RSS feed, find the channel video whose title matches, fall back to the most recent upload if needed.\n\nSo the final tally is **zero credentials**: RSS (everything textual + cover), Apple via iTunes Lookup, Spotify via the embed endpoint, YouTube via yt-dlp. The API key you offered stays in your pocket as a backup only if YouTube ever hard-blocks yt-dlp from CI.\n\nIf that sounds good, I'll start building: a Node ingest script under `.agent` (RSS parse + dedup + Apple/Spotify/yt-dlp lookups + cover download) with a unit test, plus the `agent-episode-ingest.yml` hourly-cron workflow that files the `/implement` issue. Want me to proceed?\n\n---\n`claude` | `claude-opus-4-8` | `high` | `GitHub Actions 1000001946`",
+      "createdAt": "2026-06-10T02:26:45Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/76#issuecomment-4665894827",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFh74vA",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent Yes please proceed!  Looking forward to reviewing!",
+      "createdAt": "2026-06-10T03:12:11Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/76#issuecomment-4666095804",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFh8Q1w",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "I triaged this as a `implement` request.\n\nI'll set up a tracking issue to build the RSS-triggered episode ingest pipeline (Node script + hourly cron workflow) for your approval.\n\nReply with:\n\n```text\n@sepo-agent /approve req-6402e5\n```\n\nto start the implementation workflow.\n\n<!-- sepo-agent-request base64:eyJyb3V0ZSI6ImltcGxlbWVudCIsInNvdXJjZV9raW5kIjoiaXNzdWVfY29tbWVudCIsInRhcmdldF9raW5kIjoiaXNzdWUiLCJ0YXJnZXRfbnVtYmVyIjo3NiwidGFyZ2V0X3VybCI6Imh0dHBzOi8vZ2l0aHViLmNvbS9hdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW8vaXNzdWVzLzc2Iiwid29ya2Zsb3ciOiJhZ2VudC1pbXBsZW1lbnQueW1sIiwicmVxdWVzdF9pZCI6InJlcS02NDAyZTUiLCJyZXF1ZXN0X3RleHQiOiJAc2Vwby1hZ2VudCBZZXMgcGxlYXNlIHByb2NlZWQhICBMb29raW5nIGZvcndhcmQgdG8gcmV2aWV3aW5nISIsImlzc3VlX3RpdGxlIjoiQXV0b21hdGUgbmV3LWVwaXNvZGUgaW5nZXN0OiBSU1MtdHJpZ2dlcmVkIGNvbGxlY3RvciArIC9pbXBsZW1lbnQgaXNzdWUiLCJpc3N1ZV9ib2R5IjoiIyMgR29hbFxuXG5CdWlsZCBhbiBhdXRvbWF0ZWQgcGlwZWxpbmUgdGhhdCBkZXRlY3RzIG5ldyBwb2RjYXN0IGVwaXNvZGVzIGZyb20gdGhlIFtBbmNob3IgUlNTIGZlZWRdKGh0dHBzOi8vYW5jaG9yLmZtL3MvMTBkYmY1YjdjL3BvZGNhc3QvcnNzKSBhbmQgZmlsZXMgYSB0ZW1wbGF0ZWQgYC9pbXBsZW1lbnRgIGlzc3VlIHNvIHNlcG8gY2FuIG9wZW4gYSBQUiBhZGRpbmcgdGhlIGVwaXNvZGUgdG8gdGhlIHdlYnNpdGUuIEFwcHJvdmVkIGJ5IEBYZW5vbk1vbGVjdWxlIGluIFtpc3N1ZSAjNzZdKGh0dHBzOi8vZ2l0aHViLmNvbS9hdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW8vaXNzdWVzLzc2KS5cblxuIyMgRGVzaWduIChhZ3JlZWQgaW4gIzc2KVxuXG4tICoqSXNzdWUtZmlyc3QsIHR3by1zdGFnZSBwaXBlbGluZS4qKiBBIGRldGVybWluaXN0aWMgY29sbGVjdG9yIHdvcmtmbG93IGZpbGVzIGEgZm9ybWF0dGVkIGAvaW1wbGVtZW50YCBpc3N1ZSAobWlycm9yaW5nIFsjMzFdKGh0dHBzOi8vZ2l0aHViLmNvbS9hdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW8vaXNzdWVzLzMxKSAvIFsjNzVdKGh0dHBzOi8vZ2l0aHViLmNvbS9hdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW8vaXNzdWVzLzc1KSk7IHRoZSBleGlzdGluZyBbYGFnZW50LXJvdXRlcmBdKGh0dHBzOi8vZ2l0aHViLmNvbS9hdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW8vYmxvYi9tYWluLy5naXRodWIvd29ya2Zsb3dzL2FnZW50LXJvdXRlci55bWwpIOKGkiBbYGFnZW50LWltcGxlbWVudGBdKGh0dHBzOi8vZ2l0aHViLmNvbS9hdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW8vYmxvYi9tYWluLy5naXRodWIvd29ya2Zsb3dzL2FnZW50LWltcGxlbWVudC55bWwpIHBpcGVsaW5lIHdyaXRlcyB0aGUgZXBpc29kZSBwYWdlIGFuZCBvcGVucyB0aGUgUFIgZm9yIGh1bWFuIHJldmlldy5cbi0gKipaZXJvIGNyZWRlbnRpYWxzKiog4oCUIG5vIEFQSSBrZXlzIHN0b3JlZCBpbiB0aGUgcmVwbzpcbiAgLSBSU1MgZmVlZCDihpIgdGl0bGUsIGZ1bGwgZGVzY3JpcHRpb24vb3V0bGluZS9yZWZlcmVuY2VzLCBlcGlzb2RlIG51bWJlciwgZGF0ZSwgZHVyYXRpb24sIGNvdmVyIGltYWdlLCBkZWR1cCBgZ3VpZGAuXG4gIC0gQXBwbGUgUG9kY2FzdHMgbGluayDihpIgaVR1bmVzIExvb2t1cCBBUEkgKGBpdHVuZXMuYXBwbGUuY29tL2xvb2t1cD9pZD0xODY4MTAyMTcwJmVudGl0eT1wb2RjYXN0RXBpc29kZWApLCBtYXRjaGVkIG9uIGBlcGlzb2RlR3VpZGAuXG4gIC0gU3BvdGlmeSBsaW5rIOKGkiBzZXJ2ZXItcmVuZGVyZWQgZW1iZWQgZW5kcG9pbnQgYG9wZW4uc3BvdGlmeS5jb20vZW1iZWQvc2hvdy80MEtjdWxrWVRlMnRPcHFKbTZUQVlyYCwgZXh0cmFjdCBlcGlzb2RlIGlkIGZyb20gYF9fTkVYVF9EQVRBX19gLCBidWlsZCBgb3Blbi5zcG90aWZ5LmNvbS9lcGlzb2RlL3tpZH1gLlxuICAtIFlvdVR1YmUgbGluayDihpIgKipgeXQtZGxwYCoqIChubyBrZXk7IHJlc29sdmVkIGNoYW5uZWwgYEBBdWdtZW50ZWQtTWluZGApLCBtYXRjaCB0aGUgbmV3IFJTUyBlcGlzb2RlIHRpdGxlIHRvIHRoZSBjaGFubmVsIHVwbG9hZCwgZmFsbCBiYWNrIHRvIGxhdGVzdC5cbi0gKipUcmlnZ2VyOioqIGhvdXJseSBgc2NoZWR1bGU6YCBjcm9uICsgYHdvcmtmbG93X2Rpc3BhdGNoYCAoZnJlZSB1bmxpbWl0ZWQgQWN0aW9ucyBtaW51dGVzIG9uIHRoaXMgcHVibGljIHJlcG87IGNoZWFwIG5vLW9wIHByZS1jaGVjaykuXG5cbiMjIEFjY2VwdGFuY2UgY3JpdGVyaWFcblxuLSBbIF0gTm9kZSBpbmdlc3Qgc2NyaXB0IHVuZGVyIGAuYWdlbnRgIHRoYXQ6IHBvbGxzIHRoZSBSU1MgZmVlZCwgZGV0ZWN0cyBuZXcgZXBpc29kZXMgYnkgY29tcGFyaW5nIGBndWlkYC9lcGlzb2RlLW51bWJlciBhZ2FpbnN0IGV4aXN0aW5nIFtgY29udGVudC9lcGlzb2Rlcy8qLm1kYF0oaHR0cHM6Ly9naXRodWIuY29tL2F1Z21lbnRlZC1taW5kL2F1Z21lbnRlZC1taW5kLmdpdGh1Yi5pby90cmVlL21haW4vY29udGVudC9lcGlzb2RlcyksIHBhcnNlcyBtZXRhZGF0YSArIGRlc2NyaXB0aW9uLCBxdWVyaWVzIEFwcGxlICsgU3BvdGlmeSArIFlvdVR1YmUgKHl0LWRscCkgbGlua3MsIGFuZCBkb3dubG9hZHMgdGhlIGNvdmVyIGltYWdlLlxuLSBbIF0gVW5pdCB0ZXN0IGZvciB0aGUgc2NyaXB0IChjb25zaXN0ZW50IHdpdGggW2B0ZXN0LXNjcmlwdHMueW1sYF0oaHR0cHM6Ly9naXRodWIuY29tL2F1Z21lbnRlZC1taW5kL2F1Z21lbnRlZC1taW5kLmdpdGh1Yi5pby9ibG9iL21haW4vLmdpdGh1Yi93b3JrZmxvd3MvdGVzdC1zY3JpcHRzLnltbCkgcnVubmluZyBgLmFnZW50YCB0ZXN0cykuXG4tIFsgXSBgLmdpdGh1Yi93b3JrZmxvd3MvYWdlbnQtZXBpc29kZS1pbmdlc3QueW1sYCAoaG91cmx5IGNyb24gKyBgd29ya2Zsb3dfZGlzcGF0Y2hgKSB0aGF0IHJ1bnMgdGhlIHNjcmlwdCBhbmQsIG9uIGEgbmV3IGVwaXNvZGUsIGZpbGVzIGEgdGVtcGxhdGVkIGAvaW1wbGVtZW50YCBpc3N1ZSB3aXRoIGFsbCBsaW5rcyBhbmQgdGhlIGNvdmVyIHJlZmVyZW5jZWQsIGluIHRoZSAjMzEvIzc1IGZvcm1hdC5cbi0gWyBdIHl0LWRscCBtYXRjaGluZyBmYWxscyBiYWNrIGdyYWNlZnVsbHkgKGZsYWcgbWlzc2luZyBZb3VUdWJlIGxpbmsgcmF0aGVyIHRoYW4gZmFpbCkgaWYgbm8gdGl0bGUgbWF0Y2guXG4tIFsgXSBFbmQtdG8tZW5kIHZlcmlmaWVkIHZpYSBgd29ya2Zsb3dfZGlzcGF0Y2hgIGFnYWluc3QgdGhlIGFscmVhZHktcHVibGlzaGVkIGVwaXNvZGUgNTsgZ2VuZXJhdGVkIGlzc3VlL1BSIG1hdGNoZXMgW2BlcDA0Lm1kYF0oaHR0cHM6Ly9naXRodWIuY29tL2F1Z21lbnRlZC1taW5kL2F1Z21lbnRlZC1taW5kLmdpdGh1Yi5pby9ibG9iL21haW4vY29udGVudC9lcGlzb2Rlcy9lcDA0Lm1kKSBzdHJ1Y3R1cmUuXG5cbiMjIE5vdGVzXG5cbi0gQ292ZXIgaW1hZ2VzIGxpdmUgaW4gW2BxdWFydHovc3RhdGljL2NvdmVycy9gXShodHRwczovL2dpdGh1Yi5jb20vYXVnbWVudGVkLW1pbmQvYXVnbWVudGVkLW1pbmQuZ2l0aHViLmlvL3RyZWUvbWFpbi9xdWFydHovc3RhdGljL2NvdmVycykgYXMgYEVQTk4tY292ZXIucG5nYC5cbi0gRXBpc29kZXMgYXJlIGF1dG8tbGlzdGVkIGZyb20gZnJvbnRtYXR0ZXIgYnkgW2BFcGlzb2RlQ2Fyb3VzZWwudHN4YF0oaHR0cHM6Ly9naXRodWIuY29tL2F1Z21lbnRlZC1taW5kL2F1Z21lbnRlZC1taW5kLmdpdGh1Yi5pby9ibG9iL21haW4vcXVhcnR6L2NvbXBvbmVudHMvRXBpc29kZUNhcm91c2VsLnRzeCkg4oCUIG5vIGluZGV4IHRvIGhhbmQtZWRpdC5cbi0gWW91VHViZSBEYXRhIEFQSSBrZXkgcmVtYWlucyBhIGJhY2t1cCBvbmx5IGlmIHl0LWRscCBpcyBldmVyIGhhcmQtYmxvY2tlZCBmcm9tIENJLiJ9 -->\n\n| Approved by | Action | Tracking |\n|---|---|---|\n| @XenonMolecule | `implement` via `agent-implement.yml` | [approval run](https://github.com/augmented-mind/augmented-mind.github.io/actions/runs/27250627583) |\n\n<!-- sepo-agent-approved -->\n",
+      "createdAt": "2026-06-10T03:13:36Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/76#issuecomment-4666101975",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFh8YWA",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /approve req-6402e5",
+      "createdAt": "2026-06-10T03:14:04Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/76#issuecomment-4666103896",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFh_Owg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo implementation finished**\n\n- Branch: `agent/implement-issue-76/claude-27250638822`\n- Pull request: https://github.com/augmented-mind/augmented-mind.github.io/pull/80\n- Approval: https://github.com/augmented-mind/augmented-mind.github.io/issues/76#issuecomment-4666103896\n\nImplemented the RSS-triggered episode-ingest pipeline approved in issue #76. Added a dependency-free library `.agent/src/episode-ingest.ts` (RSS parsing, lowest-missing-episode detection vs. `content/episodes/epNN.md`, HTML-description-to-text, and zero-credential link extraction: Apple via iTunes Lookup matched on guid, Spotify via the server-rendered embed `__NEXT_DATA__`, YouTube via yt-dlp), a CLI orchestrator `.agent/src/cli/episode-ingest.ts` that fetches sources, downloads the cover, and emits Action outputs (every lookup degrades gracefully), a 10-case unit test with an RSS fixture, and the hourly-cron `.github/workflows/agent-episode-ingest.yml` that files a templated `@sepo-agent /implement` issue (`Release Episode N`, deduped by title). Verified: `.agent` build clean, full suite green (723 tests), and a live end-to-end dry run against the real feed produced YouTube/Spotify/Apple links and a 3000×3000 cover identical to what was hand-filed in #75. Workflow YAML, gh-token lint, and diff hygiene all pass.\n\n---\n`claude` | `claude-opus-4-8` | `xhigh` | `GitHub Actions 1000001955`",
+      "createdAt": "2026-06-10T03:24:47Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/76#issuecomment-4666150594",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-10T00:05:28Z",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAACUV7FjQ",
+      "name": "enhancement",
+      "description": "New feature or request",
+      "color": "a2eeef"
+    },
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "number": 76,
+  "state": "OPEN",
+  "title": "Automatically Ingest new episodes with RSS / Youtube API integration",
+  "updatedAt": "2026-06-10T03:24:47Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/76"
+}

@@ -1,0 +1,39 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "body": "## Goal\n\nFix the guest-name signature overlapping the episode title on the EP05 carousel card by applying a small per-episode title letter-spacing override, so the word \"verification\" reflows up onto the first title line and the clamped title no longer fills both lines under the absolutely-positioned `.episode-guest` signature.\n\nThis is an alternative approach to the backdrop fix tracked in #78, requested by @lolipopshock as a separate stacked PR for side-by-side preview comparison.\n\n## Context\n\nThe overlap was diagnosed on [PR #77](https://github.com/augmented-mind/augmented-mind.github.io/pull/77): in [`EpisodeCarousel.tsx`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/EpisodeCarousel.tsx), `.card-title` (`<h4>`) is `-webkit-line-clamp: 2` and EP05's long title — \"It's Our Mathematics: AI, Verification, and the Future of Math with Jeremy Avigad\" — fills both clamped lines, running under the floating handwritten guest signature (`.episode-guest`, `position: absolute; bottom`). EP05 is the only episode with a title long enough to fill 2 full lines.\n\nThe component already supports a per-episode `guestOffset` frontmatter knob (read at [EpisodeCarousel.tsx:60](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/EpisodeCarousel.tsx#L60)); this task adds a similar per-episode knob for card-title letter-spacing.\n\n## Approach\n\n- Add an optional per-episode frontmatter field (e.g. `titleLetterSpacing`) read in `EpisodeCarousel.tsx` and applied as an inline `letter-spacing` style on the `.card-title` `<h4>` (mirroring how `guestOffset` is applied to `.episode-guest`). When unset, render no override so all other cards are unaffected.\n- Set a small negative value (e.g. `-0.02em`, tuned to taste) in [`content/episodes/ep05.md`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/content/episodes/ep05.md) frontmatter so \"verification\" tucks onto the first line and the title fits without overlapping the guest signature.\n- Keep the change scoped to EP05 frontmatter plus the minimal component/SCSS plumbing for the new knob.\n\n## Sequencing / preview\n\n- Open this as a **stacked PR based on the EP5 branch** (`agent/implement-issue-75/claude-27244386885`, the head of PR #77), NOT `main`, so the surge.sh per-PR deploy preview renders EP05 together with the fix — the only way to verify the long-title card.\n- After EP05 (#77) merges to `main`, retarget/rebase this fix onto `main`.\n\n## Acceptance criteria\n\n- [ ] EP05 carousel card title no longer overlaps the guest signature; \"verification\" sits on the first title line.\n- [ ] Guest signature is legible on the EP05 card at desktop (300px) and mobile (260px/240px) widths.\n- [ ] No visual regression on ep02–ep04 cards (override is opt-in per episode).\n- [ ] Change scoped to a per-episode title letter-spacing knob plus the EP05 frontmatter value.\n- [ ] PR opened against the EP5 branch so the surge.sh preview shows both changes together.\n\n---\n\nRequested via issue_comment at https://github.com/augmented-mind/augmented-mind.github.io/pull/77\n",
+  "closedAt": "2026-06-10T04:34:25Z",
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABFiDIwQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo implementation finished**\n\n- Branch: `agent/implement-issue-81/claude-27251430191`\n- Pull request: https://github.com/augmented-mind/augmented-mind.github.io/pull/82\n\nAdded an opt-in per-episode `titleLetterSpacing` frontmatter knob to EpisodeCarousel.tsx, applied as an inline `letter-spacing` style on the `.card-title` <h4> only when set (mirroring the existing `guestOffset` pattern, so all other cards are untouched). Set `titleLetterSpacing: \"-0.02em\"` in content/episodes/ep05.md so the long EP05 title tightens slightly and 'Verification' reflows onto the first line, clearing the 2-line clamp that ran under the floating guest signature. Typecheck via `tsc` could not run as a meaningful check because node_modules is not installed in this environment (all errors are missing-module/JSX-runtime, unrelated to the edit); the change is a 6-line addition matching an established pattern, verified by diff review.\n\n---\n`claude` | `claude-opus-4-8` | `xhigh` | `GitHub Actions 1000001963`",
+      "createdAt": "2026-06-10T03:40:01Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/81#issuecomment-4666214593",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-10T03:37:41Z",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "number": 81,
+  "state": "CLOSED",
+  "title": "Tighten EP05 card title letter-spacing to fix guest overlap",
+  "updatedAt": "2026-06-10T04:34:25Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/81"
+}

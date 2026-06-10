@@ -1,0 +1,70 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n\nImplements the issue-first, zero-credential episode-ingest pipeline agreed in #76. A scheduled collector detects newly published podcast episodes from the [Anchor RSS feed](https://anchor.fm/s/10dbf5b7c/podcast/rss) and files a templated `@sepo-agent /implement` issue (mirroring #31/#75) so the existing `agent-router` → `agent-implement` pipeline opens the website PR for review.\n\n- **`.agent/src/episode-ingest.ts`** — pure, dependency-free logic: parse the feed, detect the lowest-numbered episode not yet under `content/episodes/epNN.md`, convert the HTML description to readable text, and derive external links with **no API keys**:\n  - Apple Podcasts → iTunes Lookup API, matched on `episodeGuid`\n  - Spotify → server-rendered `open.spotify.com/embed/show/...` `__NEXT_DATA__`\n  - YouTube → `yt-dlp` channel listing, title-matched with a most-recent-upload fallback\n- **`.agent/src/cli/episode-ingest.ts`** — fetches the sources, downloads the cover, and emits Action outputs. Every lookup degrades gracefully: a missing link is flagged in the issue rather than failing the run.\n- **`.github/workflows/agent-episode-ingest.yml`** — hourly `schedule` + `workflow_dispatch`; installs `yt-dlp`, runs the collector, dedupes against existing issues by title, and files the `/implement` issue using the resolved agent token so the router picks it up.\n- **`.agent/src/__tests__/episode-ingest.test.ts`** — 10 unit tests over an RSS fixture covering parsing, dedup, description conversion, and link extraction/matching.\n\n## Verification\n\n- `npm run build` clean; full `.agent` suite green (723 tests, including the 10 new ones).\n- Live end-to-end dry run against the real feed detected episode 5 and produced links identical to those hand-filed in #75 — YouTube `Vh_j64tVGFQ`, Spotify `7GRrw4m3GDq4thvQUff4TV`, Apple `i=1000771878436` — plus a 3000×3000 cover download.\n- Workflow YAML parse, `gh`-token lint, and `git diff --check` all pass.\n\n## Notes\n\n- No secrets are stored in the repo. The YouTube Data API key discussed in #76 remains a backup only if `yt-dlp` is ever hard-blocked from CI.\n- The collector is deterministic; the episode page, guest page, cross-links, and cover commit are handled by the existing agent pipeline from the generated issue.\n\nCloses #76\n",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABFh_YmQ",
+      "author": {
+        "login": "github-actions"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo preview: https://augmented-mind-augmented-mind-pr-80-b831c6.surge.sh",
+      "createdAt": "2026-06-10T03:25:24Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/80#issuecomment-4666153113",
+      "viewerDidAuthor": false
+    }
+  ],
+  "createdAt": "2026-06-10T03:24:44Z",
+  "files": [
+    {
+      "path": ".agent/src/__tests__/episode-ingest.test.ts",
+      "additions": 207,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/episode-ingest.ts",
+      "additions": 189,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/episode-ingest.ts",
+      "additions": 299,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".github/workflows/agent-episode-ingest.yml",
+      "additions": 112,
+      "deletions": 0,
+      "changeType": "ADDED"
+    }
+  ],
+  "headRefName": "agent/implement-issue-76/claude-27250638822",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": null,
+  "number": 80,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "OPEN",
+  "title": "Automate new-episode ingest from podcast RSS feed",
+  "updatedAt": "2026-06-10T03:25:24Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/80"
+}

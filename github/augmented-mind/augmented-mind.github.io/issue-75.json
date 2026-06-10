@@ -1,0 +1,152 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjE0MjA1MTY2",
+    "is_bot": false,
+    "login": "XenonMolecule",
+    "name": "Michael Ryan"
+  },
+  "body": "@sepo-agent /answer\n\nCan you update the website to include episode 5?  Here are the links and details!!  Please use episodes 1-4 as examples.\n\n**Title:** It's Our Mathematics: AI, Verification, and the Future of Math with Jeremy Avigad | AM Podcast #5\n**Description:** \n\n```\nJeremy Avigad is a professor in the Department of Philosophy and the Department of Mathematical Sciences at Carnegie Mellon University. Jeremy is a pioneer in using AI for Mathematics and the co-creator of the Lean Theorem Prover. Currently, he is the director of the Hoskinson Center for Formal Mathematics at CMU, Dean's Chair in Logic and Philosophy of Mathematics, and the director of the newly-established Institute for Computer-Aided Reasoning in Mathematics under NSF.\n\n\nOutline:\n0:00 - Teaser\n1:04 - Monologue\n2:50 - The Historical Landscape of AI for Mathematics\n7:28 - Formalization and Computer-Aided Proof\n11:56 - The Birth of the Lean Project\n21:21 - Lean Blueprint, Model Training with Lean, Using Lean in Agentic Systems\n29:48 - Making AI Actually Useful for Mathematicians\n32:46 - How AI is Changing Mathematics\n36:29 - \"It's Our Mathematics, and Us Doing Mathematics\"\n43:04 - The Verification Gap in Human-AI Collaboration\n47:46 - The Future of Math Education\n52:23 - Capital, Startups, and the Mathematicians' Ecosystem\n1:01:08 - Predictions\n\nReferences:\nJeremy’s Homepage: https://www.andrew.cmu.edu/user/avigad/\nThe Lean Theorem Prover: https://lean-lang.org/papers/system.pdf\nLean projects: https://leanprover-community.github.io/lean_projects.html\n\n\nPodcast Links:\nPodcast website: https://augmented-mind.github.io/\nApple Podcasts: https://podcasts.apple.com/us/podcast/augmented-mind-podcast/id1868102170\nSpotify: https://open.spotify.com/show/40KculkYTe2tOpqJm6TAYr?si=PU_UncsMT4mXjVNCRwoXog&nd=1&dlsi=6d9bed7a43d64085\nRSS: https://anchor.fm/s/10dbf5b7c/podcast/rss\n\nSpecial Thanks to [Zixiao Jolene Wang](https://zixiaowang17.github.io/) and [Rajarshi Mukherjee](https://hsph.harvard.edu/profile/rajarshi-mukherjee/) for their help with this episode!\n\nAbout the Hosts:\nThe AM Podcast is hosted by Yijia Shao, Shannon Shen, and Michael Ryan, CS PhD students at Stanford University and MIT.\n```\n\n**Youtube:** https://youtu.be/Vh_j64tVGFQ\n**Spotify:** https://open.spotify.com/episode/7GRrw4m3GDq4thvQUff4TV?si=p1QsY_TJSoaUgwAmCoSpbw\n**Apple Podcasts:** https://podcasts.apple.com/us/podcast/its-our-mathematics-ai-verification-and-the-future/id1868102170?i=1000771878436\n",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABFhDblw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "I've reviewed the episode structure. Here's my plan for adding Episode 5 — I'm in answer-only mode, so I'm laying out exactly what I'd change and flagging the one asset I can't generate.\n\n## What adding an episode involves\n\nEach episode is a Markdown file in [`content/episodes/`](https://github.com/augmented-mind/augmented-mind.github.io/tree/main/content/episodes) with frontmatter (`title`, `episodeId`, `date`, `coverImage`, `youtubeUrl`, `guestOffset`, `tags`), a guest blurb, a `## Timestamps` section, and a `## References` section. The cover art lives in [`quartz/static/covers/`](https://github.com/augmented-mind/augmented-mind.github.io/tree/main/quartz/static/covers). Recent guest episodes ([ep03](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/content/episodes/ep03.md), [ep04](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/content/episodes/ep04.md)) also add a guest profile in [`content/people/`](https://github.com/augmented-mind/augmented-mind.github.io/tree/main/content/people) and link to it via a `[[slug|Name]]` wikilink. Spotify/Apple links are **not** stored per-episode (only `youtubeUrl` is), so those links aren't needed in the file.\n\n## Proposed changes\n\n**1. New file `content/episodes/ep05.md`:**\n\n```markdown\n---\ntitle: \"It's Our Mathematics: AI, Verification, and the Future of Math with Jeremy Avigad\"\nepisodeId: \"EP05\"\ndate: 2026-06-09\ncoverImage: \"/static/covers/EP05-cover.png\"\nyoutubeUrl: \"https://www.youtube.com/watch?v=Vh_j64tVGFQ\"\nguestOffset: 0\ntags:\n  - \"Jeremy Avigad\"\n---\n\n[[jeremy-avigad|Jeremy Avigad]] is a professor in the Department of Philosophy and the Department of Mathematical Sciences at Carnegie Mellon University. Jeremy is a pioneer in using AI for Mathematics and the co-creator of the Lean Theorem Prover. Currently, he is the director of the Hoskinson Center for Formal Mathematics at CMU, Dean's Chair in Logic and Philosophy of Mathematics, and the director of the newly-established Institute for Computer-Aided Reasoning in Mathematics under NSF.\n\n---\n\n## Timestamps\n\n- **0:00** — Teaser\n- **1:04** — Monologue\n- **2:50** — The Historical Landscape of AI for Mathematics\n- **7:28** — Formalization and Computer-Aided Proof\n- **11:56** — The Birth of the Lean Project\n- **21:21** — Lean Blueprint, Model Training with Lean, Using Lean in Agentic Systems\n- **29:48** — Making AI Actually Useful for Mathematicians\n- **32:46** — How AI is Changing Mathematics\n- **36:29** — \"It's Our Mathematics, and Us Doing Mathematics\"\n- **43:04** — The Verification Gap in Human-AI Collaboration\n- **47:46** — The Future of Math Education\n- **52:23** — Capital, Startups, and the Mathematicians' Ecosystem\n- **1:01:08** — Predictions\n\n---\n\n## References\n\n- [Jeremy Avigad's Homepage](https://www.andrew.cmu.edu/user/avigad/)\n- [The Lean Theorem Prover](https://lean-lang.org/papers/system.pdf)\n- [Lean projects](https://leanprover-community.github.io/lean_projects.html)\n\n---\n\n_Subscribe and follow us for more episodes!_\n```\n\n**2. New file `content/people/jeremy-avigad.md`** (matching the ep03/ep04 guest-profile pattern):\n\n```markdown\n---\ntitle: \"Jeremy Avigad\"\ntags:\n  - \"people\"\n  - \"Lean\"\n  - \"Formal Mathematics\"\n---\n\n**Jeremy Avigad** is a professor in the Department of Philosophy and the Department of Mathematical Sciences at **Carnegie Mellon University**, and a pioneer in using AI for mathematics.\n\nHe is the co-creator of the **Lean Theorem Prover**, director of the **Hoskinson Center for Formal Mathematics** at CMU, Dean's Chair in Logic and Philosophy of Mathematics, and director of the newly-established **Institute for Computer-Aided Reasoning in Mathematics** under NSF.\n\n## Appearances\n- [[ep05|EP05: It's Our Mathematics: AI, Verification, and the Future of Math with Jeremy Avigad]]\n\n## Key Contributions\n- **Co-creator of Lean**: A theorem prover and programming language widely used for formal mathematics.\n- **Formal Mathematics**: Leading research on formalization, computer-aided proof, and AI-assisted mathematics.\n\n## Links\n- [Homepage](https://www.andrew.cmu.edu/user/avigad/)\n```\n\n## Two things I need before this can ship\n\n1. **Cover image** — every episode references `quartz/static/covers/EP0X-cover.png`. I can't generate the `EP05-cover.png` artwork from the issue. Please attach it (or point me to it) and I'll add it; otherwise the episode card will render with a broken image.\n2. **Publish date** — not given in the issue. I defaulted to today (`2026-06-09`); confirm or give me the intended date.\n\nIf that looks right, reply with the cover image + date and tell me to implement it (e.g. `@sepo-agent` open a PR), and I'll create the files and the cover asset in a branch.\n\n---\n`claude` | `claude-opus-4-8` | `high` | `GitHub Actions 1000001911`",
+      "createdAt": "2026-06-09T23:59:09Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/75#issuecomment-4665170839",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFhHQiA",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "<img width=\"1920\" height=\"1080\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/bc6b107f-5e0f-4394-b26f-7856182db825\" />\n\nI uploaded the file here!  Let me know if that worked for you.  If not I can upload in another fashion.\n\nThe release date is today! 2026-06-09 released at 6am PST",
+      "createdAt": "2026-06-10T00:10:45Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/75#issuecomment-4665233544",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFhIBgA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "The cover image worked — it downloaded fine (1920×1080 PNG, matching EP03/EP04 exactly). I now have everything needed.\n\n## Confirmed and ready\n\n- ✅ **Cover image** — your upload is accessible, valid, and exactly the right format/dimensions (1920×1080 PNG). It will become `quartz/static/covers/EP05-cover.png`.\n- ✅ **Date** — `2026-06-09`.\n\n## One note on the mode I'm running in\n\nI'm running in **answer-only** mode here, so I can't open the pull request myself from this comment — I can only reply. To actually create the files and commit the cover image in a branch/PR, kick off the implementation flow on this issue, e.g.:\n\n> `@sepo-agent` please implement this — create `content/episodes/ep05.md` and `content/people/jeremy-avigad.md` as drafted above, and add the uploaded cover image as `quartz/static/covers/EP05-cover.png`.\n\nWhen that runs, the exact changes will be:\n\n1. **Add** `content/episodes/ep05.md` (date `2026-06-09`, `youtubeUrl` → `https://www.youtube.com/watch?v=Vh_j64tVGFQ`, timestamps + references as drafted).\n2. **Add** `content/people/jeremy-avigad.md` (guest profile, linked from the episode).\n3. **Add** `quartz/static/covers/EP05-cover.png` (your uploaded image, downloaded from the attachment URL).\n\nEverything is verified and unblocked — just trigger the implement step and I'll produce the PR.\n\n---\n`claude` | `claude-opus-4-8` | `high` | `GitHub Actions 1000001914`",
+      "createdAt": "2026-06-10T00:13:16Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/75#issuecomment-4665246080",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFhIaiA",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent please implement this — create content/episodes/ep05.md and content/people/jeremy-avigad.md as drafted above, and add the uploaded cover image as quartz/static/covers/EP05-cover.png.",
+      "createdAt": "2026-06-10T00:14:34Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/75#issuecomment-4665252488",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFhIxgw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "I triaged this as a `implement` request.\n\nI'll create the Episode 5 files and add the cover image, then open a PR for review.\n\nReply with:\n\n```text\n@sepo-agent /approve req-eacdee\n```\n\nto start the implementation workflow.\n\n<!-- sepo-agent-request base64:eyJyb3V0ZSI6ImltcGxlbWVudCIsInNvdXJjZV9raW5kIjoiaXNzdWVfY29tbWVudCIsInRhcmdldF9raW5kIjoiaXNzdWUiLCJ0YXJnZXRfbnVtYmVyIjo3NSwidGFyZ2V0X3VybCI6Imh0dHBzOi8vZ2l0aHViLmNvbS9hdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW8vaXNzdWVzLzc1Iiwid29ya2Zsb3ciOiJhZ2VudC1pbXBsZW1lbnQueW1sIiwicmVxdWVzdF9pZCI6InJlcS1lYWNkZWUiLCJyZXF1ZXN0X3RleHQiOiJAc2Vwby1hZ2VudCBwbGVhc2UgaW1wbGVtZW50IHRoaXMg4oCUIGNyZWF0ZSBjb250ZW50L2VwaXNvZGVzL2VwMDUubWQgYW5kIGNvbnRlbnQvcGVvcGxlL2plcmVteS1hdmlnYWQubWQgYXMgZHJhZnRlZCBhYm92ZSwgYW5kIGFkZCB0aGUgdXBsb2FkZWQgY292ZXIgaW1hZ2UgYXMgcXVhcnR6L3N0YXRpYy9jb3ZlcnMvRVAwNS1jb3Zlci5wbmcuIiwiaXNzdWVfdGl0bGUiOiJSZWxlYXNlIEVwaXNvZGUgNTogSmVyZW15IEF2aWdhZCAoTGVhbiwgQUkgZm9yIE1hdGgpIiwiaXNzdWVfYm9keSI6IiMjIEdvYWxcbkFkZCBFcGlzb2RlIDUgb2YgdGhlIEFNIFBvZGNhc3QgdG8gdGhlIHdlYnNpdGUsIGZvbGxvd2luZyB0aGUgZXAwMy9lcDA0IHBhdHRlcm5zLlxuXG4jIyBDaGFuZ2VzXG4xLiAqKkFkZCBgY29udGVudC9lcGlzb2Rlcy9lcDA1Lm1kYCoqIHdpdGggZnJvbnRtYXR0ZXIgYW5kIGJvZHk6XG4gICAtIGB0aXRsZWA6IFwiSXQncyBPdXIgTWF0aGVtYXRpY3M6IEFJLCBWZXJpZmljYXRpb24sIGFuZCB0aGUgRnV0dXJlIG9mIE1hdGggd2l0aCBKZXJlbXkgQXZpZ2FkXCJcbiAgIC0gYGVwaXNvZGVJZGA6IFwiRVAwNVwiXG4gICAtIGBkYXRlYDogMjAyNi0wNi0wOVxuICAgLSBgY292ZXJJbWFnZWA6IFwiL3N0YXRpYy9jb3ZlcnMvRVAwNS1jb3Zlci5wbmdcIlxuICAgLSBgeW91dHViZVVybGA6IFwiaHR0cHM6Ly93d3cueW91dHViZS5jb20vd2F0Y2g_dj1WaF9qNjR0VkdGUVwiXG4gICAtIGBndWVzdE9mZnNldGA6IDBcbiAgIC0gYHRhZ3NgOiBbXCJKZXJlbXkgQXZpZ2FkXCJdXG4gICAtIEd1ZXN0IGJsdXJiIGxpbmtpbmcgYFtbamVyZW15LWF2aWdhZHxKZXJlbXkgQXZpZ2FkXV1gLCBhIGAjIyBUaW1lc3RhbXBzYCBzZWN0aW9uLCBhbmQgYSBgIyMgUmVmZXJlbmNlc2Agc2VjdGlvbiAoaG9tZXBhZ2UsIExlYW4gVGhlb3JlbSBQcm92ZXIgcGFwZXIsIExlYW4gcHJvamVjdHMpIGFzIGRyYWZ0ZWQgaW4gdGhlIGlzc3VlIGNvbW1lbnRzLlxuMi4gKipBZGQgYGNvbnRlbnQvcGVvcGxlL2plcmVteS1hdmlnYWQubWRgKiog4oCUIGd1ZXN0IHByb2ZpbGUgbWF0Y2hpbmcgdGhlIGVwMDMvZXAwNCBwYXR0ZXJuLCB3aXRoIEFwcGVhcmFuY2VzIGxpbmtpbmcgYmFjayB0byBgW1tlcDA1fC4uLl1dYCwgS2V5IENvbnRyaWJ1dGlvbnMsIGFuZCBMaW5rcy5cbjMuICoqQWRkIGBxdWFydHovc3RhdGljL2NvdmVycy9FUDA1LWNvdmVyLnBuZ2AqKiDigJQgZG93bmxvYWQgdGhlIHVwbG9hZGVkIGNvdmVyIGltYWdlIGZyb20gdGhlIGlzc3VlIGF0dGFjaG1lbnQgKGh0dHBzOi8vZ2l0aHViLmNvbS91c2VyLWF0dGFjaG1lbnRzL2Fzc2V0cy9iYzZiMTA3Zi01ZTBmLTQzOTQtYjI2Zi03ODU2MTgyZGI4MjUpLCBhIDE5MjB4MTA4MCBQTkcuXG5cbiMjIEFjY2VwdGFuY2UgQ3JpdGVyaWFcbi0gQWxsIHRocmVlIGZpbGVzIGNyZWF0ZWQgd2l0aCBjb250ZW50IG1hdGNoaW5nIHRoZSBkcmFmdHMgaW4gaXNzdWUgIzc1IGNvbW1lbnRzLlxuLSBFcGlzb2RlIGNhcmQgcmVuZGVycyB3aXRoIHRoZSBjb3ZlciBpbWFnZSAobm8gYnJva2VuIGltYWdlKS5cbi0gRXBpc29kZSBhbmQgcGVvcGxlIGZpbGVzIGNyb3NzLWxpbmsgY29ycmVjdGx5IHZpYSB3aWtpbGlua3MuXG4tIEZyb250bWF0dGVyL3N0cnVjdHVyZSBjb25zaXN0ZW50IHdpdGggZXhpc3RpbmcgZXBpc29kZXMgKGVwMDEtZXAwNCkuXG5cbiMjIENvbnRleHRcbkRyYWZ0ZWQgYW5kIGNvbmZpcm1lZCBpbiBpc3N1ZSAjNzUuIERhdGUgY29uZmlybWVkIGFzIDIwMjYtMDYtMDk7IGNvdmVyIGltYWdlIHVwbG9hZGVkIGJ5IFhlbm9uTW9sZWN1bGUgYW5kIHZlcmlmaWVkIGFzIHRoZSBjb3JyZWN0IGZvcm1hdC9kaW1lbnNpb25zLiJ9 -->\n\n| Approved by | Action | Tracking |\n|---|---|---|\n| @XenonMolecule | `implement` via `agent-implement.yml` | [approval run](https://github.com/augmented-mind/augmented-mind.github.io/actions/runs/27244377248) |\n\n<!-- sepo-agent-approved -->\n",
+      "createdAt": "2026-06-10T00:15:45Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/75#issuecomment-4665258371",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFhJFJQ",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /approve req-eacdee",
+      "createdAt": "2026-06-10T00:16:50Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/75#issuecomment-4665263397",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFhJmaw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo implementation finished**\n\n- Branch: `agent/implement-issue-75/claude-27244386885`\n- Pull request: https://github.com/augmented-mind/augmented-mind.github.io/pull/77\n- Approval: https://github.com/augmented-mind/augmented-mind.github.io/issues/75#issuecomment-4665263397\n\nAdded Episode 5 of the AM Podcast following the ep03/ep04 patterns. Created content/episodes/ep05.md (Jeremy Avigad, Lean/AI for Math) with frontmatter, guest blurb wikilinking to the new profile, a Timestamps section, and a References section; created content/people/jeremy-avigad.md guest profile with Appearances, Key Contributions, and Links cross-linking back to ep05; and added quartz/static/covers/EP05-cover.png by downloading the uploaded issue attachment (verified valid 1920x1080 PNG, matching existing covers). Confirmed episodes are auto-discovered (no index/config list to update) and that the wikilinks resolve to existing pages.\n\n---\n`claude` | `claude-opus-4-8` | `xhigh` | `GitHub Actions 1000001922`",
+      "createdAt": "2026-06-10T00:18:46Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/75#issuecomment-4665271915",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-09T23:56:45Z",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "number": 75,
+  "state": "OPEN",
+  "title": "Release Episode 5",
+  "updatedAt": "2026-06-10T00:18:46Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/75"
+}

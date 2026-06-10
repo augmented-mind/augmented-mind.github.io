@@ -1,0 +1,116 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "baseRefName": "agent/implement-issue-75/claude-27244386885",
+  "body": "## Summary\n\nFixes the guest-name signature overlapping the episode title on the EP05 carousel card, using the letter-spacing approach requested in #81 (an alternative to the backdrop fix in #78, intended for side-by-side preview comparison).\n\nEP05's long title — \"It's Our Mathematics: AI, Verification, and the Future of Math with Jeremy Avigad\" — fills both clamped lines of `.card-title` (`-webkit-line-clamp: 2`), running under the absolutely-positioned `.episode-guest` signature. Tightening the title's letter-spacing pulls \"Verification\" up onto the first line so the title no longer fills the area beneath the signature.\n\n## Changes\n\n- **`quartz/components/EpisodeCarousel.tsx`** — added an optional per-episode `titleLetterSpacing` frontmatter field, applied as an inline `letter-spacing` style on the `.card-title` `<h4>` only when set. Mirrors the existing `guestOffset` knob, so cards without the field are unaffected.\n- **`content/episodes/ep05.md`** — set `titleLetterSpacing: \"-0.02em\"` so the title tucks onto the first line and clears the guest signature.\n\n## Verification\n\n- Change is scoped to EP05 frontmatter plus the minimal opt-in component plumbing; ep02–ep04 cards render unchanged (no `titleLetterSpacing` set).\n- `tsc` could not be run as a meaningful check here (`node_modules` is not installed in the CI sandbox); the edit is a small addition following the established `guestOffset` pattern.\n- Please confirm on the surge.sh preview that the EP05 card title no longer overlaps the guest signature at desktop (300px) and mobile (260px/240px) widths, and tune the `-0.02em` value if needed.\n\nCloses #81\n",
+  "closedAt": "2026-06-10T04:28:09Z",
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABFiDSYw",
+      "author": {
+        "login": "github-actions"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo preview: https://augmented-mind-augmented-mind-pr-82-325958.surge.sh",
+      "createdAt": "2026-06-10T03:40:35Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/82#issuecomment-4666217059",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFiEAjw",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "in the ep title \"It's Our Mathematics: AI, Verification, and the Future of Math with Jeremy Avigad\" \r\n\r\ncan you also remove \"with Jeremy Avigad\"\r\n",
+      "createdAt": "2026-06-10T03:42:14Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/82#issuecomment-4666228879",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFiExSw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Done. I removed `with Jeremy Avigad` from the EP05 frontmatter title in [`content/episodes/ep05.md`](https://github.com/augmented-mind/augmented-mind.github.io/blob/agent/implement-issue-81/claude-27251430191/content/episodes/ep05.md), so it now reads:\n\n> It's Our Mathematics: AI, Verification, and the Future of Math\n\nThe guest name still appears via the separate `.episode-guest` signature (rendered from `tags[0]`), so nothing is lost on the card.\n\nOne heads-up: since the title is now much shorter, the `titleLetterSpacing: \"-0.02em\"` tweak this PR added may no longer be needed to clear the overlap. I left it in place for now (it's the comparison approach from #81), but let me know if you'd like me to revert it back to normal spacing — worth checking the preview either way.\n\n---\n`claude` | `claude-opus-4-8` | `high` | `GitHub Actions 1000001967`",
+      "createdAt": "2026-06-10T03:44:33Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/82#issuecomment-4666241355",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFiWsTA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nNo changes were committed to [`agent/rubrics`](https://github.com/augmented-mind/augmented-mind.github.io/tree/agent/rubrics) from PR #82.\n\nThe `agent/rubrics` branch doesn't exist yet, and prior rubrics-update runs (#62, #66, #68) all resulted in no changes. I've reviewed the full PR #82 conversation.\n\n**Decision: no rubric changes**\n\nReasoning:\n- The only substantive human interaction was a single comment from `lolipopshock` asking to remove \"with Jeremy Avigad\" from the EP05 title (since the guest name already renders via the separate `.episode-guest` signature).\n- This is a **one-off content edit** for one specific episode, not a repeated or explicitly-generalized preference. Generalizing it into a durable \"never put guest names in episode titles\" convention from a single data point would be speculative.\n- `lolipopshock` is the de-facto primary operator (merges/reviews agent PRs per memory), but their `author_association` here is `CONTRIBUTOR`, and they did not ask to add/update a rubric — they requested a code change. The run request was the generic \"learn rubrics if warranted.\"\n- The guardrails favor `no rubric changes` for one-off, ambiguous feedback.\n\nNo files were created or modified under `/rubrics/`. **no rubric changes**\n\n---\n`claude` | `claude-opus-4-8` | `medium` | `GitHub Actions 1000001973`",
+      "createdAt": "2026-06-10T04:30:20Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/82#issuecomment-4666534988",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-10T03:39:58Z",
+  "files": [
+    {
+      "path": "content/episodes/ep05.md",
+      "additions": 2,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/components/EpisodeCarousel.tsx",
+      "additions": 7,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "agent/implement-issue-81/claude-27251430191",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    },
+    {
+      "id": "LA_kwDOQ106188AAAACmwL2Xg",
+      "name": "sepo-preview",
+      "description": "Trigger Sepo preview",
+      "color": "5319e7"
+    }
+  ],
+  "mergedAt": "2026-06-10T04:28:09Z",
+  "number": 82,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "MERGED",
+  "title": "Tighten EP05 card title letter-spacing to fix guest overlap",
+  "updatedAt": "2026-06-10T04:30:20Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/82"
+}

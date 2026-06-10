@@ -1,0 +1,252 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n\nAdds Episode 5 of the AM Podcast to the website, following the existing ep03/ep04 patterns.\n\n- **`content/episodes/ep05.md`** — \"It's Our Mathematics: AI, Verification, and the Future of Math with Jeremy Avigad\" (`EP05`, date `2026-06-09`, YouTube `Vh_j64tVGFQ`), with a guest blurb wikilinking to the new profile, a `## Timestamps` section, and a `## References` section (homepage, Lean Theorem Prover paper, Lean projects).\n- **`content/people/jeremy-avigad.md`** — guest profile matching the ken-liu/woosuk-kwon pattern, with `Appearances` linking back to `ep05`, `Key Contributions`, and `Links`.\n- **`quartz/static/covers/EP05-cover.png`** — cover art downloaded from the uploaded issue attachment (1920×1080 PNG, consistent with existing covers).\n\n## Verification\n\n- Confirmed episodes are auto-discovered (no episode-list config to update).\n- Episode and profile cross-link via wikilinks (`[[jeremy-avigad|…]]` ↔ `[[ep05|…]]`), and both targets exist.\n- Cover image verified as a valid 1920×1080 PNG matching the format of EP00–EP04.\n\nCloses #75\n",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABFhJ01A",
+      "author": {
+        "login": "github-actions"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo preview: https://augmented-mind-augmented-mind-pr-77-8c5c52.surge.sh",
+      "createdAt": "2026-06-10T00:19:35Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/77#issuecomment-4665275604",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFhKWJg",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent Can we add in an acknowledgments section for the two people who helped with the episode?  See issue #75 for details.",
+      "createdAt": "2026-06-10T00:21:21Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/77#issuecomment-4665284134",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFhK87Q",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo pushed fixes for this PR.** Branch: `agent/implement-issue-75/claude-27244386885`. Requested by @XenonMolecule.\n\n<!-- sepo-agent-fix-pr-status -->\n\nAdded an **Acknowledgments** section to [`content/episodes/ep05.md`](https://github.com/augmented-mind/augmented-mind.github.io/blob/agent/implement-issue-75/claude-27244386885/content/episodes/ep05.md), addressing @XenonMolecule's request.\n\n- Thanks [Zixiao Jolene Wang](https://zixiaowang17.github.io/) and [Rajarshi Mukherjee](https://hsph.harvard.edu/profile/rajarshi-mukherjee/), the two people credited in issue #75's \"Special Thanks\" line.\n- Placed after `## References` (before the subscribe line), following the existing `---`-separated section pattern.\n\n---\n`claude` | `claude-opus-4-8` | `xhigh` | `GitHub Actions 1000001930`",
+      "createdAt": "2026-06-10T00:23:42Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/77#issuecomment-4665294061",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFhj30g",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "Uh oh\r\n<img width=\"322\" height=\"323\" alt=\"Screenshot 2026-06-09 at 6 42 57 PM\" src=\"https://github.com/user-attachments/assets/fa2db57e-5fba-4360-b39c-36a8f5946c0f\" />\r\n\r\nThe guest name overlaps the title since this episode has a particularly long title.\r\n\r\n@sepo-agent can you brainstorm solutions that will make this look better?  In particular I can think of two worth exploring but use web design skills to consider more.  (1) Cutoff the title earlier.  (2) Move the guest name slightly lower.  Or maybe (3) add some shading/background to the guest name so it is visible on top of the title.  I honestly am not sure which will look best, but flagging this issue to you and seeing if we can create an issue/separate PR to fix that specific sub issue, maybe branching off of this issue.  Reason being separation of concerns from one PR to another, but important that this fix ships immediately after the EP5 release AND that I can preview those changes with the EP5 changes because otherwise I won't know if they actually worked (all other episodes don't have this issue).\r\n",
+      "createdAt": "2026-06-10T01:46:24Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/77#issuecomment-4665702354",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFhkt2A",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "I've traced the issue to the actual mechanism. Here's my brainstorm and proposed plan.\n\n---\n\n## Root cause\n\nThe overlap isn't in the cover art — it's in the **carousel card** rendered by [`EpisodeCarousel.tsx`](https://github.com/augmented-mind/augmented-mind.github.io/blob/agent/implement-issue-75/claude-27244386885/quartz/components/EpisodeCarousel.tsx#L83-L100) and styled in [`episodeCarousel.scss`](https://github.com/augmented-mind/augmented-mind.github.io/blob/agent/implement-issue-75/claude-27244386885/quartz/components/styles/episodeCarousel.scss#L210-L232).\n\nThe card lays out like this:\n- `.card-title` is clamped to **2 lines** (`-webkit-line-clamp: 2`) and flows full-width.\n- `.episode-guest` (the handwritten \"Caveat\" guest name) is `position: absolute; right: 1rem; bottom: 0.6rem` — floated into the bottom-right whitespace, with a per-episode `guestOffset` nudge (`translateY`).\n\nFor short titles (ep02–ep04, `guestOffset: 0`) the 1-line title leaves the bottom-right empty, so the floating signature looks great. **EP05's title is long enough to fill both clamped lines**, so the second line runs straight under the absolutely-positioned guest name → overlap. EP05 is the only episode that fills 2 full lines, which is why no other card breaks.\n\nThis means it's a CSS/layout fix in the shared component, not a per-episode content change (though `guestOffset` is the existing per-episode knob).\n\n## Options (tradeoffs)\n\n| # | Approach | How | Pros | Cons |\n|---|---|---|---|---|\n| **3 ⭐** | **Backdrop behind guest name** (your idea 3) | Add a subtle pill/blur/gradient + `text-shadow` to `.episode-guest` | Works for *any* title length, no per-episode tuning, preserves the floating-signature aesthetic, lowest risk | Slight visual weight added to every card |\n| 1 | **Clamp title to 1 line** (your idea 1) | `-webkit-line-clamp: 1` (all cards, or only long ones) | Guarantees clearance | Loses title info for long episodes; changes every card's look |\n| 2 | **Move guest lower** (your idea 2) | Bump EP05 `guestOffset` + add bottom padding so it sits *below* the title | Minimal, per-episode | Fragile (manual tuning per title), risks clipping at card's bottom edge |\n| 4 | **Reserve space** | Give `.card-title` a `padding-right` so wrapped text never reaches the guest column | Clean separation | Guest name width varies → guessy padding; eats title width on every card |\n| 5 | **Guest as its own row** | Drop `position:absolute`; render guest right-aligned below the title in normal flow | Bulletproof for all lengths | Removes the deliberate \"signature floats in whitespace\" look — biggest aesthetic change |\n| 6 | **Short-title frontmatter** | Add optional `cardTitle` used only on the card | Full control | New field + content edits; doesn't fix the underlying layout |\n\n**My recommendation: lead with option 3** (backdrop), optionally paired with a small `guestOffset` nudge for EP05. It fixes the legibility problem at the source, needs zero per-episode tuning, survives future long titles, and keeps the handwritten-signature design you already have. I'd implement it as a soft `--light`-colored rounded backdrop with a touch of `backdrop-filter: blur()` + `text-shadow`, so the signature stays readable over title text without looking like a heavy badge.\n\n## Proposed plan (separate PR, previewable with EP5)\n\n1. **Branch off the EP5 branch**, not `main`: `git checkout -b agent/fix-guest-overlap agent/implement-issue-75/claude-27244386885`. Open the fix PR with **base = the EP5 branch (`agent/implement-issue-75/claude-27244386885`)** so the deploy preview renders EP5 *and* the fix together — that's the only way you can verify it on the actual long-title card.\n2. **Implement option 3** in `episodeCarousel.scss` (`.episode-guest` backdrop + text-shadow); keep the change scoped to that selector. If needed, set EP05 `guestOffset` for fine alignment.\n3. **Verify** by building locally and eyeballing the EP05 card at desktop (300px) and mobile (260px/240px) widths, plus spot-check ep02–ep04 cards for regressions.\n4. **Sequencing**: after EP5 (#77) merges to `main`, retarget/rebase the fix PR onto `main` so it ships immediately after. Until then it stays based on the EP5 branch for the combined preview.\n\nTwo quick questions before I build anything:\n- **Go with option 3 (backdrop) as primary?** Or do you want me to push a branch with 2–3 variants (e.g., 3, 1, and 5) so you can compare them side-by-side in previews before deciding?\n- **Confirm the preview flow**: does this repo produce a per-PR deploy preview I can point you at, or do you preview locally? That determines whether basing the fix PR on the EP5 branch is enough to see them together.\n\nWant me to proceed?\n\n---\n`claude` | `claude-opus-4-8` | `high` | `GitHub Actions 1000001934`",
+      "createdAt": "2026-06-10T01:49:31Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/77#issuecomment-4665716184",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFho6GQ",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "Okay sounds good @sepo-agent you have implementation permissions.  Please make this PR and provide the preview to me.  Instead of building locally we can probably get this surge.sh preview though right?",
+      "createdAt": "2026-06-10T02:03:49Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/77#issuecomment-4665784857",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFhpS8g",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "I triaged this as a `implement` request.\n\nI'll implement the guest-name backdrop fix as a separate PR based on the EP5 branch, which produces a surge.sh preview automatically.\n\n### Proposed issue\n\n> **Fix guest-name overlap on long-title episode carousel cards**\n>\n> ## Goal\n> \n> Fix the guest-name signature overlapping the episode title on carousel cards when an episode has a long title (currently only EP05). The overlap was diagnosed in [PR #77](https://github.com/augmented-mind/augmented-mind.github.io/pull/77): `.card-title` is clamped to 2 lines and EP05's title fills both, running under the absolutely-positioned `.episode-guest` signature.\n> \n> ## Approach (agreed with @XenonMolecule)\n> \n> Lead with **option 3 — backdrop behind the guest name**: add a subtle rounded backdrop (soft `--light` fill + `backdrop-filter: blur()`) plus `text-shadow` to `.episode-guest` in [`episodeCarousel.scss`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/styles/episodeCarousel.scss), keeping the change scoped to that selector. Optionally fine-tune EP05's `guestOffset` for alignment. This works for any title length with no per-episode tuning and preserves the floating-signature aesthetic.\n> \n> ## Sequencing / preview\n> \n> - Branch off the EP5 branch (`agent/implement-issue-75/claude-27244386885`), not `main`, and open the fix PR with **base = the EP5 branch** so the surge.sh deploy preview renders EP5 + the fix together (the only way to verify the long-title card).\n> - After EP5 (#77) merges to `main`, retarget/rebase this fix onto `main` so it ships immediately after.\n> \n> ## Acceptance criteria\n> \n> - [ ] Guest signature is fully legible over the EP05 long-title card (no overlap) at desktop (300px) and mobile (260px/240px) widths.\n> - [ ] No visual regression on ep02–ep04 cards.\n> - [ ] Change scoped to `.episode-guest` styling (plus optional EP05 `guestOffset`).\n> - [ ] PR opened against the EP5 branch so the surge.sh preview shows both changes together.\n> \n> ## Context\n> \n> The user confirmed surge.sh per-PR previews exist (see the preview comment on #77), so no local build is needed to share the result.\n\nReply with:\n\n```text\n@sepo-agent /approve req-330dc4\n```\n\nto create the issue and start the implementation workflow.\n\n<!-- sepo-agent-request base64:eyJyb3V0ZSI6ImltcGxlbWVudCIsInNvdXJjZV9raW5kIjoiaXNzdWVfY29tbWVudCIsInRhcmdldF9raW5kIjoicHVsbF9yZXF1ZXN0IiwidGFyZ2V0X251bWJlciI6NzcsInRhcmdldF91cmwiOiJodHRwczovL2dpdGh1Yi5jb20vYXVnbWVudGVkLW1pbmQvYXVnbWVudGVkLW1pbmQuZ2l0aHViLmlvL3B1bGwvNzciLCJ3b3JrZmxvdyI6ImFnZW50LWltcGxlbWVudC55bWwiLCJyZXF1ZXN0X2lkIjoicmVxLTMzMGRjNCIsInJlcXVlc3RfdGV4dCI6Ik9rYXkgc291bmRzIGdvb2QgQHNlcG8tYWdlbnQgeW91IGhhdmUgaW1wbGVtZW50YXRpb24gcGVybWlzc2lvbnMuICBQbGVhc2UgbWFrZSB0aGlzIFBSIGFuZCBwcm92aWRlIHRoZSBwcmV2aWV3IHRvIG1lLiAgSW5zdGVhZCBvZiBidWlsZGluZyBsb2NhbGx5IHdlIGNhbiBwcm9iYWJseSBnZXQgdGhpcyBzdXJnZS5zaCBwcmV2aWV3IHRob3VnaCByaWdodD8iLCJpc3N1ZV90aXRsZSI6IkZpeCBndWVzdC1uYW1lIG92ZXJsYXAgb24gbG9uZy10aXRsZSBlcGlzb2RlIGNhcm91c2VsIGNhcmRzIiwiaXNzdWVfYm9keSI6IiMjIEdvYWxcblxuRml4IHRoZSBndWVzdC1uYW1lIHNpZ25hdHVyZSBvdmVybGFwcGluZyB0aGUgZXBpc29kZSB0aXRsZSBvbiBjYXJvdXNlbCBjYXJkcyB3aGVuIGFuIGVwaXNvZGUgaGFzIGEgbG9uZyB0aXRsZSAoY3VycmVudGx5IG9ubHkgRVAwNSkuIFRoZSBvdmVybGFwIHdhcyBkaWFnbm9zZWQgaW4gW1BSICM3N10oaHR0cHM6Ly9naXRodWIuY29tL2F1Z21lbnRlZC1taW5kL2F1Z21lbnRlZC1taW5kLmdpdGh1Yi5pby9wdWxsLzc3KTogYC5jYXJkLXRpdGxlYCBpcyBjbGFtcGVkIHRvIDIgbGluZXMgYW5kIEVQMDUncyB0aXRsZSBmaWxscyBib3RoLCBydW5uaW5nIHVuZGVyIHRoZSBhYnNvbHV0ZWx5LXBvc2l0aW9uZWQgYC5lcGlzb2RlLWd1ZXN0YCBzaWduYXR1cmUuXG5cbiMjIEFwcHJvYWNoIChhZ3JlZWQgd2l0aCBAWGVub25Nb2xlY3VsZSlcblxuTGVhZCB3aXRoICoqb3B0aW9uIDMg4oCUIGJhY2tkcm9wIGJlaGluZCB0aGUgZ3Vlc3QgbmFtZSoqOiBhZGQgYSBzdWJ0bGUgcm91bmRlZCBiYWNrZHJvcCAoc29mdCBgLS1saWdodGAgZmlsbCArIGBiYWNrZHJvcC1maWx0ZXI6IGJsdXIoKWApIHBsdXMgYHRleHQtc2hhZG93YCB0byBgLmVwaXNvZGUtZ3Vlc3RgIGluIFtgZXBpc29kZUNhcm91c2VsLnNjc3NgXShodHRwczovL2dpdGh1Yi5jb20vYXVnbWVudGVkLW1pbmQvYXVnbWVudGVkLW1pbmQuZ2l0aHViLmlvL2Jsb2IvbWFpbi9xdWFydHovY29tcG9uZW50cy9zdHlsZXMvZXBpc29kZUNhcm91c2VsLnNjc3MpLCBrZWVwaW5nIHRoZSBjaGFuZ2Ugc2NvcGVkIHRvIHRoYXQgc2VsZWN0b3IuIE9wdGlvbmFsbHkgZmluZS10dW5lIEVQMDUncyBgZ3Vlc3RPZmZzZXRgIGZvciBhbGlnbm1lbnQuIFRoaXMgd29ya3MgZm9yIGFueSB0aXRsZSBsZW5ndGggd2l0aCBubyBwZXItZXBpc29kZSB0dW5pbmcgYW5kIHByZXNlcnZlcyB0aGUgZmxvYXRpbmctc2lnbmF0dXJlIGFlc3RoZXRpYy5cblxuIyMgU2VxdWVuY2luZyAvIHByZXZpZXdcblxuLSBCcmFuY2ggb2ZmIHRoZSBFUDUgYnJhbmNoIChgYWdlbnQvaW1wbGVtZW50LWlzc3VlLTc1L2NsYXVkZS0yNzI0NDM4Njg4NWApLCBub3QgYG1haW5gLCBhbmQgb3BlbiB0aGUgZml4IFBSIHdpdGggKipiYXNlID0gdGhlIEVQNSBicmFuY2gqKiBzbyB0aGUgc3VyZ2Uuc2ggZGVwbG95IHByZXZpZXcgcmVuZGVycyBFUDUgKyB0aGUgZml4IHRvZ2V0aGVyICh0aGUgb25seSB3YXkgdG8gdmVyaWZ5IHRoZSBsb25nLXRpdGxlIGNhcmQpLlxuLSBBZnRlciBFUDUgKCM3NykgbWVyZ2VzIHRvIGBtYWluYCwgcmV0YXJnZXQvcmViYXNlIHRoaXMgZml4IG9udG8gYG1haW5gIHNvIGl0IHNoaXBzIGltbWVkaWF0ZWx5IGFmdGVyLlxuXG4jIyBBY2NlcHRhbmNlIGNyaXRlcmlhXG5cbi0gWyBdIEd1ZXN0IHNpZ25hdHVyZSBpcyBmdWxseSBsZWdpYmxlIG92ZXIgdGhlIEVQMDUgbG9uZy10aXRsZSBjYXJkIChubyBvdmVybGFwKSBhdCBkZXNrdG9wICgzMDBweCkgYW5kIG1vYmlsZSAoMjYwcHgvMjQwcHgpIHdpZHRocy5cbi0gWyBdIE5vIHZpc3VhbCByZWdyZXNzaW9uIG9uIGVwMDLigJNlcDA0IGNhcmRzLlxuLSBbIF0gQ2hhbmdlIHNjb3BlZCB0byBgLmVwaXNvZGUtZ3Vlc3RgIHN0eWxpbmcgKHBsdXMgb3B0aW9uYWwgRVAwNSBgZ3Vlc3RPZmZzZXRgKS5cbi0gWyBdIFBSIG9wZW5lZCBhZ2FpbnN0IHRoZSBFUDUgYnJhbmNoIHNvIHRoZSBzdXJnZS5zaCBwcmV2aWV3IHNob3dzIGJvdGggY2hhbmdlcyB0b2dldGhlci5cblxuIyMgQ29udGV4dFxuXG5UaGUgdXNlciBjb25maXJtZWQgc3VyZ2Uuc2ggcGVyLVBSIHByZXZpZXdzIGV4aXN0IChzZWUgdGhlIHByZXZpZXcgY29tbWVudCBvbiAjNzcpLCBzbyBubyBsb2NhbCBidWlsZCBpcyBuZWVkZWQgdG8gc2hhcmUgdGhlIHJlc3VsdC4ifQ -->\n\n| Approved by | Action | Tracking |\n|---|---|---|\n| @XenonMolecule | `implement` via `agent-implement.yml` | #78, [approval run](https://github.com/augmented-mind/augmented-mind.github.io/actions/runs/27248841697) |\n\n<!-- sepo-agent-approved -->\n",
+      "createdAt": "2026-06-10T02:05:08Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/77#issuecomment-4665791218",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFhuScw",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /approve req-330dc4",
+      "createdAt": "2026-06-10T02:22:11Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/77#issuecomment-4665873011",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFiCGCQ",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /implement I'd suggest one other trick on this: \r\n\r\n1. do a hot override for ep05's title -- if we were able to reduce the character spacing by a tiny bit we might be able to push \"verification\" to the first line and solve the overlapping issue? can you try to come up with a new stacked PR? ",
+      "createdAt": "2026-06-10T03:35:58Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/77#issuecomment-4666197513",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABFiCipA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Implementing this request — tracking in https://github.com/augmented-mind/augmented-mind.github.io/issues/81.\n",
+      "createdAt": "2026-06-10T03:37:43Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/77#issuecomment-4666204836",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-10T00:18:43Z",
+  "files": [
+    {
+      "path": "content/episodes/ep05.md",
+      "additions": 49,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "content/people/jeremy-avigad.md",
+      "additions": 21,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "quartz/components/EpisodeCarousel.tsx",
+      "additions": 7,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/static/covers/EP05-cover.png",
+      "additions": 0,
+      "deletions": 0,
+      "changeType": "ADDED"
+    }
+  ],
+  "headRefName": "agent/implement-issue-75/claude-27244386885",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": null,
+  "number": 77,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "OPEN",
+  "title": "Add Episode 5: Jeremy Avigad (Lean, AI for Math)",
+  "updatedAt": "2026-06-10T04:28:11Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/77"
+}
