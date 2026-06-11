@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
   "repo_slug": "augmented-mind/augmented-mind.github.io",
-  "last_sync_at": "2026-06-11T10:59:59Z",
+  "last_sync_at": "2026-06-11T16:31:15Z",
   "last_activity_at": "2026-06-11T05:39:58Z",
   "cursors": {
-    "issues": "2026-06-11T10:59:59Z",
-    "pulls": "2026-06-11T10:59:59Z",
-    "discussions": "2026-06-11T10:59:59Z",
-    "commits": "2026-06-11T10:59:59Z"
+    "issues": "2026-06-11T16:31:15Z",
+    "pulls": "2026-06-11T16:31:15Z",
+    "discussions": "2026-06-11T16:31:15Z",
+    "commits": "2026-06-11T16:31:15Z"
   },
-  "last_run_url": "https://github.com/augmented-mind/augmented-mind.github.io/actions/runs/27342110774",
+  "last_run_url": "https://github.com/augmented-mind/augmented-mind.github.io/actions/runs/27361951335",
   "created_at": "2026-04-28T19:59:07.002Z",
-  "updated_at": "2026-06-11T11:00:04.875Z"
+  "updated_at": "2026-06-11T16:31:17.262Z"
 }
