@@ -273,7 +273,7 @@ function renderListActions(state: ForumState): string {
 function renderForumIntro(): string {
   return `
     <div class="forum-list-intro">
-      <p>Consider contributing a community post: start a thread in the <a href="https://github.com/orgs/augmented-mind/discussions/categories/posts" target="_blank" rel="noopener noreferrer">Posts category</a> on GitHub Discussions. Posts here are rendered directly from GitHub.</p>
+      <p>We welcome your thoughts and perspectives on technical human-AI work. Please contribute a community post by starting a thread in the <a href="https://github.com/orgs/augmented-mind/discussions/categories/posts" target="_blank" rel="noopener noreferrer">Posts category</a> on GitHub Discussions.</p>
     </div>
   `
 }
