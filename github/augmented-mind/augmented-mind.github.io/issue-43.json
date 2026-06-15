@@ -1,0 +1,84 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "body": "Parent issue: #37\n\nStage: caption-workflow\n\n## Task\n\nParent issue: #37\n\nStage: caption-workflow\n\n## Task\n\nImplement the GitHub Actions workflow and supporting scripts for downloading YouTube captions and translating them to Chinese.\n\nThis PR stacks on top of the caption-infra PR (#41), which added `quartz/components/Transcript.tsx`, `content/captions/.gitkeep`, and the `captionEn`/`captionZh` frontmatter convention.\n\n## Goal\n\nAdd a manually-triggered GitHub Actions workflow (`workflow_dispatch`) that:\n1. Downloads English auto-captions from a YouTube URL via `yt-dlp`\n2. Converts the raw VTT to clean paragraph markdown\n3. Translates the English markdown to Chinese using the Anthropic Claude API\n4. Commits both `content/captions/<episode_id>.en.md` and `content/captions/<episode_id>.zh.md` to a new branch and opens a PR\n\n## Files to create\n\n### 1. `.github/workflows/agent-caption-update.yml` (new)\n\n`workflow_dispatch` trigger with required inputs:\n- `episode_id`: string (e.g. `ep01`) — used as filename prefix\n- `youtube_url`: string — full YouTube video URL\n\nWorkflow steps:\n- Checkout repo (full history not needed; depth 1 is fine)\n- Set up Node.js (use the version already configured in the repo, e.g. 20)\n- Install `yt-dlp` (use `pip install yt-dlp` or `pipx install yt-dlp`)\n- Download EN auto-captions: `yt-dlp --write-auto-sub --sub-lang en --no-warnings --skip-download -o '/tmp/caption' \"${{ inputs.youtube_url }}\"`  — this outputs a file like `/tmp/caption.en.vtt`\n- Convert VTT to markdown: `node .agent/scripts/vtt-to-md.js /tmp/caption.en.vtt content/captions/${{ inputs.episode_id }}.en.md`\n- Translate to Chinese: `node .agent/scripts/translate-caption.js content/captions/${{ inputs.episode_id }}.en.md content/captions/${{ inputs.episode_id }}.zh.md`\n- Configure git user (use `github-actions[bot]` / `github-actions[bot]@users.noreply.github.com`)\n- Create branch `caption/${{ inputs.episode_id }}`, commit both files, push\n- Open PR against `main` with title `captions: add ${{ inputs.episode_id }} EN+ZH transcripts` using `gh pr create`\n- The workflow needs `ANTHROPIC_API_KEY` from secrets and `GITHUB_TOKEN` for the PR step\n\n### 2. `.agent/scripts/vtt-to-md.js` (new)\n\nNode.js CLI: reads a `.vtt` file (argv[2]) and writes clean markdown prose to argv[3].\n\nLogic:\n- Strip the `WEBVTT` header line\n- Skip lines that are cue identifiers (pure numeric or timestamp-only lines)\n- Strip timestamp lines (`HH:MM:SS.mmm --> HH:MM:SS.mmm`)\n- Strip VTT inline tags (`<c>`, `<00:00:00.000>`, etc.) using a regex\n- Deduplicate consecutive repeated caption segments (YouTube auto-captions often repeat the previous line with minor additions)\n- Join caption text into paragraphs (group ~3–5 sentences, or break on long pauses if timing info is available)\n- Output clean UTF-8 markdown to the output path\n\n### 3. `.agent/scripts/translate-caption.js` (new)\n\nNode.js CLI: reads an English markdown file (argv[2]) and writes Chinese markdown to argv[3].\n\nUses `@anthropic-ai/sdk` (already in the agent runtime / available via npm install).\n- Split content into chunks of ~800 tokens to stay within context limits\n- For each chunk: call Claude API (`claude-sonnet-4-6` or `claude-haiku-4-5-20251001` for cost) with a system prompt: \"You are a professional translator. Translate the following English podcast transcript to Simplified Chinese. Preserve paragraph breaks. Output only the translation, no commentary.\"\n- Reassemble chunks in order and write to output path\n- Use `ANTHROPIC_API_KEY` env var\n\n## Constraints\n- Do NOT modify any existing episode `.md` files or the Transcript component from PR #41\n- The workflow must be manually triggered only (`workflow_dispatch`); do not add push triggers\n- Script files go under `.agent/scripts/` (not `scripts/` root) to match existing agent tooling conventions\n- Use `node` built-ins where possible; keep npm dependencies minimal\n- The parent issue is #37\n\n## Base\n\n- base_pr: #41\n\n<!-- sepo-sub-orchestrator parent:37 stage:caption-workflow state:done parent_round:2 -->",
+  "closedAt": "2026-06-15T14:54:28Z",
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABCfNTZQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| orchestrate | delegate_issue | Issue #43 | 2 / 40 | Dispatched |\n\nReason: agent planner selected child issue delegation: User confirmed caption-infra is finished (PR #41 open). Proceeding with the second planned stage: caption-workflow (GH Actions download+translate pipeline). Stacking on PR #41's branch per the two-stacked-PR plan agreed in issue #37.\n\n<!-- sepo-agent-handoff state:dispatched created:1778866548241 base64:aGFuZG9mZjphdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW86MjU5MzIwMTQ4MTE6b3JjaGVzdHJhdGU6Mzc6ZGVsZWdhdGVfaXNzdWU6NDM6Mg -->",
+      "createdAt": "2026-05-15T17:35:48Z",
+      "includesCreatedEdit": true,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/43#issuecomment-4461908837",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCfNdOA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| orchestrate | implement | Issue #43 | 2 / 40 | Dispatched |\n\nReason: manual orchestrate start on issue; dispatching implement\n\n<!-- sepo-agent-handoff state:dispatched created:1778866569222 base64:aGFuZG9mZjphdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW86MjU5MzIwMTQ4MTE6b3JjaGVzdHJhdGU6NDM6aW1wbGVtZW50OjQzOjI -->",
+      "createdAt": "2026-05-15T17:36:09Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/43#issuecomment-4461911352",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABCfPW-Q",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo implementation finished**\n\n- Branch: `agent/implement-issue-43/claude-25932165592`\n- Pull request: https://github.com/augmented-mind/augmented-mind.github.io/pull/44\n\nImplemented the caption-workflow stage for issue #43. Created three new files: (1) `.github/workflows/agent-caption-update.yml` — a `workflow_dispatch` workflow that installs yt-dlp, downloads YouTube auto-captions, converts VTT to markdown, translates to Chinese via Claude API, then commits both files to a new branch and opens a PR; (2) `.agent/scripts/vtt-to-md.js` — a Node.js CJS CLI that strips VTT headers/timestamps/inline tags, deduplicates YouTube's sliding-window caption format, and outputs clean paragraph markdown; (3) `.agent/scripts/translate-caption.js` — a Node.js CJS CLI that chunks the English markdown and translates each chunk to Simplified Chinese using `claude-haiku-4-5-20251001` via `@anthropic-ai/sdk`. Also added `@anthropic-ai/sdk@^0.39.0` to `.agent/package.json` and updated `package-lock.json`. All YAML, JS syntax, shell syntax, and diff hygiene checks pass.",
+      "createdAt": "2026-05-15T17:41:09Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/43#issuecomment-4461942521",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABGLDRGQ",
+      "author": {
+        "login": "github-actions"
+      },
+      "authorAssociation": "NONE",
+      "body": "Closing because this agent issue has had no activity for 30 days.",
+      "createdAt": "2026-06-15T14:54:27Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/43#issuecomment-4709208345",
+      "viewerDidAuthor": false
+    }
+  ],
+  "createdAt": "2026-05-15T17:35:45Z",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "number": 43,
+  "state": "CLOSED",
+  "title": "Sub-orchestrator: caption-workflow",
+  "updatedAt": "2026-06-15T14:54:28Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/43"
+}
