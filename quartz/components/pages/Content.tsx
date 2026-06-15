@@ -3,6 +3,8 @@ import { Element, Root } from "hast"
 import { htmlToJsx } from "../../util/jsx"
 import { Date, getDate } from "../Date"
 import { QuartzComponent, QuartzComponentConstructor, QuartzComponentProps } from "../types"
+// @ts-ignore
+import forumScript from "../scripts/forum.inline"
 
 function getYouTubeEmbedUrl(url: string): string | null {
   try {
@@ -112,7 +114,9 @@ const Content: QuartzComponent = ({ fileData, tree, cfg }: QuartzComponentProps)
   const root = tree as Root
   const title = (fileData.frontmatter?.title as string | undefined) ?? "YouTube video"
   const youtubeUrl = fileData.frontmatter?.youtubeUrl as string | undefined
-  const episodeId = (fileData.frontmatter?.episodeId ?? fileData.frontmatter?.streamId) as string | undefined
+  const episodeId = (fileData.frontmatter?.episodeId ?? fileData.frontmatter?.streamId) as
+    | string
+    | undefined
   const isSeriesPage =
     (fileData.slug?.startsWith("episodes/") && fileData.slug !== "episodes/index") ||
     (fileData.slug?.startsWith("livestreams/") && fileData.slug !== "livestreams/index")
@@ -240,6 +244,250 @@ body[data-slug^="livestreams/"] .page > #quartz-body .center {
   height: 100%;
   border: 0;
 }
+
+.forum-discussions {
+  margin-top: 2rem;
+}
+
+body.forum-detail-view[data-slug="forum"] .page-header {
+  display: none;
+}
+
+body.forum-detail-view[data-slug="forum"] .forum-discussions {
+  margin-top: 0;
+}
+
+.forum-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  color: var(--gray);
+  font-size: 0.9rem;
+}
+
+.forum-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.forum-github-link,
+.forum-back-link {
+  font-weight: 600;
+}
+
+.forum-refresh-button {
+  flex-shrink: 0;
+  padding: 0.3rem 0.65rem;
+  color: var(--secondary);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: transparent;
+  border: 1px solid var(--secondary);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.forum-refresh-button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.forum-list-intro {
+  margin-bottom: 1.25rem;
+  color: var(--darkgray);
+}
+
+.forum-list-intro p {
+  margin: 0;
+}
+
+.forum-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: 1rem;
+}
+
+.forum-card,
+.forum-loading,
+.forum-error,
+.forum-empty,
+.forum-warning,
+.forum-note {
+  border: 1px solid var(--lightgray);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--light) 94%, var(--lightgray));
+}
+
+.forum-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 13rem;
+  padding: 1.1rem;
+  color: var(--darkgray);
+  text-decoration: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+.forum-card:hover {
+  border-color: color-mix(in srgb, var(--secondary) 45%, transparent);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+.forum-card-eyebrow,
+.forum-post-eyebrow {
+  color: var(--secondary);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.forum-card-title {
+  margin-top: 0.55rem;
+  color: var(--dark);
+  font-size: 1.12rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.forum-card-meta {
+  margin-top: 0.45rem;
+  color: var(--gray);
+  font-size: 0.85rem;
+}
+
+.forum-card-excerpt {
+  margin-top: 0.75rem;
+  color: var(--darkgray);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.forum-card-cta {
+  margin-top: auto;
+  padding-top: 1rem;
+  color: var(--secondary);
+  font-weight: 700;
+}
+
+.forum-post {
+  min-width: 0;
+}
+
+.forum-contribution-banner {
+  margin-bottom: 1.25rem;
+  padding: 0.85rem 1rem;
+  color: var(--darkgray);
+  font-size: 0.9rem;
+  line-height: 1.45;
+  background: var(--highlight);
+  border-left: 3px solid var(--secondary);
+  border-radius: 10px;
+}
+
+.forum-contribution-banner strong {
+  color: var(--dark);
+}
+
+.forum-post-header {
+  padding-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--lightgray);
+}
+
+.forum-post-header h2 {
+  margin: 0.45rem 0 0.6rem;
+  font-size: 1.9rem;
+  line-height: 1.15;
+}
+
+.forum-post-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  color: var(--gray);
+  font-size: 0.9rem;
+}
+
+.forum-post-body > :first-child {
+  margin-top: 0;
+}
+
+.forum-post-body img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1.25rem auto;
+  border-radius: 12px;
+}
+
+.forum-post-body blockquote {
+  margin-left: 0;
+}
+
+.forum-loading,
+.forum-error,
+.forum-empty,
+.forum-warning,
+.forum-note {
+  padding: 1rem;
+}
+
+.forum-warning,
+.forum-note {
+  margin-bottom: 1rem;
+  color: var(--gray);
+  font-size: 0.9rem;
+}
+
+.forum-spinner {
+  display: inline-block;
+  width: 0.9rem;
+  height: 0.9rem;
+  margin-right: 0.45rem;
+  border: 2px solid var(--lightgray);
+  border-top-color: var(--secondary);
+  border-radius: 50%;
+  animation: forum-spin 0.8s linear infinite;
+  vertical-align: -0.1rem;
+}
+
+@keyframes forum-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media all and (max-width: 600px) {
+  .forum-toolbar,
+  .forum-post-meta,
+  .forum-toolbar-actions {
+    display: block;
+  }
+
+  .forum-toolbar-actions,
+  .forum-refresh-button {
+    margin-top: 0.5rem;
+  }
+
+  .forum-contribution-banner {
+    padding: 0.8rem 0.9rem;
+  }
+
+  .forum-post-header h2 {
+    font-size: 1.55rem;
+  }
+}
 `
+
+Content.afterDOMLoaded = forumScript
 
 export default (() => Content) satisfies QuartzComponentConstructor
