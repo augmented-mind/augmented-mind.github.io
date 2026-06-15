@@ -6,6 +6,8 @@ const isSeriesPage = (slug?: string) =>
   (slug?.startsWith("episodes/") && slug !== "episodes/index") ||
   (slug?.startsWith("livestreams/") && slug !== "livestreams/index")
 
+const isForumPage = (slug?: string) => slug === "forum"
+
 // Sidebar episodes list (vertical, compact)
 const episodesSection = Component.RecentNotes({
   title: "Episodes",
@@ -145,7 +147,10 @@ export const defaultContentPageLayout: PageLayout = {
     // Show date above title on non-index pages
     Component.ConditionalRender({
       component: Component.ContentMeta({ showReadingTime: false }),
-      condition: (page) => page.fileData.slug !== "index" && !isSeriesPage(page.fileData.slug),
+      condition: (page) =>
+        page.fileData.slug !== "index" &&
+        !isSeriesPage(page.fileData.slug) &&
+        !isForumPage(page.fileData.slug),
     }),
     Component.ConditionalRender({
       component: Component.ArticleTitle(),

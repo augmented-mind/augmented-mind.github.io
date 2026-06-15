@@ -261,14 +261,11 @@ async function fetchForumDiscussions(
   }
 }
 
-function renderToolbar(state: ForumState, showBackLink: boolean): string {
+function renderListActions(state: ForumState): string {
   return `
-    <div class="forum-toolbar">
-      ${showBackLink ? `<a class="forum-back-link" href="${escapeForumHTML(window.location.pathname)}">← All posts</a>` : `<a class="forum-github-link" href="https://github.com/orgs/augmented-mind/discussions/categories/posts" target="_blank" rel="noopener noreferrer">Open Posts on GitHub →</a>`}
-      <div class="forum-toolbar-actions">
-        ${showBackLink ? `<a class="forum-github-link" href="https://github.com/orgs/augmented-mind/discussions/categories/posts" target="_blank" rel="noopener noreferrer">Open Posts on GitHub →</a>` : ""}
-        <button class="forum-refresh-button" type="button" ${state.loading ? "disabled" : ""}>${state.loading ? "Refreshing…" : "Refresh"}</button>
-      </div>
+    <div class="forum-list-actions" aria-label="Forum actions">
+      <a class="forum-action" href="https://github.com/orgs/augmented-mind/discussions/categories/posts" target="_blank" rel="noopener noreferrer"><span class="forum-action-icon" aria-hidden="true">↗</span><span>Posts on GitHub</span></a>
+      <button class="forum-action forum-refresh-button" type="button" ${state.loading ? "disabled" : ""}><span class="forum-action-icon" aria-hidden="true">↻</span><span>${state.loading ? "Refreshing…" : "Refresh"}</span></button>
     </div>
   `
 }
@@ -304,33 +301,48 @@ function renderCards(discussions: GitHubDiscussion[]): string {
   `
 }
 
-function renderContributionBanner(): string {
+function renderContributionBanner(discussion: GitHubDiscussion, loading: boolean): string {
+  const author = displayAuthor(discussion)
+  const authorUrl = discussion.user?.html_url || discussion.html_url
+
   return `
     <div class="forum-contribution-banner" role="note">
-      <strong>Community contribution.</strong> This post was contributed by a GitHub Discussions participant and may not reflect the views of the Augmented Mind hosts.
+      <span class="forum-contribution-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"></circle>
+          <path d="M12 11v5"></path>
+          <path d="M12 8h.01"></path>
+        </svg>
+      </span>
+      <div class="forum-contribution-content">
+        <p>This is a community post. Views are the author’s own and may not reflect the Augmented Mind hosts.</p>
+        <div class="forum-contribution-actions">
+          <span class="forum-action forum-meta-chip"><span class="forum-action-icon" aria-hidden="true">#</span><span>Discussion ${discussion.number}</span></span>
+          <a class="forum-action forum-meta-chip" href="${escapeForumHTML(authorUrl)}" target="_blank" rel="noopener noreferrer nofollow"><span class="forum-action-icon" aria-hidden="true">@</span><span>${escapeForumHTML(author)}</span></a>
+          <span class="forum-action-separator" aria-hidden="true">|</span>
+          <a class="forum-action forum-back-link" href="${escapeForumHTML(window.location.pathname)}"><span class="forum-action-icon" aria-hidden="true">←</span><span>All posts</span></a>
+          <a class="forum-action" href="${escapeForumHTML(discussion.html_url)}" target="_blank" rel="noopener noreferrer nofollow"><span class="forum-action-icon" aria-hidden="true">↗</span><span>GitHub</span></a>
+          <button class="forum-action forum-refresh-button" type="button" ${loading ? "disabled" : ""}><span class="forum-action-icon" aria-hidden="true">↻</span><span>${loading ? "Refreshing…" : "Refresh"}</span></button>
+        </div>
+      </div>
     </div>
   `
 }
 
-function renderSelectedDiscussion(discussion: GitHubDiscussion): string {
+function renderSelectedDiscussion(discussion: GitHubDiscussion, state: ForumState): string {
   const title = displayTitle(discussion)
-  const author = displayAuthor(discussion)
-  const authorUrl = discussion.user?.html_url || discussion.html_url
   const body = prepareForumBody(discussion)
 
   return `
     <article class="forum-post" aria-live="polite">
-      <header class="forum-post-header">
-        <div class="forum-post-eyebrow">GitHub Discussion #${discussion.number}</div>
-        <h2>${escapeForumHTML(title)}</h2>
-        <div class="forum-post-meta">
-          <span>by <a href="${escapeForumHTML(authorUrl)}" target="_blank" rel="noopener noreferrer nofollow">${escapeForumHTML(author)}</a></span>
-          <span aria-hidden="true">·</span>
-          <time datetime="${escapeForumHTML(discussion.created_at)}">${escapeForumHTML(displayDate(discussion.created_at))}</time>
-          <span aria-hidden="true">·</span>
-          <a href="${escapeForumHTML(discussion.html_url)}" target="_blank" rel="noopener noreferrer nofollow">View on GitHub</a>
-        </div>
-      </header>
+      <div class="forum-inline-header popover-hint">
+        <span class="forum-post-id">POST</span>
+        <span class="meta-sep" aria-hidden="true">·</span>
+        <span class="forum-inline-title">${escapeForumHTML(title)}</span>
+        <span class="meta-sep" aria-hidden="true">·</span>
+        <time datetime="${escapeForumHTML(discussion.created_at)}">${escapeForumHTML(displayDate(discussion.created_at))}</time>
+      </div>
+      ${renderContributionBanner(discussion, state.loading)}
       <div class="forum-post-body markdown-body">
         ${body}
       </div>
@@ -410,15 +422,13 @@ function renderForum(root: HTMLElement, state: ForumState) {
 
   if (state.selectedNumber) {
     const content = selected
-      ? renderSelectedDiscussion(selected)
+      ? renderSelectedDiscussion(selected, state)
       : state.loading
         ? `<div class="forum-loading" role="status"><span class="forum-spinner" aria-hidden="true"></span>Loading discussion #${state.selectedNumber}…</div>`
         : `<div class="forum-error" role="alert">Discussion #${state.selectedNumber} was not found in the Posts category.</div>`
 
     root.innerHTML = `
-      ${renderToolbar(state, true)}
       ${warning}
-      ${renderContributionBanner()}
       ${content}
     `
     bindForumEvents(root, state)
@@ -426,8 +436,8 @@ function renderForum(root: HTMLElement, state: ForumState) {
   }
 
   root.innerHTML = `
-    ${renderToolbar(state, false)}
     ${renderForumIntro()}
+    ${renderListActions(state)}
     ${truncationNote}
     ${warning}
     ${renderCards(state.discussions)}
