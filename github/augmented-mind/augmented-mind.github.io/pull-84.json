@@ -1,0 +1,49 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n\n- add a dedicated `/forum` page that renders Posts-category GitHub Discussions directly in the browser\n- use GitHub REST Discussions API with `application/vnd.github.full+json`, no token required\n- show `/forum` as a card list; clicking a card opens `/forum?discussion=<number>` as a full-width post view\n- cache discussion responses in localStorage for 12 hours without exposing cache status in the UI\n- add a simple homepage link to the forum\n\n## Verification\n\n- `npx prettier content/forum.md content/index.md quartz/components/pages/Content.tsx quartz/components/scripts/forum.inline.ts --write`\n- `npx quartz build`\n- `npx tsc --noEmit --pretty false` still reports pre-existing unrelated errors in `EpisodeCarousel.tsx`, `Footer.tsx`, and `GuestSuggestion.tsx`; no forum-related errors\n",
+  "closedAt": null,
+  "comments": [],
+  "createdAt": "2026-06-15T04:56:11Z",
+  "files": [
+    {
+      "path": "content/forum.md",
+      "additions": 13,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "content/index.md",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/components/pages/Content.tsx",
+      "additions": 219,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/components/scripts/forum.inline.ts",
+      "additions": 494,
+      "deletions": 0,
+      "changeType": "ADDED"
+    }
+  ],
+  "headRefName": "feat/live-github-forum",
+  "labels": [],
+  "mergedAt": null,
+  "number": 84,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "OPEN",
+  "title": "Add live GitHub Discussions forum",
+  "updatedAt": "2026-06-15T04:56:25Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/84"
+}

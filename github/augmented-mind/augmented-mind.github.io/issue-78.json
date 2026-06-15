@@ -4,7 +4,7 @@
     "login": "app/sepo-agent-app"
   },
   "body": "## Goal\n\nFix the guest-name signature overlapping the episode title on carousel cards when an episode has a long title (currently only EP05). The overlap was diagnosed in [PR #77](https://github.com/augmented-mind/augmented-mind.github.io/pull/77): `.card-title` is clamped to 2 lines and EP05's title fills both, running under the absolutely-positioned `.episode-guest` signature.\n\n## Approach (agreed with @XenonMolecule)\n\nLead with **option 3 — backdrop behind the guest name**: add a subtle rounded backdrop (soft `--light` fill + `backdrop-filter: blur()`) plus `text-shadow` to `.episode-guest` in [`episodeCarousel.scss`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/styles/episodeCarousel.scss), keeping the change scoped to that selector. Optionally fine-tune EP05's `guestOffset` for alignment. This works for any title length with no per-episode tuning and preserves the floating-signature aesthetic.\n\n## Sequencing / preview\n\n- Branch off the EP5 branch (`agent/implement-issue-75/claude-27244386885`), not `main`, and open the fix PR with **base = the EP5 branch** so the surge.sh deploy preview renders EP5 + the fix together (the only way to verify the long-title card).\n- After EP5 (#77) merges to `main`, retarget/rebase this fix onto `main` so it ships immediately after.\n\n## Acceptance criteria\n\n- [ ] Guest signature is fully legible over the EP05 long-title card (no overlap) at desktop (300px) and mobile (260px/240px) widths.\n- [ ] No visual regression on ep02–ep04 cards.\n- [ ] Change scoped to `.episode-guest` styling (plus optional EP05 `guestOffset`).\n- [ ] PR opened against the EP5 branch so the surge.sh preview shows both changes together.\n\n## Context\n\nThe user confirmed surge.sh per-PR previews exist (see the preview comment on #77), so no local build is needed to share the result.\n\n---\n\nRequested via pull_request at https://github.com/augmented-mind/augmented-mind.github.io/pull/77\n",
-  "closedAt": null,
+  "closedAt": "2026-06-14T23:27:21Z",
   "comments": [
     {
       "id": "IC_kwDOQ106188AAAABFhwXzg",
@@ -32,8 +32,8 @@
     }
   ],
   "number": 78,
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "Fix guest-name overlap on long-title episode carousel cards",
-  "updatedAt": "2026-06-10T02:29:39Z",
+  "updatedAt": "2026-06-14T23:27:21Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/78"
 }
