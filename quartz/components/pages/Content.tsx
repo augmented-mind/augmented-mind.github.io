@@ -291,7 +291,6 @@ body.forum-detail-view[data-slug="forum"] .forum-discussions {
 .forum-card {
   display: flex;
   flex-direction: column;
-  min-height: 13rem;
   padding: 1.1rem;
   color: var(--darkgray);
   text-decoration: none;
@@ -337,8 +336,7 @@ body.forum-detail-view[data-slug="forum"] .forum-discussions {
 }
 
 .forum-card-cta {
-  margin-top: auto;
-  padding-top: 1rem;
+  margin-top: 0.85rem;
   color: var(--secondary);
   font-weight: 700;
 }
