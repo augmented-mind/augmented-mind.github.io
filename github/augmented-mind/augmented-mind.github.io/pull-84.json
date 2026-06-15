@@ -6,44 +6,73 @@
     "name": "Shannon Shen"
   },
   "baseRefName": "main",
-  "body": "## Summary\n\n- add a dedicated `/forum` page that renders Posts-category GitHub Discussions directly in the browser\n- use GitHub REST Discussions API with `application/vnd.github.full+json`, no token required\n- show `/forum` as a card list; clicking a card opens `/forum?discussion=<number>` as a full-width post view\n- cache discussion responses in localStorage for 12 hours without exposing cache status in the UI\n- add a simple homepage link to the forum\n\n## Verification\n\n- `npx prettier content/forum.md content/index.md quartz/components/pages/Content.tsx quartz/components/scripts/forum.inline.ts --write`\n- `npx quartz build`\n- `npx tsc --noEmit --pretty false` still reports pre-existing unrelated errors in `EpisodeCarousel.tsx`, `Footer.tsx`, and `GuestSuggestion.tsx`; no forum-related errors\n",
+  "body": "## Summary\n\n- add a dedicated `/forum` page that renders Posts-category GitHub Discussions directly in the browser\n- use GitHub REST Discussions API with `application/vnd.github.full+json`, no token required\n- show `/forum` as a card list; clicking a card opens `/forum?discussion=<number>` as a full-width post view\n- render post detail directly in the center content area instead of inside a nested two-column/card container\n- add a small community-contribution banner on post detail pages noting that posts may not reflect the hosts' views\n- cache discussion responses in localStorage for 12 hours without exposing cache status in the UI\n- add a simple homepage link to the forum\n\n## Verification\n\n- `npx prettier content/forum.md content/index.md quartz/components/pages/Content.tsx quartz/components/scripts/forum.inline.ts --write`\n- `npx quartz build`\n- `npx tsc --noEmit --pretty false` still reports pre-existing unrelated errors in `EpisodeCarousel.tsx`, `Footer.tsx`, and `GuestSuggestion.tsx`; no forum-related errors\n",
   "closedAt": null,
-  "comments": [],
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABGHGI_g",
+      "author": {
+        "login": "github-actions"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo preview: https://augmented-mind-augmented-mind-pr-84-da1d06.sepo.site",
+      "createdAt": "2026-06-15T06:11:34Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/84#issuecomment-4705061118",
+      "viewerDidAuthor": false
+    }
+  ],
   "createdAt": "2026-06-15T04:56:11Z",
   "files": [
     {
       "path": "content/forum.md",
-      "additions": 13,
+      "additions": 11,
       "deletions": 0,
       "changeType": "ADDED"
     },
     {
-      "path": "content/index.md",
-      "additions": 2,
+      "path": "quartz.layout.ts",
+      "additions": 7,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/components/SubscribeLinks.tsx",
+      "additions": 15,
       "deletions": 0,
       "changeType": "MODIFIED"
     },
     {
       "path": "quartz/components/pages/Content.tsx",
-      "additions": 219,
+      "additions": 319,
       "deletions": 1,
       "changeType": "MODIFIED"
     },
     {
       "path": "quartz/components/scripts/forum.inline.ts",
-      "additions": 494,
+      "additions": 528,
       "deletions": 0,
       "changeType": "ADDED"
     }
   ],
   "headRefName": "feat/live-github-forum",
-  "labels": [],
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAACmwL2Xg",
+      "name": "sepo-preview",
+      "description": "Trigger Sepo preview",
+      "color": "5319e7"
+    }
+  ],
   "mergedAt": null,
   "number": 84,
   "reviewDecision": "",
   "reviews": [],
   "state": "OPEN",
   "title": "Add live GitHub Discussions forum",
-  "updatedAt": "2026-06-15T04:56:25Z",
+  "updatedAt": "2026-06-15T06:17:22Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/84"
 }
