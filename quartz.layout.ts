@@ -59,6 +59,7 @@ const sidebarSeriesSections = Component.Flex({
 // Subscribe links for podcast platforms
 const subscribeLinks = Component.SubscribeLinks({
   rss: "https://anchor.fm/s/10dbf5b7c/podcast/rss",
+  forum: "forum",
   links: {
     youtube: "https://www.youtube.com/@Augmented-Mind",
     spotify: "https://open.spotify.com/show/40KculkYTe2tOpqJm6TAYr?si=PU_UncsMT4mXjVNCRwoXog",
