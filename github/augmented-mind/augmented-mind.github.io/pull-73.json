@@ -5,7 +5,7 @@
   },
   "baseRefName": "main",
   "body": "## Summary\n\nWires the guest post in GitHub Discussion [#46](https://github.com/orgs/augmented-mind/discussions/46) (CongJie Pan — _The Human Measure_) into the website as a new **Guest Posts** content type, connected to Episode 01 in Graph View.\n\n- **Dedicated section**: new `content/guest-posts/` with an index page and the converted post. Surfaced via a sidebar list and a landing-page carousel, mirroring Episodes/Livestreams.\n- **Author-highlighted page**: `quartz/components/pages/Content.tsx` renders a guest-post header (a `Guest Post` badge, the title, and a byline linking to the author's site) that reuses the episode page's card chrome but spotlights the external author rather than a team member. `quartz.layout.ts` suppresses the default title/meta for these pages, and `custom.scss` extends the episode card styling to `guest-posts/`.\n- **Graph View**: the post links to `[[ep01]]`, which resolves to an internal link, so the post node connects to Episode 01 (with a matching backlink on the EP01 page).\n- **Localized images**: the 4 hackmd.io images are downloaded into `quartz/static/guest-posts/the-human-measure/` and referenced by local path (no external hotlinks).\n- **Repeatable workflow**: `scripts/import-guest-post.mjs` (`npm run import:guest-post <discussion#> [--slug ...] [--episode ep01]`) fetches a discussion via the GraphQL API, downloads its images, and scaffolds the markdown for review.\n\n## Verification\n\n- `quartz build` completes cleanly (84 files emitted); the post renders with the author header, no duplicate title, local image paths, and a bidirectional graph link to EP01.\n- `tsc --noEmit` reports only the 7 pre-existing errors present on `main` (none introduced by this change); new files pass `prettier --check`.\n\n## Notes\n\nDefaults chosen in the absence of answers to the earlier planning questions: episode link → EP01 (the post explicitly references it); workflow → a manually-run importer script (no auto-publishing Action, to avoid review/safety concerns); author shown as an inline highlighted byline rather than a separate `people/` node. These are easy to adjust on request.\n\nCloses #71\n",
-  "closedAt": null,
+  "closedAt": "2026-06-16T03:14:32Z",
   "comments": [
     {
       "id": "IC_kwDOQ106188AAAABFJ5oCQ",
@@ -222,8 +222,8 @@
   "number": 73,
   "reviewDecision": "",
   "reviews": [],
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "Wire guest posts from Discussions into a dedicated section",
-  "updatedAt": "2026-06-09T05:03:04Z",
+  "updatedAt": "2026-06-16T03:14:32Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/73"
 }
