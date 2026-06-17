@@ -1,0 +1,185 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "body": "Right now we have a podcast series section for different series \n\nCan we add a new section for live streams \n\nAnd we can add this image as the first one. \n\n<img width=\"1792\" height=\"1080\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/321e04f5-18a2-4ce1-893f-1d49efe8f8d5\" />\n\n@sepo-agent let's think about the best way to do it? ",
+  "closedAt": "2026-06-17T03:56:11Z",
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABEEZ0yQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "I triaged this as a `implement` request.\n\nSepo will add a new Live Streams section to the website, modeled after the existing podcast series section, with the provided image as the first entry.\n\nReply with:\n\n```text\n@sepo-agent /approve req-2c517d\n```\n\nto start the implementation workflow.\n\n<!-- sepo-agent-request base64:eyJyb3V0ZSI6ImltcGxlbWVudCIsInNvdXJjZV9raW5kIjoiaXNzdWUiLCJ0YXJnZXRfa2luZCI6Imlzc3VlIiwidGFyZ2V0X251bWJlciI6NDgsInRhcmdldF91cmwiOiJodHRwczovL2dpdGh1Yi5jb20vYXVnbWVudGVkLW1pbmQvYXVnbWVudGVkLW1pbmQuZ2l0aHViLmlvL2lzc3Vlcy80OCIsIndvcmtmbG93IjoiYWdlbnQtaW1wbGVtZW50LnltbCIsInJlcXVlc3RfaWQiOiJyZXEtMmM1MTdkIiwicmVxdWVzdF90ZXh0IjoiRGVzaWduIGEgbmV3IHNlY3Rpb24gb24gb3VyIHdlYnNpdGU6XG5cblJpZ2h0IG5vdyB3ZSBoYXZlIGEgcG9kY2FzdCBzZXJpZXMgc2VjdGlvbiBmb3IgZGlmZmVyZW50IHNlcmllcyBcblxuQ2FuIHdlIGFkZCBhIG5ldyBzZWN0aW9uIGZvciBsaXZlIHN0cmVhbXMgXG5cbkFuZCB3ZSBjYW4gYWRkIHRoaXMgaW1hZ2UgYXMgdGhlIGZpcnN0IG9uZS4gXG5cbjxpbWcgd2lkdGg9XCIxNzkyXCIgaGVpZ2h0PVwiMTA4MFwiIGFsdD1cIkltYWdlXCIgc3JjPVwiaHR0cHM6Ly9naXRodWIuY29tL3VzZXItYXR0YWNobWVudHMvYXNzZXRzLzMyMWUwNGY1LTE4YTItNGNlMS04OTNmLTFkNDllZmU4ZjhkNVwiIC8-XG5cbkBzZXBvLWFnZW50IGxldCdzIHRoaW5rIGFib3V0IHRoZSBiZXN0IHdheSB0byBkbyBpdD8gIiwiaXNzdWVfdGl0bGUiOiJBZGQgTGl2ZSBTdHJlYW1zIHNlY3Rpb24gdG8gd2Vic2l0ZSIsImlzc3VlX2JvZHkiOiIjIyBHb2FsXG5cbkFkZCBhIG5ldyAqKkxpdmUgU3RyZWFtcyoqIHNlY3Rpb24gdG8gdGhlIHdlYnNpdGUsIHNpbWlsYXIgaW4gc3RydWN0dXJlIHRvIHRoZSBleGlzdGluZyBwb2RjYXN0IHNlcmllcyBzZWN0aW9uLlxuXG4jIyBDb250ZXh0XG5cblRoZSBzaXRlIGN1cnJlbnRseSBoYXMgYSBwb2RjYXN0IHNlcmllcyBzZWN0aW9uIHRoYXQgZGlzcGxheXMgZGlmZmVyZW50IHNlcmllcy4gVGhlIHVzZXIgd2FudHMgYSBwYXJhbGxlbCBzZWN0aW9uIGZvciBsaXZlIHN0cmVhbXMsIHdpdGggdGhlIGZpcnN0IGVudHJ5IHVzaW5nIHRoZSBpbWFnZSBwcm92aWRlZCBpbiBpc3N1ZSAjNDg6XG5cbiFbTGl2ZSBTdHJlYW0gSW1hZ2VdKGh0dHBzOi8vZ2l0aHViLmNvbS91c2VyLWF0dGFjaG1lbnRzL2Fzc2V0cy8zMjFlMDRmNS0xOGEyLTRjZTEtODkzZi0xZDQ5ZWZlOGY4ZDUpXG5cbiMjIEFjY2VwdGFuY2UgQ3JpdGVyaWFcblxuLSBbIF0gQSBuZXcgXCJMaXZlIFN0cmVhbXNcIiBzZWN0aW9uIGlzIGFkZGVkIHRvIHRoZSB3ZWJzaXRlLCB2aXN1YWxseSBjb25zaXN0ZW50IHdpdGggdGhlIHBvZGNhc3Qgc2VyaWVzIHNlY3Rpb25cbi0gWyBdIFRoZSBzZWN0aW9uIGluY2x1ZGVzIHRoZSBwcm92aWRlZCBpbWFnZSBhcyB0aGUgZmlyc3QgbGl2ZSBzdHJlYW0gZW50cnlcbi0gWyBdIFRoZSBlbnRyeSBoYXMgYXBwcm9wcmlhdGUgcGxhY2Vob2xkZXIgbWV0YWRhdGEgKHRpdGxlLCBkYXRlLCBkZXNjcmlwdGlvbikgdGhhdCBjYW4gYmUgdXBkYXRlZCBsYXRlclxuLSBbIF0gVGhlIHNlY3Rpb24gaXMgZGF0YS1kcml2ZW4gKGUuZy4sIHVzZXMgYSBjb25maWcvZGF0YSBmaWxlKSBzbyBmdXR1cmUgbGl2ZSBzdHJlYW1zIGNhbiBiZSBhZGRlZCBlYXNpbHlcbi0gWyBdIFRoZSBsYXlvdXQgaXMgcmVzcG9uc2l2ZSBhbmQgbWF0Y2hlcyB0aGUgZXhpc3Rpbmcgc2l0ZSBkZXNpZ24ifQ -->\n\n| Approved by | Action | Tracking |\n|---|---|---|\n| @lolipopshock | `implement` via `agent-implement.yml` | [approval run](https://github.com/augmented-mind/augmented-mind.github.io/actions/runs/26602114203) |\n\n<!-- sepo-agent-approved -->\n",
+      "createdAt": "2026-05-28T20:39:02Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/48#issuecomment-4568020169",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEEnBng",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /approve req-2c517d",
+      "createdAt": "2026-05-28T21:02:47Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/48#issuecomment-4568236446",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEEoyLw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo implementation finished**\n\n- Branch: `agent/implement-issue-48/claude-26602129570`\n- Pull request: https://github.com/augmented-mind/augmented-mind.github.io/pull/49\n- Approval: https://github.com/augmented-mind/augmented-mind.github.io/issues/48#issuecomment-4568236446\n\nAdded a new Live Streams section to the website index page. Created content/live-streams/ with an index.md and ls01.md (the first stream, using the cover image from the issue). Downloaded the cover image to quartz/static/covers/LS01-cover.png. Reused the existing EpisodeCarousel component in quartz.layout.ts with a live-streams/ path filter, placing the carousel immediately after the Episodes section on the home page. TypeScript errors present are pre-existing (missing node_modules in CI) and unrelated to these changes.",
+      "createdAt": "2026-05-28T21:06:01Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/48#issuecomment-4568265263",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEPz8_g",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /orchestrate can you implement this again (following the latest change after https://github.com/augmented-mind/augmented-mind.github.io/pull/49#issuecomment-4579970806 ) you can just submit the same code and the purpose is to test the deployment ",
+      "createdAt": "2026-05-29T21:22:07Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/48#issuecomment-4579982590",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEP0sVQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| orchestrate | implement | Issue #48 | 2 / 40 | Dispatched |\n\nReason: agent planner selected implement: User explicitly requests a fresh implementation of the Live Streams feature (same code as PR #49) to test the Surge.sh preview deployment with the environment-wired workflow. PR #49 is open but stale for this purpose; a new PR from main will trigger the implement workflow cleanly.\n\n<!-- sepo-agent-handoff state:dispatched created:1780089867716 base64:aGFuZG9mZjphdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW86MjY2NjI4NTY0MDU6b3JjaGVzdHJhdGU6NDg6aW1wbGVtZW50OjQ4OjI -->",
+      "createdAt": "2026-05-29T21:24:28Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/48#issuecomment-4579994709",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABEP13og",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo implementation finished**\n\n- Branch: `agent/implement-issue-48/claude-26662946788`\n- Pull request: https://github.com/augmented-mind/augmented-mind.github.io/pull/53\n- Preview: https://augmented-mind-preview-48.surge.sh\n\nRe-implemented the Live Streams section from PR #49, including the workflow fixes from the latest fix-pr run. Created content/live-streams/index.md and content/live-streams/ls01.md (with the cover image from issue #48 copied from the previous branch). Added a liveStreamsCarousel to quartz.layout.ts using the EpisodeCarousel component with a live-streams/ path filter, placed after the Episodes carousel on the index page. Applied all three workflow fixes: added `environment: preview` to the implement, fix-pr, and teardown-preview jobs, and added explicit credential guards so empty SURGE_* secrets fail loudly rather than silently no-oping. This new branch starts from current main so the implement workflow will run under the new workflow definition and should trigger a real Surge.sh deploy to augmented-mind-preview-48.surge.sh.",
+      "createdAt": "2026-05-29T21:28:17Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/48#issuecomment-4580013986",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABERh5ZA",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /implement can you try to implement it again? \n\nI wonder if you could do the following: \n1. duplicate most of the implementation in #53 , but not include the surge workflow fixes (in that the workflow fixes happens on the main branch already. \n2. and we should do a proper design + link + name for the live stream 1: \n    - https://www.youtube.com/live/2d49pMXiJOA\n    - title: how a class wrote a paper on human-centered LLMs \n    - guest: Caleb Ziems, Dora Zhao, and Diyi Yang",
+      "createdAt": "2026-05-30T05:19:29Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/48#issuecomment-4581783908",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABERikyQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "> Session continuity could not be restored, so this run continued with a fresh session.\n\n**Sepo implementation finished**\n\n- Branch: `agent/implement-issue-48/claude-26675540920`\n- Pull request: https://github.com/augmented-mind/augmented-mind.github.io/pull/56\n- Preview: https://augmented-mind-preview-56.surge.sh\n\nAdded a Live Streams section to the website. Created content/live-streams/index.md and content/live-streams/ls01.md for the first live stream ('How a Class Wrote a Paper on Human-Centered LLMs' with guests Caleb Ziems, Dora Zhao, and Diyi Yang, linking to https://www.youtube.com/live/2d49pMXiJOA). Downloaded the cover image from the issue attachment to quartz/static/covers/LS01-cover.png. Added a liveStreamsCarousel to quartz.layout.ts using EpisodeCarousel with a live-streams/ path filter, placed after the Episodes carousel on the index page. No workflow changes included — those already landed on main via PR #55.",
+      "createdAt": "2026-05-30T05:22:50Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/48#issuecomment-4581795017",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-05-28T20:37:59Z",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    },
+    {
+      "id": "LA_kwDOQ106188AAAAClP46Lw",
+      "name": "preview",
+      "description": "",
+      "color": "31B16D"
+    }
+  ],
+  "number": 48,
+  "state": "CLOSED",
+  "title": "Design a new section on our website:",
+  "updatedAt": "2026-06-17T03:56:11Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/48"
+}
