@@ -73,6 +73,49 @@
       "reactionGroups": [],
       "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/80#issuecomment-4667174167",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABG1nvnQ",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /review",
+      "createdAt": "2026-06-19T18:16:59Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/80#issuecomment-4753846173",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABG1oIDg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "I was unable to produce a response. Please check the workflow logs.\n\n---\n`claude` | `claude-opus-4-8` | `high` | `GitHub Actions 1000002348`",
+      "createdAt": "2026-06-19T18:18:16Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/80#issuecomment-4753852430",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-06-10T03:24:44Z",
@@ -117,6 +160,6 @@
   "reviews": [],
   "state": "OPEN",
   "title": "Automate new-episode ingest from podcast RSS feed",
-  "updatedAt": "2026-06-10T06:21:31Z",
+  "updatedAt": "2026-06-19T18:18:16Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/80"
 }
