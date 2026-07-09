@@ -6,7 +6,7 @@
     "name": "Shannon Shen"
   },
   "body": "We can have sub categories like meetup, etc. And we do not need to name the LIVE as LIVE 01 etc. \n\nWhat do you think? \n\n@sepo-agent /answer ",
-  "closedAt": null,
+  "closedAt": "2026-07-09T11:51:39Z",
   "comments": [
     {
       "id": "IC_kwDOQ106188AAAABFTkcAg",
@@ -22,6 +22,21 @@
       "reactionGroups": [],
       "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/74#issuecomment-4651031554",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABJYmrqA",
+      "author": {
+        "login": "github-actions"
+      },
+      "authorAssociation": "NONE",
+      "body": "Closing because this agent issue has had no activity for 30 days.",
+      "createdAt": "2026-07-09T11:51:39Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/74#issuecomment-4924746664",
+      "viewerDidAuthor": false
     }
   ],
   "createdAt": "2026-06-08T16:15:39Z",
@@ -34,8 +49,8 @@
     }
   ],
   "number": 74,
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "Can we rename live stream into something like \"special events\"",
-  "updatedAt": "2026-06-08T16:18:16Z",
+  "updatedAt": "2026-07-09T11:51:39Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/74"
 }
