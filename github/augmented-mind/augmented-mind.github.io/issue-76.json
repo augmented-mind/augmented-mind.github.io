@@ -6,7 +6,7 @@
     "name": "Michael Ryan"
   },
   "body": "**Is your feature request related to a problem? Please describe.**\nWe have to create new PR's for each episode.  It is actually quite simple, but I imagine it could be even easier!!  Our episodes are released to this RSS feed: https://anchor.fm/s/10dbf5b7c/podcast/rss and this YouTube channel: https://www.youtube.com/@Augmented-Mind\n\nBoth the feed and the YouTube video include the full description of the episode.  I imagine there are possibly Spotify and Apple Podcast API's or ways of looking up episode links.  It feels as though once the episode is released to the RSS feed we could trigger a GitHub action to automatically submit a PR to add the episode to our website.\n\n**Describe the solution you'd like**\nWrite a GitHub workflow that automatically triggers on RSS feed update to detect if there is a new episode.  If there is we query the related API's (YouTube, Spotify, Apple Podcasts) to get the episode links and we get the description directly from the RSS feed.  Then we automatically submit a templated PR including the episode information and send it off to sepo for review.\n\n**Describe alternatives you've considered**\nThe main alternative is either (1) manually updating the website ourselves or (2) Creating a PR with the episode info which we currently do.   This is easy, but can you imagine how easy it would be if uploading was the ONLY step in the release pipeline? :) \n\n**Additional context**\nI think everything is included above although at one point we considered several linked together pages on the website so might be useful for us to tag sepo or similar code agents to add proper links to other pages on our website.  This can be done when the PR is created and can serve as the \"intelligence\" layer in this process.\n",
-  "closedAt": null,
+  "closedAt": "2026-07-11T10:07:51Z",
   "comments": [
     {
       "id": "IC_kwDOQ106188AAAABFhIKfw",
@@ -207,6 +207,21 @@
       "reactionGroups": [],
       "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/76#issuecomment-4666150594",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABJrp-Ww",
+      "author": {
+        "login": "github-actions"
+      },
+      "authorAssociation": "NONE",
+      "body": "Closing because this agent issue has had no activity for 30 days.",
+      "createdAt": "2026-07-11T10:07:50Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/76#issuecomment-4944723547",
+      "viewerDidAuthor": false
     }
   ],
   "createdAt": "2026-06-10T00:05:28Z",
@@ -225,8 +240,8 @@
     }
   ],
   "number": 76,
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "Automatically Ingest new episodes with RSS / Youtube API integration",
-  "updatedAt": "2026-06-10T03:24:47Z",
+  "updatedAt": "2026-07-11T10:07:51Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/76"
 }
