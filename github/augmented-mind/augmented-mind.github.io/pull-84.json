@@ -7,7 +7,7 @@
   },
   "baseRefName": "main",
   "body": "## Summary\n\n- add a dedicated `/forum` page that renders Posts-category GitHub Discussions directly in the browser\n- use GitHub REST Discussions API with `application/vnd.github.full+json`, no token required\n- show `/forum` as a card list; clicking a card opens `/forum?discussion=<number>` as a full-width post view\n- render post detail directly in the center content area instead of inside a nested two-column/card container\n- add a small community-contribution banner on post detail pages noting that posts may not reflect the hosts' views\n- cache discussion responses in localStorage for 12 hours without exposing cache status in the UI\n- add a simple homepage link to the forum\n\n## Verification\n\n- `npx prettier content/forum.md content/index.md quartz/components/pages/Content.tsx quartz/components/scripts/forum.inline.ts --write`\n- `npx quartz build`\n- `npx tsc --noEmit --pretty false` still reports pre-existing unrelated errors in `EpisodeCarousel.tsx`, `Footer.tsx`, and `GuestSuggestion.tsx`; no forum-related errors\n",
-  "closedAt": null,
+  "closedAt": "2026-07-21T17:24:44Z",
   "comments": [
     {
       "id": "IC_kwDOQ106188AAAABGHGI_g",
@@ -305,6 +305,21 @@
       "reactionGroups": [],
       "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/84#issuecomment-5028744445",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABLDry1Q",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nNo changes were committed to [`agent/rubrics`](https://github.com/augmented-mind/augmented-mind.github.io/tree/agent/rubrics) from PR #84.\n\nI've reviewed the full PR conversation. Here's my assessment:\n\n**Human (trusted-source) content in PR #84** — all from `lolipopshock` (Shannon Shen, PR author and the run requester):\n- `@sepo-agent /review` (several times)\n- `@sepo-agent /answer does it work now?`\n- `@sepo-agent /fix-pr come up with a minimum fix?`\n\nEverything else is agent-authored (`sepo-agent-app[bot]`, `github-actions[bot]`) — advisory only, not a basis for user/team preference.\n\n**Evaluation:**\n- All of the human's comments are one-off operational slash commands, not statements of durable preference.\n- \"come up with a minimum fix\" is the only stylistic hint (preference for minimal-scope fixes), but it appears once, tied to this specific PR, and isn't restated or reinforced — too weak and one-off to encode as a durable rubric.\n- No existing `/rubrics/` and no `agent/rubrics` branch exist, so there's nothing to update either.\n- The guardrails direct me to skip one-off comments and prefer no changes when evidence is ambiguous.\n\nNothing in this conversation reveals a stable, repeated, or explicitly-stated user/team preference that future agents should be evaluated against.\n\n**no rubric changes**\n\n---\n`claude` | `claude-opus-4-8` | `medium` | `GitHub Actions 1000003880`",
+      "createdAt": "2026-07-21T17:26:13Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/84#issuecomment-5037028053",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-06-15T04:56:11Z",
@@ -355,7 +370,7 @@
       "color": "5319e7"
     }
   ],
-  "mergedAt": null,
+  "mergedAt": "2026-07-21T17:24:44Z",
   "number": 84,
   "reviewDecision": "",
   "reviews": [
@@ -420,8 +435,8 @@
       }
     }
   ],
-  "state": "OPEN",
+  "state": "MERGED",
   "title": "Add live GitHub Discussions forum",
-  "updatedAt": "2026-07-21T00:22:44Z",
+  "updatedAt": "2026-07-21T17:26:13Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/84"
 }
