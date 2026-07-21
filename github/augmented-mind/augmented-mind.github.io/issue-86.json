@@ -1,0 +1,25 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "body": "https://github.com/augmented-mind/augmented-mind.github.io/pull/84#issuecomment-5027538379\n\n@sepo-agent /answer ",
+  "closedAt": "2026-07-20T23:17:26Z",
+  "comments": [],
+  "createdAt": "2026-07-20T22:39:38Z",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "number": 86,
+  "state": "CLOSED",
+  "title": "Why did the action fail?",
+  "updatedAt": "2026-07-20T23:17:26Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/86"
+}

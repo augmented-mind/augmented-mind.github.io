@@ -66,6 +66,245 @@
       "reactionGroups": [],
       "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/84#issuecomment-4725678169",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABK6n-BA",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /review ",
+      "createdAt": "2026-07-20T21:36:50Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/84#issuecomment-5027528196",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABK6olyw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "I was unable to produce a response. Please check the workflow logs.\n\n---\n`claude` | `claude-opus-4-8` | `high` | `GitHub Actions 1000003820`",
+      "createdAt": "2026-07-20T21:38:08Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/84#issuecomment-5027538379",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABK7HDKg",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /answer does it work now? ",
+      "createdAt": "2026-07-20T22:53:09Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/84#issuecomment-5028037418",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABK7Hn4A",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Yes — the agent is responding now. Your two earlier `/review` requests (2026-06-17 and 2026-07-20 21:36) both failed with \"I was unable to produce a response,\" but this `/answer` is going through, which confirms the pipeline is working again.\n\nFor context on PR #84 itself: the branch `feat/live-github-forum` is still open with no completed review, and its most recent CI (the 06-17 agent/preview runs) came back `SKIPPED`. The last real build signal is from 2026-06-15, where `check` (Test Scripts) and the Sepo preview `deploy` both passed.\n\nWant me to go ahead and run `/review` on this PR now that the agent is back up?\n\n---\n`claude` | `claude-opus-4-8` | `high` | `GitHub Actions 1000003827`",
+      "createdAt": "2026-07-20T22:54:46Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/84#issuecomment-5028046816",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABK7Nh7Q",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /review",
+      "createdAt": "2026-07-20T23:11:23Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/84#issuecomment-5028143597",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABK7OFUA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "No rubrics exist. The `agent/rubrics` branch is absent and `RUBRICS_AVAILABLE=false`, with empty `RUBRICS_DIR`/`RUBRICS_CONTEXT_FILE` — no rubric set has been initialized for this repo.\n\n## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| N/A | N/A | 0 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| — | _No rubrics selected_ | not applicable | N/A | `RUBRICS_AVAILABLE=false`; `agent/rubrics` ref does not exist; `RUBRICS_DIR`/`RUBRICS_CONTEXT_FILE` empty |\n\n## Notes\n\n- No user/team rubric set has been initialized for `augmented-mind/augmented-mind.github.io`. The rubrics-review lane ran, but its inputs are empty (`RUBRICS_AVAILABLE=false`, no `agent/rubrics` branch), so there is nothing to score PR #84 against.\n- This is a rubric-scoped review only — it is intentionally **not** a general code review. PR #84 (add live GitHub Discussions forum) may still merit a standard `/review`; that is a separate route.\n- Smallest useful follow-up: run the rubrics-initialization workflow to create an `agent/rubrics` set if you want rubric-based scoring on future PRs. Otherwise, request a general review instead of a rubrics review.\n\n## Findings\n\n- **INFO:** No applicable rubrics found; scoring skipped. No blocking or warning findings can be tied to rubrics because none are defined.\n\n## Final Rubric Verdict\n\nN/A\n\n---\n`claude` | `claude-opus-4-8` | `high` | `GitHub Actions 1000003830`",
+      "createdAt": "2026-07-20T23:12:59Z",
+      "includesCreatedEdit": false,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/84#issuecomment-5028152656",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABK7VF1w",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: 31cc78f4d739d0c1a4213aa717f8066ed30323a2 -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\nBoth memory updates landed. Everything is verified and the two inline comments are posted. Here is the synthesis.\n\n---\n\n## Summary of PR/Issue\n\nPR #84 adds a dedicated `/forum` page that renders the org's Posts-category GitHub Discussions live in the browser. It fetches from the **unauthenticated** GitHub REST Discussions API (`Accept: application/vnd.github.full+json`, no token), so pre-rendered `body_html` is used directly and no secrets are baked into the static build; responses are cached in `localStorage` for 12h. The page shows a card list, and clicking a card opens `?discussion=<n>` as a full-width post-detail view with a \"community post\" disclaimer banner. A homepage link is wired via `SubscribeLinks`, and there is a `noscript` fallback. The design is well-reasoned for a static site — the tokenless-REST + client-side-filter tradeoff is the right call given GraphQL would require a credentialed backend.\n\n## Review\n\nThe feature is well-built, follows existing repo conventions (inline-script wiring, CSS-in-component-string), and handles caching, deep-linking, errors, and no-JS gracefully. I live-verified the core premise — the unauthenticated repo Discussions endpoint returns **HTTP 200** with `body_html`, so there is **no BLOCKING functional issue**. One real UX bug (SPA-router double-fire) and two smaller items are worth addressing before merge. The rubrics lane returned N/A (no rubric set is configured for this repo), so it contributed no code findings.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| In-page links double-fire with Quartz SPA router | WARNING | `.forum-card` / `.forum-back-link` anchors bubble to Quartz's window-level click router (no `defaultPrevented` check), causing a redundant fetch, scroll-to-top, and a **duplicate history entry** so the browser Back button needs two presses. |\n| Community-authored `body_html` rendered via `innerHTML` | WARNING | Third-party Discussion content is injected as HTML on the hosts' primary domain. Risk is low (GitHub sanitizes server-side; anchors/images hardened), but the trust boundary should be an explicit, accepted decision. |\n| `parseForumTitle` rejoins title with `\"_ \"` | WARNING (low) | `join(\"_ \")` (L63) inserts a literal `\"_ \"` between segments, corrupting multi-underscore titles. Latent for current content (needs a no-`<h1>` body + extra underscores), but a genuine bug. |\n| Unauthenticated rate limit (60/hr per IP) | INFO | Cold load costs up to `maxPages` (5) requests; well-mitigated by the 12h cache and single-request short-circuit. Edge case: shared/CGNAT IPs pool the budget. |\n| Client-side category filter caps at `maxPages × 100` | INFO | Posts beyond the first ~500 discussions across all categories would be missed; acceptable at current scale, truncation note handles UX. |\n| No unit tests for pure helpers | INFO | `parseForumTitle` / `makeExcerpt` / `escapeForumHTML` / `displayDate` are pure and testable; repo precedent exists (`search.test.ts`). A small test would have caught the title bug. |\n| PR-description mismatch + minor duplication | INFO | Verification command lists `content/index.md` (not in diff; link actually ships via `SubscribeLinks`). `initForumDiscussions`/`refreshForum` share a fetch→cache→render block. Pre-existing `tsc` errors are unrelated. |\n\n## Progress\n\n- **Live-verified working:** unauthenticated `GET /repos/augmented-mind/augmented-mind.github.io/discussions` (`full+json`) returned HTTP 200, 19 discussions (2 in `posts`), with `body_html` present — the tokenless design functions; no hidden BLOCKING issue.\n- **Finding #3 is latent for current content:** the two live posts have single-underscore titles (e.g. `Guest Post_ CongJie Pan_…`), and post bodies with an `<h1>` bypass `parseForumTitle` for display — so the bug does not currently surface, but the fix is still cheap and correct.\n- **Rubrics review:** N/A — `agent/rubrics` branch absent, `RUBRICS_AVAILABLE=false`; nothing to score. Metadata only, not a code finding.\n- **No prior review to carry forward:** two earlier `/review` requests (2026-06-17, 2026-07-20) failed to produce output due to a pipeline issue that is now resolved; there are no stale findings to reconcile.\n- **Inline comments posted (this synthesis):** [L290 — SPA-router double-fire](https://github.com/augmented-mind/augmented-mind.github.io/pull/84#discussion_r3618186642) and [L63 — `join(\"_ \")` bug](https://github.com/augmented-mind/augmented-mind.github.io/pull/84#discussion_r3618187311). No existing inline comments/threads existed, so nothing was replied to, resolved, or minimized.\n\n## Issue Details\n\n<details>\n<summary><b>In-page links double-fire with Quartz SPA router (Back button needs two presses)</b></summary>\n\n**Cause:** `.forum-card` (`forum.inline.ts:290`) and `.forum-back-link` (L323) are real `<a href>` elements. Their click handlers (L355, L365) call only `event.preventDefault()`. Quartz's global router in [`spa.inline.ts:150`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/scripts/spa.inline.ts#L150) listens on **`window`** and never checks `event.defaultPrevented`, so the event still bubbles up and `navigate()` runs: it re-fetches `/forum`, `micromorph` briefly clears the just-rendered post, `scrollTo({top:0})` overrides the smooth scroll, and a **second** `history.pushState` to the identical `?discussion=N` URL runs. The duplicate entry makes the first Back press appear to do nothing.\n\n**Candidate solutions:** Add `data-router-ignore` to both anchors so `getOpts()` bails ([`spa.inline.ts:32`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/scripts/spa.inline.ts#L32)); or call `event.stopPropagation()` in the two click handlers. Then verify Back/Forward between list and post in the Sepo preview.\n\n**Comments:** Highest-value finding — small, mechanical fix with an outsized UX payoff on the page's primary interaction.\n</details>\n\n<details>\n<summary><b>Community-authored <code>body_html</code> rendered via innerHTML (trust boundary)</b></summary>\n\n**Cause:** `prepareForumBody` / `renderSelectedDiscussion` inject GitHub's `body_html` via `innerHTML`. Anyone can open a Posts-category Discussion, so this is third-party content rendered as HTML on the hosts' primary domain.\n\n**Candidate solutions:** Accept as-is (GitHub sanitizes `body_html` server-side; the code additionally forces `rel=\"noopener noreferrer nofollow\"` + `target=\"_blank\"` on anchors, and all text is routed through `escapeForumHTML`). For defense-in-depth, run `body_html` through a client-side sanitizer (e.g. DOMPurify) — likely more dependency than a static podcast site needs.\n\n**Comments:** Not a required code change — the ask is a conscious maintainer sign-off on the \"trust GitHub's sanitizer\" dependency, so it's a human decision rather than an automation action item.\n</details>\n\n<details>\n<summary><b><code>parseForumTitle</code> rejoins title with <code>\"_ \"</code></b></summary>\n\n**Cause:** `forum.inline.ts:63` uses `underscoreParts.slice(1).join(\"_ \")`, inserting a literal `\"_ \"` between segments. A title like `guest post_Ada_My_Cool_Post` renders as `My_ Cool_ Post`. This is the fallback used when a post body has no `<h1>`.\n\n**Candidate solutions:** Use `join(\" \")`, or `join(\"_\")` to preserve underscores. A tiny `forum.test.ts` covering `parseForumTitle`/`makeExcerpt` would lock this in (finding #6).\n\n**Comments:** Latent for the current two posts, but a clear, zero-risk correctness fix.\n</details>\n\n<details>\n<summary><b>INFO notes (rate limit, filter ceiling, tests, description/duplication)</b></summary>\n\n**Cause:** (4) Cold load costs up to 5 requests against the 60/hr-per-IP unauthenticated limit; shared/CGNAT IPs pool it. (5) REST returns all categories, so Posts beyond ~`maxPages × 100` are not seen. (6) Pure helpers have no unit tests despite `search.test.ts` precedent. (7) PR description's verification lists `content/index.md` (not in diff; the homepage link actually ships via `SubscribeLinks`), and `initForumDiscussions`/`refreshForum` duplicate a fetch→cache→render block.\n\n**Candidate solutions:** All acceptable as-is at current scale. Optional: add `forum.test.ts`; extract the shared fetch/render helper; correct the PR description. Pre-existing `tsc` errors (`EpisodeCarousel.tsx`, `Footer.tsx`, `GuestSuggestion.tsx`) are unrelated to this PR but mean `npm run check` is already red independent of it.\n\n**Comments:** Informational; none block merge and none are automation action items.\n</details>\n\n## Recommended Next Step\n\n**FIX_PR** — findings #1 and #3 are concrete, low-risk, line-tied branch changes (add `data-router-ignore`/`stopPropagation`; swap the `join` separator) that are safe for an automated fix-pr pass, with a manual Back/Forward preview check for #1.\n\n## Final Verdict\n\n**MINOR_ISSUES**\n\n## Action Items\n\n- [ ] Stop `.forum-card` / `.forum-back-link` from double-firing with Quartz's SPA router — add `data-router-ignore` to both anchors (or `event.stopPropagation()` in the handlers), then verify Back/Forward between list and post in the preview.\n- [ ] Fix `parseForumTitle` (`forum.inline.ts:63`): replace `join(\"_ \")` with `join(\" \")` (or `join(\"_\")` to preserve underscores).\n\n---\n`claude` | `claude-opus-4-8` | `max` | `GitHub Actions 1000003833`",
+      "createdAt": "2026-07-20T23:28:15Z",
+      "includesCreatedEdit": false,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/84#issuecomment-5028267479",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABK7qiJg",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /fix-pr come up with a minimum fix? ",
+      "createdAt": "2026-07-21T00:03:27Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/84#issuecomment-5028618790",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABK7r00g",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo pushed fixes for this PR.** Branch: `feat/live-github-forum`. Requested by @lolipopshock.\n\n<!-- sepo-agent-fix-pr-status -->\n\nApplied the minimum fix for the two WARNING-level action items from the review synthesis in [`forum.inline.ts`](https://github.com/augmented-mind/augmented-mind.github.io/blob/feat/live-github-forum/quartz/components/scripts/forum.inline.ts):\n\n- **SPA-router double-fire (WARNING):** Added `data-router-ignore` to the `.forum-card` and `.forum-back-link` anchors so Quartz's window-level router (`spa.inline.ts:32` bails on `routerIgnore`) no longer re-navigates on top of the in-page handlers — fixes the redundant fetch, scroll override, and duplicate history entry that made Back need two presses.\n- **`parseForumTitle` separator bug (WARNING, low):** Changed `join(\"_ \")` → `join(\" \")` (L63) so multi-underscore fallback titles no longer render a stray `\"_ \"` between segments.\n\n<details><summary>Scope & verification</summary>\n\n- Left untouched (INFO / human-judgment only): `innerHTML` trust-boundary sign-off, rate-limit note, filter ceiling, unit tests, PR-description mismatch.\n- `npx tsc --noEmit` reports no forum-related errors (pre-existing unrelated errors in `EpisodeCarousel.tsx` / `Footer.tsx` / `GuestSuggestion.tsx` remain).\n- Net diff: 3 insertions, 3 deletions in one file. Not committed — changes left in the working tree.\n- The `data-router-ignore` fix should be spot-checked with Back/Forward navigation in the Sepo preview.\n</details>\n\n---\n`claude` | `claude-opus-4-8` | `xhigh` | `GitHub Actions 1000003835`",
+      "createdAt": "2026-07-21T00:05:50Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/84#issuecomment-5028639954",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABK7sAjA",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "\r\n@sepo-agent /review\r\n\r\n",
+      "createdAt": "2026-07-21T00:06:20Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/84#issuecomment-5028642956",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABK7su3w",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "No rubric set is configured for this repository, so there is nothing to score PR #84 against.\n\n## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| N/A | N/A | 0 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| — | _No rubrics selected_ | not applicable | N/A | `RUBRICS_AVAILABLE=false`; `RUBRICS_DIR` empty; `RUBRICS_CONTEXT_FILE` empty; `agent/rubrics` ref returns no head via `git ls-remote` |\n\n## Notes\n\n- No user/team rubric set has been initialized for `augmented-mind/augmented-mind.github.io`. The rubrics-review lane ran (`LANE=rubrics-review`, `RUBRICS_REF=agent/rubrics`), but its inputs are empty (`RUBRICS_AVAILABLE=false`, no `agent/rubrics` branch), so there is nothing to score PR #84 against.\n- This is a rubric-scoped review only — intentionally **not** a general code review. A full dual-agent `/review` synthesis was already posted on this PR ([comment](https://github.com/augmented-mind/augmented-mind.github.io/pull/84#issuecomment-5028267479)) and its two WARNING action items (SPA-router double-fire and the `parseForumTitle` `join(\"_ \")` bug) were addressed by a subsequent `/fix-pr`. Those are separate routes from this rubric lane.\n- Smallest useful follow-up: run the rubrics-initialization workflow to create an `agent/rubrics` set if you want rubric-based scoring on future PRs. Otherwise, continue to use the general `/review` route.\n\n## Findings\n\n- **INFO:** No applicable rubrics found; scoring skipped. No blocking or warning findings can be tied to rubrics because none are defined for this repository.\n\n## Final Rubric Verdict\n\nN/A\n\n---\n`claude` | `claude-opus-4-8` | `high` | `GitHub Actions 1000003840`",
+      "createdAt": "2026-07-21T00:08:13Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/84#issuecomment-5028654815",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABK7yM_Q",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: 57774afa2021cde13d00f26daa6f19b1202d10a2 -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\nVerified everything. Both prior WARNINGs are genuinely fixed at head `57774af`, replies posted to the two unresolvable threads, and the durable router lesson recorded. Here's the synthesis.\n\n## Summary of PR/Issue\n\nPR #84 adds a dedicated `/forum` page that renders the org's Posts-category GitHub Discussions live in the browser. It fetches from the **unauthenticated** GitHub REST Discussions API (`Accept: application/vnd.github.full+json`, no token), uses the pre-rendered `body_html` directly so no secrets enter the static build, and caches responses in `localStorage` for 12h. The page shows a card grid; clicking a card opens `?discussion=<n>` as a full-width post view with a \"community post\" disclaimer banner, plus a `noscript` fallback and a homepage link wired via `SubscribeLinks`. This is a **re-review** at head `57774af` — a prior dual-agent synthesis at `31cc78f` flagged two WARNINGs, a `/fix-pr` addressed them, and this pass confirms they landed and re-scans for anything outstanding.\n\n## Review\n\nBoth prior WARNINGs are **fixed and independently verified in the head commit**, and no new issues were introduced; only informational items plus one conscious trust-boundary sign-off remain. The rubrics lane returned N/A (no rubric set is configured for this repo), contributing no code findings.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Community `body_html` rendered via `innerHTML` | INFO | Third-party Discussion content injected as HTML on the hosts' domain. Only unescaped sink; GitHub sanitizes `body_html` server-side and anchors are hardened. Standard/acceptable — warrants a conscious maintainer accept, not a code change. |\n| Unauthenticated rate limit (60/hr per IP) | INFO | Cold load costs ≤5 requests; well-mitigated by the 12h cache and single-request short-circuit for cached deep-links. Shared/CGNAT IPs pool the budget. |\n| Client-side category filter caps at ~`maxPages × 100` | INFO | Posts beyond ~500 discussions across all categories would be missed; fine at current scale, truncation note handles UX. |\n| No unit tests for pure helpers | INFO | `parseForumTitle` / `makeExcerpt` / `escapeForumHTML` / `displayDate` are pure and testable (`search.test.ts` precedent); a tiny `forum.test.ts` would have caught the title bug. |\n| PR-description mismatch + minor duplication | INFO | Verification lists `content/index.md` (not in diff; link ships via `SubscribeLinks`). `initForumDiscussions`/`refreshForum` share a fetch→cache→render block; script ships to every content page but early-returns when `#forum-discussions` is absent. |\n\n## Progress\n\n- **Both prior WARNINGs RESOLVED and independently verified at head `57774af`:**\n  - **SPA-router double-fire** — `data-router-ignore` is now on `.forum-card` ([L290](https://github.com/augmented-mind/augmented-mind.github.io/blob/feat/live-github-forum/quartz/components/scripts/forum.inline.ts#L290)) and `.forum-back-link` ([L323](https://github.com/augmented-mind/augmented-mind.github.io/blob/feat/live-github-forum/quartz/components/scripts/forum.inline.ts#L323)), so Quartz's `getOpts` bails (`spa.inline.ts:32`). Verified against micromorph 0.4.5 that it strips the runtime `data-forum-mounted` flag on `nav`, so Back/Forward still re-render correctly with a single history entry each.\n  - **`parseForumTitle` separator** — [L63](https://github.com/augmented-mind/augmented-mind.github.io/blob/feat/live-github-forum/quartz/components/scripts/forum.inline.ts#L63) is now `join(\" \")`; `guest post_Ada_My_Cool_Post` → author `Ada`, title `My Cool Post`.\n- **Fix-pr note clarified:** the `/fix-pr` status comment said \"not committed — left in working tree,\" but head `57774af` does contain both fixes (confirmed via the contents API) — the changes did land.\n- **Trust boundary downgraded WARNING→INFO by the reviewer:** the only unescaped sink is GitHub-sanitized `body_html`; title/author/date/URL all route through `escapeForumHTML`, and anchors are forced to `rel=\"noopener noreferrer nofollow\" target=\"_blank\"`.\n- **Rubrics review:** N/A — `agent/rubrics` branch absent, `RUBRICS_AVAILABLE=false`; metadata only, not a code finding.\n- **No stale findings carried forward:** two earlier `/review` requests (2026-06-17, 2026-07-20 21:36) failed to produce output due to a now-resolved pipeline issue; nothing to reconcile.\n- **Inline comments (this synthesis):** replied to both same-agent unresolved threads confirming the fixes landed — [SPA-router thread](https://github.com/augmented-mind/augmented-mind.github.io/pull/84#discussion_r3618468446) and [`join` thread](https://github.com/augmented-mind/augmented-mind.github.io/pull/84#discussion_r3618469045). Could **not** resolve them (`viewerCanResolve: false` for this token); nothing was minimized or deleted. No new inline comments were warranted.\n- **Build note:** pre-existing `tsc` errors in `EpisodeCarousel.tsx` / `Footer.tsx` / `GuestSuggestion.tsx` are unrelated — `npm run check` is already red independent of this PR; no forum-related type errors.\n\n## Issue Details\n\n<details>\n<summary><b>Community-authored <code>body_html</code> rendered via innerHTML (trust boundary)</b></summary>\n\n**Cause:** `prepareForumBody` / `renderSelectedDiscussion` inject GitHub's `body_html` via `innerHTML`. Anyone can open a Posts-category Discussion, so this is third-party content rendered as HTML on the hosts' primary domain.\n\n**Candidate solutions:** Accept as-is — GitHub sanitizes `body_html` server-side (the same boundary github.com relies on), the code additionally hardens anchors (`rel=\"noopener noreferrer nofollow\" target=\"_blank\"`), and all other text routes through `escapeForumHTML`. For defense-in-depth only, run `body_html` through a client-side sanitizer (e.g. DOMPurify) — likely more dependency than a static podcast site needs.\n\n**Comments:** Not a required code change — the ask is a conscious maintainer sign-off on the \"trust GitHub's sanitizer\" dependency, so it is a human decision rather than an automation action item.\n</details>\n\n<details>\n<summary><b>INFO notes (rate limit, filter ceiling, tests, description/duplication)</b></summary>\n\n**Cause:** Cold load costs ≤5 requests against the 60/hr-per-IP unauthenticated limit (shared/CGNAT IPs pool it); REST returns all categories, so Posts beyond ~`maxPages × 100` are not seen; pure helpers have no unit tests despite `search.test.ts` precedent; the PR description's verification lists `content/index.md` (not in the diff — the homepage link ships via `SubscribeLinks` in `quartz.layout.ts`), and `initForumDiscussions`/`refreshForum` duplicate a fetch→cache→render block.\n\n**Candidate solutions:** All acceptable as-is at current scale. Optional: add `forum.test.ts`; extract the shared fetch/render helper; correct the PR description.\n\n**Comments:** Informational; none block merge and none are automation action items.\n</details>\n\n## Recommended Next Step\n\n**HUMAN_DECISION** — both required fixes are in and independently verified; the only remaining items are a maintainer sign-off on the `innerHTML` trust boundary and optional polish (unit tests, PR-description fix), none of which warrant an automated branch change.\n\n## Final Verdict\n\n**SHIP**\n\n## Action Items\n\n- [x] ~~Stop `.forum-card` / `.forum-back-link` from double-firing with Quartz's SPA router~~ — done in `57774af` (`data-router-ignore` on both anchors); router bail + Back/Forward re-render verified.\n- [x] ~~Fix `parseForumTitle` (`forum.inline.ts:63`): `join(\"_ \")` → `join(\" \")`~~ — done in `57774af`.\n\nNo required branch-change action items remain. Optional, non-blocking follow-ups (not automation items): maintainer sign-off on the `innerHTML` trust boundary; add `forum.test.ts` for the pure helpers; correct the `content/index.md` reference in the PR description.\n\n---\n`claude` | `claude-opus-4-8` | `max` | `GitHub Actions 1000003843`",
+      "createdAt": "2026-07-21T00:22:44Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/84#issuecomment-5028744445",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-06-15T04:56:11Z",
@@ -119,9 +358,70 @@
   "mergedAt": null,
   "number": 84,
   "reviewDecision": "",
-  "reviews": [],
+  "reviews": [
+    {
+      "id": "PRR_kwDOQ106188AAAABGoGhrA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-07-20T23:24:42Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "31cc78f4d739d0c1a4213aa717f8066ed30323a2"
+      }
+    },
+    {
+      "id": "PRR_kwDOQ106188AAAABGoGkXw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-07-20T23:24:48Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "31cc78f4d739d0c1a4213aa717f8066ed30323a2"
+      }
+    },
+    {
+      "id": "PRR_kwDOQ106188AAAABGobogA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-07-21T00:20:29Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "57774afa2021cde13d00f26daa6f19b1202d10a2"
+      }
+    },
+    {
+      "id": "PRR_kwDOQ106188AAAABGobrPA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-07-21T00:20:35Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "57774afa2021cde13d00f26daa6f19b1202d10a2"
+      }
+    }
+  ],
   "state": "OPEN",
   "title": "Add live GitHub Discussions forum",
-  "updatedAt": "2026-06-17T03:43:52Z",
+  "updatedAt": "2026-07-21T00:22:44Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/84"
 }
