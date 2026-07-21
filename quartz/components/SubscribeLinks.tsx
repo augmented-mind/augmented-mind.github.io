@@ -3,6 +3,7 @@ import { classNames } from "../util/lang"
 
 interface SubscribeLinksOptions {
   rss?: string
+  forum?: string
   links?: {
     youtube?: string
     spotify?: string
@@ -26,6 +27,7 @@ const defaultOptions = {
 
 export default ((opts?: SubscribeLinksOptions) => {
   const rss = opts?.rss ?? defaultOptions.rss
+  const forum = opts?.forum
   const links = { ...defaultOptions.links, ...opts?.links }
 
   const SubscribeLinks: QuartzComponent = ({ displayClass }: QuartzComponentProps) => {
@@ -67,6 +69,14 @@ export default ((opts?: SubscribeLinksOptions) => {
             </a>
           )}
         </div>
+        {forum && (
+          <>
+            <span class="subscribe-divider">|</span>
+            <a class="subscribe-btn subscribe-forum-link" href={forum} title="Forum">
+              forum
+            </a>
+          </>
+        )}
       </div>
     )
   }
@@ -80,6 +90,9 @@ export default ((opts?: SubscribeLinksOptions) => {
 }
 
 .subscribe-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: 0.88rem;
   color: var(--gray);
   font-weight: 500;
@@ -90,6 +103,8 @@ export default ((opts?: SubscribeLinksOptions) => {
   border-radius: 4px;
   background: transparent;
   cursor: pointer;
+  text-decoration: none;
+  line-height: 1.2;
   transition: all 0.2s ease;
 }
 

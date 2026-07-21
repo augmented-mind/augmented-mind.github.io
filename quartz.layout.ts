@@ -6,6 +6,8 @@ const isSeriesPage = (slug?: string) =>
   (slug?.startsWith("episodes/") && slug !== "episodes/index") ||
   (slug?.startsWith("livestreams/") && slug !== "livestreams/index")
 
+const isForumPage = (slug?: string) => slug === "forum"
+
 // Sidebar episodes list (vertical, compact)
 const episodesSection = Component.RecentNotes({
   title: "Episodes",
@@ -57,6 +59,7 @@ const sidebarSeriesSections = Component.Flex({
 // Subscribe links for podcast platforms
 const subscribeLinks = Component.SubscribeLinks({
   rss: "https://anchor.fm/s/10dbf5b7c/podcast/rss",
+  forum: "forum",
   links: {
     youtube: "https://www.youtube.com/@Augmented-Mind",
     spotify: "https://open.spotify.com/show/40KculkYTe2tOpqJm6TAYr?si=PU_UncsMT4mXjVNCRwoXog",
@@ -145,7 +148,10 @@ export const defaultContentPageLayout: PageLayout = {
     // Show date above title on non-index pages
     Component.ConditionalRender({
       component: Component.ContentMeta({ showReadingTime: false }),
-      condition: (page) => page.fileData.slug !== "index" && !isSeriesPage(page.fileData.slug),
+      condition: (page) =>
+        page.fileData.slug !== "index" &&
+        !isSeriesPage(page.fileData.slug) &&
+        !isForumPage(page.fileData.slug),
     }),
     Component.ConditionalRender({
       component: Component.ArticleTitle(),
