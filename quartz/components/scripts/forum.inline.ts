@@ -60,7 +60,7 @@ function parseForumTitle(title: string): { title: string; author?: string } {
   if (underscoreParts.length >= 2) {
     return {
       author: underscoreParts[0],
-      title: underscoreParts.slice(1).join("_ ").trim(),
+      title: underscoreParts.slice(1).join(" ").trim(),
     }
   }
 
@@ -287,7 +287,7 @@ function renderCards(discussions: GitHubDiscussion[]): string {
           const author = displayAuthor(discussion)
           const excerpt = makeExcerpt(discussion)
           return `
-            <a class="forum-card" href="?discussion=${discussion.number}" data-discussion-number="${discussion.number}">
+            <a class="forum-card" href="?discussion=${discussion.number}" data-discussion-number="${discussion.number}" data-router-ignore>
               <span class="forum-card-eyebrow">GitHub Discussion #${discussion.number}</span>
               <span class="forum-card-title">${escapeForumHTML(title)}</span>
               <span class="forum-card-meta">${escapeForumHTML(author)} · ${escapeForumHTML(displayDate(discussion.created_at))}</span>
@@ -320,7 +320,7 @@ function renderContributionBanner(discussion: GitHubDiscussion, loading: boolean
           <span class="forum-action forum-meta-chip"><span class="forum-action-icon" aria-hidden="true">#</span><span>Discussion ${discussion.number}</span></span>
           <a class="forum-action forum-meta-chip" href="${escapeForumHTML(authorUrl)}" target="_blank" rel="noopener noreferrer nofollow"><span class="forum-action-icon" aria-hidden="true">@</span><span>${escapeForumHTML(author)}</span></a>
           <span class="forum-action-separator" aria-hidden="true">|</span>
-          <a class="forum-action forum-back-link" href="${escapeForumHTML(window.location.pathname)}"><span class="forum-action-icon" aria-hidden="true">←</span><span>All posts</span></a>
+          <a class="forum-action forum-back-link" href="${escapeForumHTML(window.location.pathname)}" data-router-ignore><span class="forum-action-icon" aria-hidden="true">←</span><span>All posts</span></a>
           <a class="forum-action" href="${escapeForumHTML(discussion.html_url)}" target="_blank" rel="noopener noreferrer nofollow"><span class="forum-action-icon" aria-hidden="true">↗</span><span>GitHub</span></a>
           <button class="forum-action forum-refresh-button" type="button" ${loading ? "disabled" : ""}><span class="forum-action-icon" aria-hidden="true">↻</span><span>${loading ? "Refreshing…" : "Refresh"}</span></button>
         </div>
