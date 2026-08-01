@@ -1,0 +1,639 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n\nRefreshes the installed Sepo agent infrastructure from `0.3.1` to `v0.5.0`. This is an automated infrastructure-only update: it syncs `.agent/` and merges the source `.github/` agent assets without touching target application source, site workflows, or target-owned templates.\n\n**Update Sepo from `0.3.1` to `v0.5.0`/`5f7d2032080e9c0578d0e4cb3b98b2f695f33547`**\n\n- Source: `self-evolving/repo@v0.5.0` (SHA `5f7d2032080e9c0578d0e4cb3b98b2f695f33547`, resolved as latest release)\n- Target branch: `agent/update-agent-infra-20260801` ← `main`\n- Installed version before: `0.3.1` (`.agent/package.json`)\n\n## Changed path groups\n\n`130 files changed, +10258 / -667` (39 new, 91 modified), all within `.agent/` and `.github/`:\n\n- `.agent/src/**` — runtime + tests (progress reporting/cancel, self-improvement, attachment download, actor-association, env)\n- `.agent/docs/**`, `.agent/action-templates/`, `.agent/scripts/`, `.agent/tools/local-runner/**` (adds Linux support + post-job cleanup hook)\n- `.agent/README.md`, `.agent/model-defaults.json` (new bundled files)\n- `.github/workflows/**` — updates plus new `agent-cache-seed.yml` and `agent-self-improvement.yml`\n- `.github/prompts/**` — updates plus new `agent-add-rubrics.md` and `agent-self-improvement.md`\n- `.github/actions/**` — `run-agent-task`, `setup-agent-runtime` (runtime caching), `resolve-agent-provider`\n- `.github/ISSUE_TEMPLATE/**` — new `ask-sepo.md`, `install-sepo.md`\n- `.github/assets/sepo-headline.png` (new)\n\nNotable 0.4.0 → 0.5.0 changes now installed: opt-in self-improvement workflow, runtime + Claude CLI caching, Linux local-runner support, direct-answer default triage (`AGENT_TRIAGE_MODE`), `/add-rubrics` route, live progress comments, and release-workflow-authored changelogs. See `.agent/CHANGELOG.md`.\n\n## Audit summary\n\n| Path | Classification | Action |\n|---|---|---|\n| `.agent/**` (excl. `dist/`, `node_modules/`) | agent-owned | Synced (`rsync --delete`, generated dirs excluded); 32 new files added |\n| `.github/workflows/agent-*.yml`, `.github/actions/**`, `.github/prompts/**` | agent-owned | Merged from source in place; 4 new agent files added |\n| `.github/ISSUE_TEMPLATE/agent-goal.yml`, `ask-sepo.md`, `install-sepo.md` | agent-owned | Updated / added |\n| `.github/workflows/deploy.yml`, `preview.yml` | target-owned (site) | Preserved |\n| `.github/ISSUE_TEMPLATE/bug_report.md`, `feature_request.md` | target-owned | Preserved |\n| `.github/dependabot.yml`, `.github/pull_request_template.md` | target-owned | Preserved |\n| `.github/ISSUE_TEMPLATE/install-sepo.yml` | legacy Sepo template (superseded by `install-sepo.md`) | Preserved (removal not requested) |\n| `.github/actions/resolve-agent-provider/package.json` | legacy Sepo file (dropped upstream) | Preserved (removal not requested) |\n| `.skills/`, root `AGENT.md`/`AGENTS.md`/`CLAUDE.md` | optional, not approved | Not added |\n\n## Customizations preserved\n\n- All target-only `.github` files listed above (site deploy/preview workflows, bug/feature templates, dependabot, PR template) are untouched.\n- `.gitignore` already contains `.agent/dist/` and `.agent/node_modules/`; no change needed.\n- No target-only files existed inside `.agent/`, so the sync introduced no target-side deletions beyond upstream-removed runtime files.\n\n## Removed files\n\nNone. `remove obsolete or legacy files` was `false`, so the two legacy Sepo artifacts (`install-sepo.yml`, `resolve-agent-provider/package.json`) were left in place. Recommended optional follow-up (needs explicit approval): remove `install-sepo.yml` since `install-sepo.md` now supersedes it.\n\n## Memory / rubrics branch status\n\n- `agent/memory` exists (`e73c88e`) — not reinitialized; continue using ongoing sync/scan workflows.\n- `agent/rubrics` does not exist — not created (no rubrics requested). Run `Agent / Rubrics / Initialization` only if rubric steering is wanted.\n- No `agent/*`, `agent/memory`, `agent/rubrics`, or `refs/agent-state/*` refs were modified.\n\n## Validation\n\n- `npm --prefix .agent ci` — OK (47 packages, 0 vulnerabilities)\n- `npm --prefix .agent run build` — OK (`tsc` clean)\n- `npm --prefix .agent test` — OK (869 tests, 0 failures)\n- Workflow/action YAML parse — OK (39/39 files)\n- `git diff --check` / `git diff --cached --check` — clean; all staged changes confined to `.agent/` and `.github/`\n\n## Post-merge notes (document only)\n\nAfter merge:\n1. Confirm required secrets/auth still match updated workflows (provider secret + GitHub App / auth path).\n2. Verify branches: `git ls-remote --heads https://github.com/augmented-mind/augmented-mind.github.io.git agent/memory agent/rubrics`. `agent/memory` already exists — do not reinitialize.\n3. New opt-in workflows (`agent-self-improvement.yml`, `agent-cache-seed.yml`) ship disabled/opt-in by default; enable per their configuration if desired.\n4. Optional: run a smoke-test issue mentioning `@sepo-agent /answer`.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABMwfS4A",
+      "author": {
+        "login": "github-actions"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo preview: https://augmented-mind-augmented-mind-pr-87-755306.sepo.site",
+      "createdAt": "2026-08-01T10:56:29Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/87#issuecomment-5151118048",
+      "viewerDidAuthor": false
+    }
+  ],
+  "createdAt": "2026-08-01T10:55:49Z",
+  "files": [
+    {
+      "path": ".agent/CHANGELOG.md",
+      "additions": 41,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/README.md",
+      "additions": 9,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/action-templates/agent-action-template.yml",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/architecture/overall-design.md",
+      "additions": 13,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/architecture/request-lifecycle.md",
+      "additions": 10,
+      "deletions": 4,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/architecture/rubrics.md",
+      "additions": 11,
+      "deletions": 3,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/customization/access-policy.md",
+      "additions": 2,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/customization/configuration-list.md",
+      "additions": 30,
+      "deletions": 9,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/index.md",
+      "additions": 15,
+      "deletions": 5,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/overview/quick-start.md",
+      "additions": 3,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/setup/install-existing-repository.md",
+      "additions": 1,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/setup/self-hosted-github-action-runner.md",
+      "additions": 1,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/setup/setup-guide.md",
+      "additions": 17,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/technical-details/developer-notes.md",
+      "additions": 1,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/technical-details/key-concepts.md",
+      "additions": 4,
+      "deletions": 3,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/technical-details/session-continuity.md",
+      "additions": 2,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/usage/agent-actions.md",
+      "additions": 11,
+      "deletions": 4,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/usage/internal-actions.md",
+      "additions": 2,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/usage/supported-workflows.md",
+      "additions": 71,
+      "deletions": 9,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/model-defaults.json",
+      "additions": 15,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/package-lock.json",
+      "additions": 460,
+      "deletions": 246,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/package.json",
+      "additions": 9,
+      "deletions": 4,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/scripts/test/cli-cache-keys.test.cjs",
+      "additions": 103,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/acpx-adapter.test.ts",
+      "additions": 371,
+      "deletions": 28,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/actor-association.test.ts",
+      "additions": 147,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/apply-self-improvement-decision-cli.test.ts",
+      "additions": 539,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/approval.test.ts",
+      "additions": 7,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/dispatch-agent-implement-cli.test.ts",
+      "additions": 4,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/docs-validation.test.ts",
+      "additions": 70,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/env.test.ts",
+      "additions": 24,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/envelope.test.ts",
+      "additions": 660,
+      "deletions": 26,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/extract-context-cli.test.ts",
+      "additions": 40,
+      "deletions": 5,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/github-attachment-download.test.ts",
+      "additions": 274,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/github.test.ts",
+      "additions": 46,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/onboarding-check-cli.test.ts",
+      "additions": 7,
+      "deletions": 5,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/post-comment-cli.test.ts",
+      "additions": 68,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/post-response-cli.test.ts",
+      "additions": 56,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/progress-cancel.test.ts",
+      "additions": 81,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/progress-final-comment.test.ts",
+      "additions": 30,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/progress-policy.test.ts",
+      "additions": 191,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/progress-render.test.ts",
+      "additions": 347,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/progress-report.test.ts",
+      "additions": 614,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/reactions.test.ts",
+      "additions": 173,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/resolve-agent-provider.test.ts",
+      "additions": 67,
+      "deletions": 6,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/response.test.ts",
+      "additions": 74,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/rubrics.test.ts",
+      "additions": 15,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/self-improvement-requester.test.ts",
+      "additions": 71,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/self-improvement.test.ts",
+      "additions": 118,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/triage.test.ts",
+      "additions": 49,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/verify.test.ts",
+      "additions": 42,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/workflow-action-validation.test.ts",
+      "additions": 341,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/acpx-adapter.ts",
+      "additions": 46,
+      "deletions": 38,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/actor-association.ts",
+      "additions": 116,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/approval.ts",
+      "additions": 5,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/cli/apply-self-improvement-decision.ts",
+      "additions": 381,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/create-pr.ts",
+      "additions": 19,
+      "deletions": 7,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/cli/download-github-attachment.ts",
+      "additions": 112,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/extract-context.ts",
+      "additions": 35,
+      "deletions": 56,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/cli/orchestrate-handoff.ts",
+      "additions": 1,
+      "deletions": 25,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/cli/parse-response.ts",
+      "additions": 7,
+      "deletions": 3,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/cli/post-comment.ts",
+      "additions": 41,
+      "deletions": 4,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/cli/post-response.ts",
+      "additions": 21,
+      "deletions": 3,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/cli/prepare-approval.ts",
+      "additions": 10,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/cli/progress-report.ts",
+      "additions": 604,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/progress/resolve-policy.ts",
+      "additions": 86,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/resolve-progress-status.ts",
+      "additions": 25,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/resolve-self-improvement-requester.ts",
+      "additions": 49,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/verify.ts",
+      "additions": 8,
+      "deletions": 3,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/env.ts",
+      "additions": 7,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/envelope.ts",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/github-attachment-download.ts",
+      "additions": 275,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/github.ts",
+      "additions": 23,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/onboarding.ts",
+      "additions": 9,
+      "deletions": 13,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/progress-cancel.ts",
+      "additions": 103,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/progress-final-comment.ts",
+      "additions": 96,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/progress-policy.ts",
+      "additions": 158,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/progress-render.ts",
+      "additions": 495,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/reactions.ts",
+      "additions": 140,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/response.ts",
+      "additions": 107,
+      "deletions": 3,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/rubrics.ts",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/run.ts",
+      "additions": 18,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/self-improvement-requester.ts",
+      "additions": 68,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/self-improvement.ts",
+      "additions": 220,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/triage.ts",
+      "additions": 65,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/verify.ts",
+      "additions": 35,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/tools/local-runner/README.md",
+      "additions": 98,
+      "deletions": 16,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/tools/local-runner/bootstrap.sh",
+      "additions": 35,
+      "deletions": 3,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/tools/local-runner/check-requirements.sh",
+      "additions": 31,
+      "deletions": 6,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/tools/local-runner/cleanup-runner.sh",
+      "additions": 5,
+      "deletions": 3,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/tools/local-runner/com.local-runner.cleanup.plist.template",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/tools/local-runner/hooks/post-job-cleanup.sh",
+      "additions": 59,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/tools/local-runner/setup-runners.sh",
+      "additions": 59,
+      "deletions": 4,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/tools/local-runner/start-runners.sh",
+      "additions": 6,
+      "deletions": 3,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/tools/local-runner/stop-runners.sh",
+      "additions": 3,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/ask-sepo.md",
+      "additions": 9,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/install-sepo.md",
+      "additions": 15,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".github/actions/resolve-agent-provider/resolve-provider.js",
+      "additions": 40,
+      "deletions": 9,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/actions/run-agent-task/action.yml",
+      "additions": 153,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/actions/setup-agent-runtime/action.yml",
+      "additions": 175,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/assets/sepo-headline.png",
+      "additions": 0,
+      "deletions": 0,
+      "changeType": "ADDED"
+    }
+  ],
+  "headRefName": "agent/update-agent-infra-20260801",
+  "labels": [],
+  "mergedAt": null,
+  "number": 87,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "OPEN",
+  "title": "Update Sepo from 0.3.1 to v0.5.0/5f7d2032080e9c0578d0e4cb3b98b2f695f33547",
+  "updatedAt": "2026-08-01T10:56:29Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/87"
+}
