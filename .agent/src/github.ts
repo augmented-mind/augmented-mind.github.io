@@ -67,6 +67,28 @@ export function updateIssueComment(repo: string, commentId: string | number, bod
   ]);
 }
 
+export function fetchIssueCommentBody(repo: string, commentId: string | number): string {
+  return gh([
+    "api",
+    `repos/${repo}/issues/comments/${commentId}`,
+    "--jq",
+    ".body",
+  ]);
+}
+
+export function createIssueComment(repo: string, issueNumber: number, body: string): string {
+  return gh([
+    "api",
+    "--method",
+    "POST",
+    `repos/${repo}/issues/${issueNumber}/comments`,
+    "-f",
+    `body=${body}`,
+    "--jq",
+    ".id",
+  ]).trim();
+}
+
 // --- Labels ---
 
 export interface EnsureLabelOptions {
@@ -198,7 +220,7 @@ function authorLoginFromRecord(record: Record<string, unknown>): string {
   return extractLogin(record.author) || extractLogin(record.user);
 }
 
-function normalizeActorLogin(value: string): string {
+export function normalizeActorLogin(value: string): string {
   return String(value || "")
     .trim()
     .toLowerCase()

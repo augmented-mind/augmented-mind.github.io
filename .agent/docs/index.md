@@ -26,19 +26,23 @@ Sepo turns a repository into a **self-evolving repository**: a codebase that can
 
 Check [Install into an existing repository](setup/install-existing-repository.md) for the detailed guide.
 
-- **Public repositories:** the quickest path is to open the [Install Sepo into another repository](https://github.com/self-evolving/repo/issues/new?template=install-sepo.yml) issue form in `self-evolving/repo` and paste the target URL.
+- **Public repositories:** the quickest path is to open the [Install Sepo into another repository](https://github.com/self-evolving/repo/issues/new?template=install-sepo.md) issue template in `self-evolving/repo` and paste the target URL.
 - **Private repositories:** run an agent locally, give it access to this source checkout and the private target repository, and ask it to use the `.skills/install-agent` skill so private access stays in your trusted environment.
 
 ## What You Can Ask It To Do
 
-### In any GitHub text input (issues, PRs, discussions), call the agent to execute tasks
+### In any GitHub text input (issues, PRs, discussions), ask the agent a question or run a task
 
 ```python
-# Use a free-form mention when you want the router to infer the best route:
+# Use a free-form mention when you want an answer or advice.
+# Change-shaped answers suggest a copyable command for the next step.
 @sepo-agent can you explain how review synthesis works?
 
-# Use an explicit slash route when you already know the action
+# Use an explicit slash route when you want Sepo to run an action.
 @sepo-agent /implement implement issue #2
+
+# Propose user/team rubric updates against agent/rubrics
+@sepo-agent /add-rubrics prefer small PRs for workflow changes
 
 # Invoke arbitrary skills
 @sepo-agent /skill <skill-name>
@@ -62,6 +66,10 @@ Check [Install into an existing repository](setup/install-existing-repository.md
 
 For example, adding the `agent/review` label will run the review agent. The `Agent / Onboarding / Check Setup` workflow creates the built-in trigger labels on first run.
 
+### Live Progress and Cancel Control
+
+For direct `/implement` and `/fix-pr` runs on issues or pull requests, Sepo posts one live progress comment and edits it as the agent works. `/answer` runs on issues and pull requests show report-only progress by default. When the run finishes, Sepo updates that progress comment with the final response or status and keeps the activity log collapsed below it. Orchestrated chains use handoff and status comments by default; set `AGENT_PROGRESS_POLICY` with `orchestration_mode: "report-only"` to opt into non-cancellable progress comments for orchestrated runs. The original requester, repository owner, member, or collaborator can react 👎 on cancellable progress comments to stop the in-flight run.
+
 ### Task Orchestration Route
 
 Use `@sepo-agent /orchestrate` (or `agent/orchestrate`) to run the orchestration route explicitly. It checks current target state, dispatches the right built-in action (`implement`, `review`, or `fix-pr`), and keeps that explicitly started chain moving through bounded follow-up handoffs until a stop condition is reached. Direct `/implement`, `/review`, and `/fix-pr` requests remain one-shot.
@@ -70,13 +78,15 @@ Use `@sepo-agent /orchestrate` (or `agent/orchestrate`) to run the orchestration
 
 Sepo persists long-lived context in `agent/memory` and preference rules in `agent/rubrics`, both as repository-owned branches. This lets later runs resume with durable project context and team-specific guidance.
 
+Use `@sepo-agent /add-rubrics` to propose add-or-update rubric changes in a draft PR targeting `agent/rubrics`.
+
 ### Scheduled Jobs
 
 You can run Sepo on a schedule to handle recurring maintenance, triage, or monitoring tasks without a manual mention. For example, [`agent-daily-summary.yml`](https://github.com/self-evolving/repo/blob/main/.github/workflows/agent-daily-summary.yml) can publish a daily repository activity summary discussion when enabled, and [`agent-update.yml`](https://github.com/self-evolving/repo/blob/main/.github/workflows/agent-update.yml) checks near-biweekly for Sepo agent infrastructure updates from the latest stable release tag. The packaged daily summary cron is disabled by default, while manual dispatch remains available. Manual update runs can pass `source_ref` to test `main`, a branch, or a specific tag; if no release exists yet, the workflow falls back to `main` and records that in the run summary. If an update PR is already open, later runs update that PR instead of opening a duplicate. Set `AGENT_AUTO_UPDATE=false` to disable the scheduled update check, or set `AGENT_ENABLED=false` to pause all Sepo agent workflows. Scheduled workflows still route through the same policy and memory layers, so they behave consistently with on-demand runs.
 
 ## How It Works
 
-Every trigger converges on `agent-router.yml`, which extracts GitHub context, applies access policy, optionally triages free-form requests with a model, and dispatches to a specialized route. Agent sessions are persisted across runs with git refs and GitHub Actions artifacts, so a later mention can continue from prior context.
+Every trigger converges on `agent-router.yml`, which extracts GitHub context, applies access policy, and dispatches to a specialized route. A mention without a slash command goes directly to the answer route by default; when the answer identifies concrete follow-up work, it can suggest a copyable command without starting that action. Explicit slash commands and `agent/*` labels select action routes directly. Repositories that prefer model-backed route inference for uncommanded mentions can set `AGENT_TRIAGE_MODE=agent`. Agent sessions are persisted across runs with git refs and GitHub Actions artifacts, so a later mention can continue from prior context.
 
 Durable context lives in two repository-owned branches:
 

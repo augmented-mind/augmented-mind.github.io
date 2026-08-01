@@ -21,7 +21,7 @@ on:
         type: boolean
         default: false
       update_agent_md:
-        description: "Also update AGENT.md when it is agent-owned"
+        description: "Also update AGENTS.md when it is agent-owned"
         required: false
         type: boolean
         default: false
@@ -245,6 +245,7 @@ jobs:
           memory_mode_override: read-only
           memory_ref: ${{ vars.AGENT_MEMORY_REF || 'agent/memory' }}
           memory_policy: ${{ vars.AGENT_MEMORY_POLICY || '' }}
+          progress_policy: ${{ vars.AGENT_PROGRESS_POLICY || '' }}
           rubrics_mode_override: disabled
           rubrics_ref: ${{ vars.AGENT_RUBRICS_REF || 'agent/rubrics' }}
           rubrics_policy: ${{ vars.AGENT_RUBRICS_POLICY || '' }}
@@ -266,7 +267,7 @@ jobs:
             - existing update PR branch: ${{ needs.gate.outputs.existing_pr_branch || 'none' }}
             - update branch: use `${{ env.UPDATE_BRANCH_PREFIX }}<yyyymmdd>`
             - update .skills directories: ${{ env.UPDATE_SKILLS }}
-            - update AGENT.md when agent-owned: ${{ env.UPDATE_AGENT_MD }}
+            - update AGENTS.md when agent-owned: ${{ env.UPDATE_AGENT_MD }}
             - remove obsolete or legacy files: false
             - post-merge workflows: document only
 

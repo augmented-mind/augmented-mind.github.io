@@ -107,7 +107,7 @@ permissions:
   id-token: write # required for GitHub Actions OIDC broker exchange
   # Note: workflow-level permissions are the union of all jobs. Individual
   # agent invocations use route-specific acpx permission modes, with
-  # dispatch triage, explicit implement metadata generation, answer,
+  # optional dispatch triage, explicit implement metadata generation, answer,
   # implement, and fix-pr all currently using approve-all.
 
 jobs:
@@ -218,6 +218,7 @@ jobs:
           INPUT_LABEL_NAME: ${{ inputs.label_name }}
           INPUT_AUTHOR_ASSOCIATION: ${{ inputs.author_association }}
           INPUT_FOLLOWUP_INTENT_MODE: ${{ inputs.followup_intent_mode || vars.AGENT_FOLLOWUP_INTENT_MODE || 'agent-label' }}
+          INPUT_TRIAGE_MODE: ${{ vars.AGENT_TRIAGE_MODE || 'commands' }}
         run: node .agent/dist/cli/extract-context.js
 
       - name: React with eyes
@@ -336,6 +337,7 @@ jobs:
           route: dispatch
           memory_ref: ${{ vars.AGENT_MEMORY_REF || 'agent/memory' }}
           memory_policy: ${{ vars.AGENT_MEMORY_POLICY || '' }}
+          progress_policy: ${{ vars.AGENT_PROGRESS_POLICY || '' }}
           session_bundle_mode: ${{ inputs.session_bundle_mode || vars.AGENT_SESSION_BUNDLE_MODE || 'auto' }}
           session_policy: none
           request_text: ${{ steps.context.outputs.body }}
@@ -369,6 +371,7 @@ jobs:
           route: answer
           memory_ref: ${{ vars.AGENT_MEMORY_REF || 'agent/memory' }}
           memory_policy: ${{ vars.AGENT_MEMORY_POLICY || '' }}
+          progress_policy: '{"route_overrides":{"answer":"disabled"}}'
           rubrics_ref: ${{ vars.AGENT_RUBRICS_REF || 'agent/rubrics' }}
           rubrics_policy: ${{ vars.AGENT_RUBRICS_POLICY || '' }}
           rubrics_limit: ${{ vars.AGENT_RUBRICS_LIMIT || '10' }}
@@ -409,6 +412,7 @@ jobs:
           route: dispatch
           memory_ref: ${{ vars.AGENT_MEMORY_REF || 'agent/memory' }}
           memory_policy: ${{ vars.AGENT_MEMORY_POLICY || '' }}
+          progress_policy: ${{ vars.AGENT_PROGRESS_POLICY || '' }}
           session_bundle_mode: ${{ inputs.session_bundle_mode || vars.AGENT_SESSION_BUNDLE_MODE || 'auto' }}
           session_policy: none
           request_text: ${{ steps.context.outputs.body }}
@@ -553,6 +557,7 @@ jobs:
           route: answer
           memory_ref: ${{ vars.AGENT_MEMORY_REF || 'agent/memory' }}
           memory_policy: ${{ vars.AGENT_MEMORY_POLICY || '' }}
+          progress_policy: ${{ vars.AGENT_PROGRESS_POLICY || '' }}
           rubrics_ref: ${{ vars.AGENT_RUBRICS_REF || 'agent/rubrics' }}
           rubrics_policy: ${{ vars.AGENT_RUBRICS_POLICY || '' }}
           rubrics_limit: ${{ vars.AGENT_RUBRICS_LIMIT || '10' }}
@@ -562,6 +567,7 @@ jobs:
           request_comment_id: ${{ needs.portal.outputs.source_comment_id }}
           request_comment_url: ${{ needs.portal.outputs.source_comment_url }}
           request_source_kind: ${{ needs.portal.outputs.source_kind }}
+          response_kind: ${{ needs.portal.outputs.response_kind }}
           requested_by: ${{ needs.portal.outputs.requested_by }}
           source_kind: ${{ needs.portal.outputs.source_kind }}
           target_kind: ${{ needs.portal.outputs.target_kind }}
@@ -578,9 +584,14 @@ jobs:
         run: printf '%s\n' "${SUMMARY}" > "${BODY_FILE}"
 
       - name: Post answer
-        if: needs.portal.outputs.route == 'answer'
+        if: >-
+          always() &&
+          needs.portal.outputs.route == 'answer' &&
+          steps.answer.outcome != 'skipped'
         env:
           BODY_FILE: ${{ steps.answer.outputs.response_file }}
+          AGENT_PROGRESS_COMMENT_ID: ${{ steps.answer.outputs.progress_comment_id }}
+          AGENT_PROGRESS_FINAL_COMMENT_MODE: merge
           MODEL_DISPLAY: ${{ steps.answer.outputs.model_display }}
           DISCUSSION_ID: ${{ needs.portal.outputs.discussion_node_id }}
           GH_TOKEN: ${{ steps.auth.outputs.token }}
@@ -589,6 +600,7 @@ jobs:
           RESPONSE_KIND: ${{ needs.portal.outputs.response_kind }}
           RESUME_STATUS: ${{ steps.answer.outputs.resume_status }}
           REVIEW_COMMENT_ID: ${{ needs.portal.outputs.review_comment_id }}
+          STATUS: ${{ steps.answer.outcome == 'success' && 'success' || steps.answer.outcome == 'cancelled' && 'cancelled' || 'failed' }}
           TARGET_NUMBER: ${{ needs.portal.outputs.target_number }}
         run: node .agent/dist/cli/post-response.js
 
@@ -751,6 +763,7 @@ jobs:
           route: skill
           memory_ref: ${{ vars.AGENT_MEMORY_REF || 'agent/memory' }}
           memory_policy: ${{ vars.AGENT_MEMORY_POLICY || '' }}
+          progress_policy: ${{ vars.AGENT_PROGRESS_POLICY || '' }}
           session_bundle_mode: ${{ inputs.session_bundle_mode || vars.AGENT_SESSION_BUNDLE_MODE || 'auto' }}
           session_policy: none
           request_text: ${{ needs.portal.outputs.body }}
@@ -867,6 +880,7 @@ jobs:
           route: install
           memory_ref: ${{ vars.AGENT_MEMORY_REF || 'agent/memory' }}
           memory_mode_override: disabled
+          progress_policy: ${{ vars.AGENT_PROGRESS_POLICY || '' }}
           rubrics_mode_override: disabled
           session_bundle_mode: ${{ inputs.session_bundle_mode || vars.AGENT_SESSION_BUNDLE_MODE || 'auto' }}
           session_policy: none
@@ -974,7 +988,11 @@ jobs:
     if: >-
       vars.AGENT_ENABLED != 'false' &&
       needs.portal.outputs.should_respond == 'true' &&
-      (needs.portal.outputs.route == 'implement' || needs.portal.outputs.route == 'create-action') &&
+      (
+        needs.portal.outputs.route == 'implement' ||
+        needs.portal.outputs.route == 'create-action' ||
+        needs.portal.outputs.route == 'add-rubrics'
+      ) &&
       needs.portal.outputs.needs_approval == 'false'
     runs-on: ${{ fromJson(inputs.runs_on || vars.AGENT_RUNS_ON || '["ubuntu-latest"]') }}
     steps:
@@ -1018,9 +1036,12 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           ISSUE_NUMBER: ${{ steps.create_issue.outputs.issue_number || needs.portal.outputs.target_number }}
           IMPLEMENTATION_ROUTE: ${{ needs.portal.outputs.route }}
+          # Empty prompt lets dispatch-agent-implement fall back to the route name.
+          IMPLEMENTATION_PROMPT: ${{ needs.portal.outputs.route == 'add-rubrics' && 'agent-add-rubrics' || '' }}
           REQUESTED_BY: ${{ needs.portal.outputs.requested_by }}
           REQUEST_TEXT: ${{ needs.portal.outputs.body }}
           SESSION_FORK_FROM_THREAD_KEY: ${{ github.repository }}:${{ needs.portal.outputs.target_kind }}:${{ needs.portal.outputs.target_number }}:answer:default
+          BASE_BRANCH: ${{ needs.portal.outputs.route == 'add-rubrics' && (vars.AGENT_RUBRICS_REF || 'agent/rubrics') || '' }}
           BASE_PR: ${{ needs.portal.outputs.base_pr }}
           AUTOMATION_MODE: ${{ inputs.automation_mode }}
           AUTOMATION_MAX_ROUNDS: ${{ inputs.automation_max_rounds }}

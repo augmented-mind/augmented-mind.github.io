@@ -38,8 +38,12 @@ inputs:
     required: false
     default: xhigh
   route:
-    description: "Envelope route (implement, review, fix-pr, answer, create-action, dispatch, agent-self-approve, agent-self-merge, skill, install, update-agent, rubrics-review, rubrics-initialization, rubrics-update)"
+    description: "Envelope route (implement, review, fix-pr, answer, create-action, add-rubrics, dispatch, agent-self-approve, agent-self-merge, skill, install, update-agent, rubrics-review, rubrics-initialization, rubrics-update)"
     required: true
+  agent_cwd:
+    description: "Optional worktree where the agent process should run"
+    required: false
+    default: ""
   lane:
     description: "Logical lane for thread/session identity (defaults to 'default')"
     required: false
@@ -67,6 +71,10 @@ inputs:
     default: ""
   request_comment_url:
     description: "Triggering comment or review URL for route-specific prompt context"
+    required: false
+    default: ""
+  response_kind:
+    description: "Final response surface for progress/final-comment merge eligibility"
     required: false
     default: ""
   request_text:
@@ -117,6 +125,14 @@ inputs:
     description: "Memory access policy JSON. Workflow callers can pass repository variables explicitly."
     required: false
     default: ""
+  progress_policy:
+    description: "Progress reporting policy JSON. Empty defaults to live progress with cancellation for implement/fix-pr and report-only progress for answer."
+    required: false
+    default: ""
+  orchestration_enabled:
+    description: 'Whether this run belongs to an orchestrated chain; progress defaults off, but explicit AGENT_PROGRESS_POLICY.orchestration_mode: "report-only" opts into non-cancellable progress.'
+    required: false
+    default: "false"
   memory_mode_override:
     description: |
       Explicit memory mode (enabled, read-only, disabled) that bypasses the policy.
@@ -231,6 +247,12 @@ outputs:
   rubrics_selected_count:
     description: "How many rubrics were selected for this run"
     value: ${{ steps.select_rubrics.outputs.selected_count }}
+  agent_run_skipped:
+    description: "Whether the model-backed agent run was skipped by a deterministic pre-run gate"
+    value: ${{ steps.agent_run_gate.outputs.skipped }}
+  agent_run_skip_reason:
+    description: "Human-readable reason for skipping the model-backed agent run"
+    value: ${{ steps.agent_run_gate.outputs.skip_reason }}
   rubrics_committed:
     description: "Whether the agent produced rubric edits that were committed and pushed"
     value: ${{ steps.commit_rubrics.outputs.committed }}
@@ -240,6 +262,9 @@ outputs:
   install_pr_url:
     description: "Structured /install target pull request URL from install-fork-pr helper"
     value: ${{ steps.run.outputs.install_pr_url }}
+  progress_comment_id:
+    description: "Issue comment id used by the live progress reporter, when one was created"
+    value: ${{ steps.stop_progress_reporter.outputs.progress_comment_id }}
 
 runs:
   using: composite
@@ -335,11 +360,92 @@ runs:
           --limit "${RUBRICS_LIMIT}" \
           --output-file "${RUBRICS_CONTEXT_FILE}"
 
+    - name: Resolve agent run gate
+      id: agent_run_gate
+      shell: bash
+      env:
+        ROUTE: ${{ inputs.route }}
+        SELECTED_RUBRICS: ${{ steps.select_rubrics.outputs.selected_count }}
+      run: |
+        set -euo pipefail
+
+        should_run=true
+        skipped=false
+        skip_reason=""
+
+        if [ "${ROUTE}" = "rubrics-review" ] && [ "${SELECTED_RUBRICS:-0}" = "0" ]; then
+          should_run=false
+          skipped=true
+          skip_reason="No active rubrics are available to score."
+        fi
+
+        echo "should_run=${should_run}" >> "$GITHUB_OUTPUT"
+        echo "skipped=${skipped}" >> "$GITHUB_OUTPUT"
+        echo "skip_reason=${skip_reason}" >> "$GITHUB_OUTPUT"
+
+        if [ "${skipped}" = "true" ]; then
+          echo "::notice title=Rubrics review skipped::${skip_reason}"
+          {
+            echo "### Rubrics review skipped"
+            echo
+            echo "${skip_reason}"
+            echo
+            echo "- Selected active rubrics: ${SELECTED_RUBRICS:-0}"
+          } >> "$GITHUB_STEP_SUMMARY"
+        fi
+
+    - name: Resolve progress policy
+      if: ${{ steps.agent_run_gate.outputs.should_run == 'true' }}
+      id: progress_policy
+      shell: bash
+      env:
+        AGENT_PROGRESS_POLICY: ${{ inputs.progress_policy }}
+        ORCHESTRATION_ENABLED: ${{ inputs.orchestration_enabled }}
+        RESPONSE_KIND: ${{ inputs.response_kind }}
+        ROUTE: ${{ inputs.route }}
+        TARGET_KIND: ${{ inputs.target_kind }}
+      run: node .agent/dist/cli/progress/resolve-policy.js
+
+    - name: Start progress reporter
+      if: steps.agent_run_gate.outputs.should_run == 'true' && steps.progress_policy.outputs.enabled == 'true' && steps.progress_policy.outputs.target_supported == 'true'
+      id: progress_reporter
+      continue-on-error: true
+      shell: bash
+      env:
+        AGENT_PROGRESS_CANCEL_ENABLED: ${{ steps.progress_policy.outputs.cancel_enabled }}
+        AGENT_PROGRESS_CANCEL_MARKER_FILE: ${{ runner.temp }}/agent-progress-cancelled
+        AGENT_PROGRESS_COMMENT_ID_FILE: ${{ runner.temp }}/agent-progress-comment-${{ github.run_id }}.id
+        AGENT_PROGRESS_LOG_FILE: ${{ runner.temp }}/agent-progress-reporter-${{ github.run_id }}.log
+        AGENT_PROGRESS_PID_FILE: ${{ runner.temp }}/agent-progress-reporter-${{ github.run_id }}.pid
+        AGENT_PROGRESS_REPO: ${{ github.repository }}
+        AGENT_PROGRESS_REQUESTER: ${{ inputs.requested_by }}
+        AGENT_PROGRESS_ROUTE: ${{ inputs.route }}
+        AGENT_PROGRESS_RUN_ID: ${{ github.run_id }}
+        AGENT_PROGRESS_STREAM_FILE: ${{ runner.temp }}/agent-progress-${{ github.run_id }}-${{ inputs.route }}-${{ inputs.target_kind }}-${{ inputs.target_number }}.ndjson
+        AGENT_PROGRESS_TARGET_KIND: ${{ inputs.target_kind }}
+        AGENT_PROGRESS_TARGET_NUMBER: ${{ inputs.target_number }}
+        GH_TOKEN: ${{ inputs.github_token }}
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+        INPUT_GITHUB_TOKEN: ${{ inputs.github_token }}
+      run: |
+        set -euo pipefail
+        echo "stream_file=${AGENT_PROGRESS_STREAM_FILE}" >> "$GITHUB_OUTPUT"
+        echo "pid_file=${AGENT_PROGRESS_PID_FILE}" >> "$GITHUB_OUTPUT"
+        echo "log_file=${AGENT_PROGRESS_LOG_FILE}" >> "$GITHUB_OUTPUT"
+        echo "comment_id_file=${AGENT_PROGRESS_COMMENT_ID_FILE}" >> "$GITHUB_OUTPUT"
+
+        mkdir -p "$(dirname "${AGENT_PROGRESS_STREAM_FILE}")"
+        : > "${AGENT_PROGRESS_STREAM_FILE}"
+        node .agent/dist/cli/progress-report.js > "${AGENT_PROGRESS_LOG_FILE}" 2>&1 &
+        echo "$!" > "${AGENT_PROGRESS_PID_FILE}"
+
     - name: Run agent task
+      if: ${{ steps.agent_run_gate.outputs.should_run == 'true' }}
       id: run
       shell: bash
       env:
         ACPX_AGENT: ${{ inputs.agent }}
+        AGENT_PROGRESS_STREAM_FILE: ${{ steps.progress_reporter.outputs.stream_file }}
         MODEL_ID: ${{ inputs.model }}
         DISPLAY_MODEL: ${{ inputs.display_model || 'true' }}
         ACPX_PERMISSION_MODE: ${{ inputs.permission_mode }}
@@ -355,6 +461,8 @@ runs:
         RUBRICS_DIR: ${{ steps.rubrics.outputs.rubrics_dir }}
         RUBRICS_REF: ${{ steps.rubrics.outputs.rubrics_ref }}
         RUBRICS_CONTEXT_FILE: ${{ steps.select_rubrics.outputs.context_file }}
+        AGENT_CWD: ${{ inputs.agent_cwd }}
+        AGENT_RUNTIME_DIR: ${{ github.workspace }}
         MODEL_REASONING_EFFORT: ${{ inputs.reasoning_effort }}
         PROMPT_NAME: ${{ inputs.prompt }}
         REPO_SLUG: ${{ github.repository }}
@@ -388,6 +496,49 @@ runs:
         exit_code=$?
         echo "exit_code=${exit_code}" >> "$GITHUB_OUTPUT"
         exit 0
+
+    - name: Stop progress reporter
+      if: always() && steps.progress_reporter.outputs.pid_file != ''
+      id: stop_progress_reporter
+      continue-on-error: true
+      shell: bash
+      env:
+        AGENT_PROGRESS_COMMENT_ID_FILE: ${{ steps.progress_reporter.outputs.comment_id_file }}
+        AGENT_PROGRESS_PID_FILE: ${{ steps.progress_reporter.outputs.pid_file }}
+      run: |
+        set +e
+        emit_comment_id() {
+          if [ -f "${AGENT_PROGRESS_COMMENT_ID_FILE}" ]; then
+            comment_id="$(tr -d '\r\n' < "${AGENT_PROGRESS_COMMENT_ID_FILE}" 2>/dev/null)"
+            if [ -n "${comment_id}" ]; then
+              echo "progress_comment_id=${comment_id}" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+        }
+
+        if [ ! -f "${AGENT_PROGRESS_PID_FILE}" ]; then
+          emit_comment_id
+          exit 0
+        fi
+
+        pid="$(cat "${AGENT_PROGRESS_PID_FILE}" 2>/dev/null)"
+        if [ -z "${pid}" ]; then
+          emit_comment_id
+          exit 0
+        fi
+
+        if kill -0 "${pid}" 2>/dev/null; then
+          kill -TERM "${pid}" 2>/dev/null || true
+          for _ in 1 2 3 4 5; do
+            if ! kill -0 "${pid}" 2>/dev/null; then
+              emit_comment_id
+              exit 0
+            fi
+            sleep 1
+          done
+          kill -KILL "${pid}" 2>/dev/null || true
+        fi
+        emit_comment_id
 
     - name: Commit memory edits
       if: >-
@@ -524,6 +675,6 @@ runs:
       run: node .agent/dist/cli/session-register.js
 
     - name: Propagate agent exit code
-      if: steps.run.outputs.exit_code != '0'
+      if: steps.agent_run_gate.outputs.should_run == 'true' && steps.run.outputs.exit_code != '0'
       shell: bash
       run: exit "${{ steps.run.outputs.exit_code }}"

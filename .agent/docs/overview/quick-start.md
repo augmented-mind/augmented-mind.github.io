@@ -21,18 +21,19 @@ Use [Install into an existing repository](../setup/install-existing-repository.m
 
 ## Trigger Sepo
 
-Use a free-form mention when you want the router to infer the best route:
+Use a free-form mention when you want an answer or advice. If the answer identifies concrete follow-up work, Sepo suggests a copyable command without starting it:
 
 ```md
 @sepo-agent can you explain how review synthesis works?
 ```
 
-Use an explicit slash route when you already know the action:
+Use an explicit slash route when you want Sepo to run an action:
 
 | Action | Use it for | Syntax |
 |---|---|---|
 | Answer | Ask a question, or request plan-only procedure guidance before coding. | `@sepo-agent /answer ...` |
 | Implement | Turn an issue request into a branch and draft PR. | `@sepo-agent /implement ...` |
+| Add rubrics | Propose user/team rubric updates against `agent/rubrics`. | `@sepo-agent /add-rubrics ...` |
 | Create action | Propose a standalone scheduled agent workflow through a PR. | `@sepo-agent /create-action ...` |
 | Review | Run the dual-agent PR review flow. | `@sepo-agent /review` |
 | Fix PR | Push fixes to the current PR branch. | `@sepo-agent /fix-pr` |

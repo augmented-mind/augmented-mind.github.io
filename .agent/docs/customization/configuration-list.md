@@ -8,8 +8,11 @@ title: "Configurations list"
 |---|---|
 | `AGENT_HANDLE` | Override the mention handle. Defaults to `@sepo-agent`. |
 | `AGENT_ENABLED` | Global Sepo pause switch. Defaults to enabled when unset; set exactly `false` to skip packaged `agent-*.yml` workflows and generated agent-action template jobs before checkout or provider setup. Normal CI workflows such as `test-scripts.yml` are not governed by this flag. |
+| `AGENT_TRIAGE_MODE` | Controls only explicit mentions that do not contain a slash command. Defaults to `commands`, which routes them directly to `answer`; set to `agent` to restore model-backed dispatch triage and inferred routes. Explicit slash routes, label routes, authorization checks, and `AGENT_FOLLOWUP_INTENT_MODE` behavior are unchanged. Other values fail an affected request with a configuration error. |
 | `AGENT_FOLLOWUP_INTENT_MODE` | Controls unmentioned follow-up detection on new issue/PR comments, new PR review comments, and submitted PR reviews whose target already has the fixed `agent` label. Defaults to `agent-label`; set to `disabled` or `false` to require explicit mentions only. Implicit follow-ups can only become inline `answer` responses or be ignored. |
-| `AGENT_RUNS_ON` | JSON array string for runner selection. If you are using self-hosted runners, see [Self-hosted GitHub Action runner](../setup/self-hosted-github-action-runner.md). |
+| `AGENT_RUNS_ON` | JSON array string for runner selection. `test-scripts.yml` also falls back to this value after `AGENT_TEST_RUNS_ON`, so self-hosted labels here can route `pull_request` CI onto that runner. If you are using self-hosted runners, see [Self-hosted GitHub Action runner](../setup/self-hosted-github-action-runner.md). |
+| `AGENT_TEST_SCRIPTS_ENABLED` | Set to `true` to enable automatic `test-scripts.yml` pull request checks outside the canonical `self-evolving/repo` source repository. Manual workflow dispatches remain available without this variable. |
+| `AGENT_TEST_RUNS_ON` | Optional JSON array string for `test-scripts.yml` runner selection. It falls back to `AGENT_RUNS_ON`, then `["ubuntu-latest"]`. When automatic `test-scripts.yml` pull request checks are enabled, self-hosted runner labels here allow PR code to run on that runner. |
 | `AGENT_DEFAULT_PROVIDER` | Default provider for single-agent runs and review synthesis: `auto`, `codex`, or `claude`. Explicit `codex` / `claude` choices are honored even without matching repository secrets, allowing self-hosted runners to use local provider authentication. `auto` chooses Codex when `OPENAI_API_KEY` is configured; otherwise it chooses Claude when either `CLAUDE_CODE_OAUTH_TOKEN` or `ANTHROPIC_API_KEY` is configured. |
 | `AGENT_MODEL_POLICY` | Optional JSON policy for model/reasoning defaults, provider-specific model settings, and route overrides. It supports `default` for non-provider defaults, `providers.codex`, `providers.claude`, and `route_overrides`; reviewer lanes stay fixed as the built-in Claude/Codex matrix, while `review-synthesize` uses this policy. Use `AGENT_DEFAULT_PROVIDER` for the global/default provider. |
 | `AGENT_DISPLAY_MODEL` | Optional `true` / `false` toggle for appending compact run metadata to direct agent response comments that use the standard response posting helpers. When enabled, the footer order is <code>provider &#124; model &#124; reasoning effort &#124; runner</code>; empty optional values are omitted, and an empty model is shown as `default model`. Defaults to `true`; set to `false` to hide the footer. |
@@ -26,9 +29,11 @@ title: "Configurations list"
 | `AGENT_PROJECT_MANAGEMENT_POST_SUMMARY` | Set to `true` to have the final workflow step comment with the project-management summary on today's existing Daily Summary discussion. If the discussion is missing, only the Actions step summary is written. |
 | `AGENT_PROJECT_MANAGEMENT_DISCUSSION_CATEGORY` | Discussion category shared by Daily Summary discussion creation and project-management summary comments. Defaults to `General`. |
 | `AGENT_PROJECT_MANAGEMENT_LIMIT` | Maximum open issues and pull requests for the agent to inspect per kind. Defaults to `100`. |
+| `AGENT_SELF_IMPROVEMENT_ENABLED` | Set to `true` to enable the disabled-by-default `agent-self-improvement.yml` workflow. |
 | `AGENT_AUTO_UPDATE` | Set to `false` to disable scheduled `agent-update.yml` checks. Defaults to enabled; manual workflow dispatch remains available. The canonical `self-evolving/repo` source repository should use this when scheduled self-updates are not wanted. |
 | `AGENT_ACCESS_POLICY` | JSON trigger allowlist policy. See [Trigger access policy](access-policy.md). |
 | `AGENT_TASK_TIMEOUT_POLICY` | JSON policy for GitHub Actions step timeouts on agent tasks. Defaults to `{"default_minutes":30}` and accepts route overrides, for example `{"default_minutes":30,"route_overrides":{"implement":60,"review":45}}`. Values must be 1-360 minutes. |
+| `AGENT_PROGRESS_POLICY` | JSON policy controlling live progress comments and thumbs-down cancellation. Defaults to `implement` and `fix-pr` enabled, `answer` report-only, and other routes disabled. Modes are `enabled`, `report-only`, and `disabled`. Explicit orchestration context defaults to `disabled` and only honors the orchestration-specific `orchestration_mode` opt-in. |
 | `AGENT_MEMORY_POLICY` | JSON policy controlling which routes can read or write repository memory. See [Repository memory](../architecture/memory.md). |
 | `AGENT_MEMORY_REF` | Default branch name used when workflows mount repository memory. Defaults to `agent/memory`. |
 | `AGENT_SCHEDULE_POLICY` | JSON policy controlling scheduled workflow runs. By default, scheduled daily summaries are disabled while manual dispatch remains available. See [Repository memory](../architecture/memory.md#scheduled-workflow-policy-agent_schedule_policy). |
@@ -38,21 +43,21 @@ title: "Configurations list"
 | `AGENT_COMMITTER_NAME` | Custom commit author name for implementation and PR-fix runs |
 | `AGENT_COMMITTER_EMAIL` | Custom commit author email for implementation and PR-fix runs |
 
-Built-in model defaults are intentionally small and pinned:
+Bundled model defaults live in `.agent/model-defaults.json` and are intentionally small and pinned:
 
-| Provider | Default model |
-|---|---|
-| `codex` | `gpt-5.5` |
-| `claude` | `claude-opus-4-8` |
+| Provider | Default model | Default reasoning effort |
+|---|---|---|
+| `codex` | `gpt-5.6-sol` | `max` |
+| `claude` | `claude-opus-4-8` | — |
 
-Sepo does not maintain a general model catalog. Use `AGENT_MODEL_POLICY` when a repository needs different models, route-specific choices, or reasoning effort overrides.
+Sepo does not maintain a general model catalog, and the resolver reads these defaults from the bundled file locally with no network access at run time. Updates to the file ship through `agent-update.yml` with the rest of `.agent/`. Use `AGENT_MODEL_POLICY` when a repository needs different models, route-specific choices, or reasoning effort overrides.
 
 `AGENT_MODEL_POLICY` example:
 
 ```json
 {
   "providers": {
-    "codex": { "model": "gpt-5.5", "reasoning_effort": "xhigh" },
+    "codex": { "model": "gpt-5.6-sol", "reasoning_effort": "max" },
     "claude": { "model": "claude-opus-4-8", "reasoning_effort": "max" }
   },
   "route_overrides": {
@@ -62,9 +67,25 @@ Sepo does not maintain a general model catalog. Use `AGENT_MODEL_POLICY` when a 
 }
 ```
 
-For Codex GPT-5 models, Sepo accepts provider-neutral `model` plus `reasoning_effort` policy entries and passes the effective ACP model id to acpx. For example, `{ "model": "gpt-5.5", "reasoning_effort": "xhigh" }` is sent to Codex ACP as `gpt-5.5/xhigh`, matching the model ids advertised by the bundled `@zed-industries/codex-acp` adapter. If a Codex model already includes an effort suffix such as `gpt-5.5/xhigh`, Sepo treats that model id as authoritative and does not send a separate `thought_level` setting. Claude and unknown/custom Codex model ids keep using the separate reasoning-effort path.
+For Codex GPT-5 models, Sepo accepts provider-neutral `model` plus `reasoning_effort` policy entries and applies them together whenever the adapter creates or resumes a thread. For example, `{ "model": "gpt-5.6-sol", "reasoning_effort": "max" }` is reported by the bundled `@agentclientprotocol/codex-acp` adapter as the effective model id `gpt-5.6-sol[max]`. A policy model with a slash suffix such as `gpt-5.6-sol/max` is also accepted, and its suffix is authoritative over a separate `reasoning_effort` value. The bundled `max` effort applies only with the bundled `gpt-5.6-sol` model; reasoning-only policy overrides still apply independently.
 
 The bundled workflows still keep native YAML escape hatches: an inline `route_provider` in a workflow's `resolve-agent-provider` step overrides `AGENT_MODEL_POLICY` for that route. Provider selection precedence is inline `route_provider`, then `AGENT_MODEL_POLICY.route_overrides[route].provider`, then `AGENT_DEFAULT_PROVIDER`, then `auto` detection from configured provider secrets. Model selection starts from Sepo's built-in provider default, then applies `AGENT_MODEL_POLICY.default.model`, `AGENT_MODEL_POLICY.providers[provider].model`, and `AGENT_MODEL_POLICY.route_overrides[route].model`; inline `route_provider` skips that route's policy override. The review workflow still launches explicit Claude and Codex reviewer lanes; those lane providers are fixed with inline `route_provider`, so built-in/default/provider-specific model settings apply while route-specific review overrides do not. The synthesis step is resolved separately as `review-synthesize`.
+
+`AGENT_PROGRESS_POLICY` example:
+
+```json
+{
+  "default_mode": "disabled",
+  "orchestration_mode": "report-only",
+  "route_overrides": {
+    "implement": "enabled",
+    "fix-pr": "report-only",
+    "answer": "report-only"
+  }
+}
+```
+
+`enabled` starts the progress comment and allows authorized 👎 cancellation. `report-only` starts the progress comment but ignores cancellation reactions. `disabled` preserves the normal run without a progress comment. Malformed policy disables progress for that run instead of failing the workflow. Orchestrated chains default to `disabled` progress mode and rely on handoff or status comments; set `orchestration_mode` to `report-only` to opt into non-cancellable progress comments for orchestrated runs. `enabled` is not accepted for `orchestration_mode` because cancellable chained-run semantics are not defined.
 
 ## Repository secrets
 
