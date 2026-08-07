@@ -6,7 +6,7 @@
 // Outputs: status
 
 import { readFileSync } from "node:fs";
-import { fetchPrMeta, postIssueComment, postPrComment } from "../github.js";
+import { fetchIssueCommentRecords, fetchPrMeta, postIssueComment, postPrComment } from "../github.js";
 import {
   collapsePreviousFixPrComments,
   collapsePreviousReviewSummaries,
@@ -39,11 +39,40 @@ const collapseOldReviews = !["false", "0", "no", "off"].includes(
   (process.env.AGENT_COLLAPSE_OLD_REVIEWS || "").trim().toLowerCase(),
 );
 
+function extractPreviewUrl(body: string): string {
+  const match = String(body || "").match(/\bSepo preview:\s*(https?:\/\/[^\s<>")\]]+)/i);
+  return match ? match[1].replace(/[),.;]+$/, "") : "";
+}
+
+function findLatestPreviewUrl(prNumber: number, repoSlug: string): string {
+  if (!prNumber || !repoSlug) return "";
+
+  try {
+    const comments = fetchIssueCommentRecords(prNumber, repoSlug);
+    for (let index = comments.length - 1; index >= 0; index -= 1) {
+      const url = extractPreviewUrl(comments[index]?.body || "");
+      if (url) return url;
+    }
+  } catch {
+    // Preview links are helpful context, not required for posting the status comment.
+  }
+
+  return "";
+}
+
+function resolvePreviewUrl(): string {
+  const configured = String(process.env.PREVIEW_URL || "").trim();
+  if (configured) return configured;
+  if (target !== "pr") return "";
+  return findLatestPreviewUrl(targetNumber, repo);
+}
+
 let rawResponse = "";
 if (responseFile) {
   try { rawResponse = readFileSync(responseFile, "utf8"); } catch { /* ok */ }
 }
 const summary = summaryFromAgentResponse(route, rawResponse);
+const previewUrl = resolvePreviewUrl();
 
 let body: string;
 
@@ -68,6 +97,7 @@ if (route === "review") {
     requestedBy: requestedBy || undefined,
     approvalCommentUrl: approvalCommentUrl || undefined,
     reviewedHeadSha: reviewedHeadSha || undefined,
+    previewUrl: previewUrl || undefined,
   });
 } else if (route === "fix-pr") {
   body = formatFixPrComment({
@@ -76,6 +106,7 @@ if (route === "review") {
     branch,
     requestedBy: requestedBy || undefined,
     approvalCommentUrl: approvalCommentUrl || undefined,
+    previewUrl: previewUrl || undefined,
   });
 } else {
   // implement or other
@@ -88,6 +119,7 @@ if (route === "review") {
     branch: branch || undefined,
     prUrl: prUrl || undefined,
     approvalCommentUrl: approvalCommentUrl || undefined,
+    previewUrl: previewUrl || undefined,
   });
 }
 

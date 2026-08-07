@@ -38,12 +38,24 @@ export interface StatusCommentData {
   prUrl?: string;
   requestedBy?: string;
   approvalCommentUrl?: string;
+  previewUrl?: string;
 }
 
 function formatMention(loginOrHandle: string): string {
   const value = String(loginOrHandle || "").trim();
   if (!value) return "";
   return value.startsWith("@") ? value : `@${value}`;
+}
+
+function appendPreviewReference(lines: string[], previewUrl: string | undefined, pushedUpdate: boolean): boolean {
+  const url = String(previewUrl || "").trim();
+  if (!url) return false;
+
+  const suffix = pushedUpdate
+    ? "redeploys automatically after each push; this update should appear there shortly."
+    : "redeploys automatically after branch pushes.";
+  lines.push(`- Preview: ${url} — ${suffix}`);
+  return true;
 }
 
 export function formatImplementComment(data: StatusCommentData): string {
@@ -53,6 +65,7 @@ export function formatImplementComment(data: StatusCommentData): string {
       if (data.branch) lines.push(`- Branch: \`${data.branch}\``);
       if (data.prUrl) lines.push(`- Pull request: ${data.prUrl}`);
       if (data.approvalCommentUrl) lines.push(`- Approval: ${data.approvalCommentUrl}`);
+      appendPreviewReference(lines, data.previewUrl, true);
       lines.push("", data.summary ?? "");
       return lines.join("\n");
     }
@@ -91,28 +104,29 @@ export function formatFixPrComment(data: StatusCommentData): string {
       const requestedBy = data.requestedBy ? formatMention(data.requestedBy) : "";
       if (requestedBy) line += ` Requested by ${requestedBy}.`;
       if (data.approvalCommentUrl) line += ` Approval: ${data.approvalCommentUrl}.`;
-      return [line, "", marker, "", data.summary ?? ""].join("\n");
+      const lines = [line, ""];
+      if (appendPreviewReference(lines, data.previewUrl, true)) lines.push("");
+      lines.push(marker, "", data.summary ?? "");
+      return lines.join("\n");
     }
-    case "no_changes":
-      return [
-        "**Sepo did not produce code changes for this PR.**",
-        "",
+    case "no_changes": {
+      const lines = ["**Sepo did not produce code changes for this PR.**", ""];
+      if (appendPreviewReference(lines, data.previewUrl, false)) lines.push("");
+      lines.push(
         marker,
         "",
         "Please add more context or restate the requested fixes, then try again.",
         "",
         data.summary ?? "",
-      ].join("\n");
-    case "verify_failed":
-      return [
-        "**Sepo made changes, but lightweight verification failed.**",
-        "",
-        marker,
-        "",
-        "Inspect the workflow logs before retrying the PR fix run.",
-        "",
-        data.summary ?? "",
-      ].join("\n");
+      );
+      return lines.join("\n");
+    }
+    case "verify_failed": {
+      const lines = ["**Sepo made changes, but lightweight verification failed.**", ""];
+      if (appendPreviewReference(lines, data.previewUrl, true)) lines.push("");
+      lines.push(marker, "", "Inspect the workflow logs before retrying the PR fix run.", "", data.summary ?? "");
+      return lines.join("\n");
+    }
     case "unsupported":
       return [
         "**Sepo could not update this PR automatically.**",
@@ -122,16 +136,12 @@ export function formatFixPrComment(data: StatusCommentData): string {
         "PR fix runs currently support open same-repository pull requests only.",
         data.approvalCommentUrl ? `- Approval: ${data.approvalCommentUrl}` : "",
       ].filter(Boolean).join("\n");
-    default:
-      return [
-        "**Sepo could not complete the PR fix run.**",
-        "",
-        marker,
-        "",
-        "Inspect the workflow logs and retry if appropriate.",
-        "",
-        data.summary ?? "",
-      ].join("\n");
+    default: {
+      const lines = ["**Sepo could not complete the PR fix run.**", ""];
+      if (appendPreviewReference(lines, data.previewUrl, false)) lines.push("");
+      lines.push(marker, "", "Inspect the workflow logs and retry if appropriate.", "", data.summary ?? "");
+      return lines.join("\n");
+    }
   }
 }
 
@@ -140,6 +150,7 @@ export function formatReviewComment(data: {
   requestedBy?: string;
   approvalCommentUrl?: string;
   reviewedHeadSha?: string;
+  previewUrl?: string;
 }): string {
   const lines = [
     REVIEW_SYNTHESIS_HEADING,
@@ -151,6 +162,7 @@ export function formatReviewComment(data: {
   lines.push("", "> Dual-agent review by **Claude** and **Codex**.");
   if (data.requestedBy) lines.push(`> Requested by @${data.requestedBy}.`);
   if (data.approvalCommentUrl) lines.push(`> Approval comment: ${data.approvalCommentUrl}`);
+  if (data.previewUrl) lines.push(`> Preview: ${data.previewUrl} — redeploys automatically after branch pushes.`);
   lines.push("", data.synthesisBody);
   return lines.join("\n");
 }
