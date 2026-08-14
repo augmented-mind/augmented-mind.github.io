@@ -1,0 +1,79 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n\nAdds Episode 6 of the AM Podcast to the website. Issue #88 was triaged as a cover-image replacement, but Episode 6 had never actually been added to `main`, so this PR adds the full episode following the ep01–ep05 pattern and uses the **corrected** cover image supplied by @XenonMolecule (not the incorrect one ingested from the RSS feed).\n\n- **`content/episodes/ep06.md`** — \"Skills, Memory, Collaboration: What's Next for AI Agents\" (`EP06`, date `2026-08-14` from the RSS pubDate, YouTube `6JGWwCr_Gdk`), with a guest blurb wikilinking to the new profile, a `## Timestamps` section, and a `## References` section.\n- **`content/people/zora-wang.md`** — guest profile for Zora Wang (CMU) matching the existing people pages, with `Appearances` linking back to `ep06`.\n- **`quartz/static/covers/EP06-cover.png`** — corrected cover art (1920×1080 PNG) downloaded from the issue attachment.\n\n## Verification\n\n- Confirmed the downloaded cover is the correct EP06 / Zora Wang art (1920×1080, matching the format of EP00–EP05).\n- Ran a full `quartz build` against `content`: succeeds with no errors and no broken-link warnings.\n- Verified EP06 appears on the homepage episode carousel and that the `ep06` ↔ `zora-wang` wikilinks resolve in both directions.\n- No other episode covers were touched.\n\nCloses #88\n",
+  "closedAt": "2026-08-14T01:06:29Z",
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABOzPG1w",
+      "author": {
+        "login": "github-actions"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo preview: https://augmented-mind-augmented-mind-pr-89-87da4d.sepo.site",
+      "createdAt": "2026-08-14T01:05:38Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/89#issuecomment-5288216279",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABOzP06w",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nNo changes were committed to [`agent/rubrics`](https://github.com/augmented-mind/augmented-mind.github.io/tree/agent/rubrics) from PR #89.\n\nI've reviewed the full PR and issue #88 conversation. Here's my assessment:\n\n**Human interaction:** The only human participant is `XenonMolecule` (association `CONTRIBUTOR`), whose contributions were:\n1. A one-off correction that the ingested cover image was wrong, supplying the correct one.\n2. An `/approve` command to start the workflow.\n\nEverything else (PR body, implementation summaries, triage) was authored by the `sepo-agent-app` bot, and the only PR issue comment is an automated preview-link from `github-actions[bot]`. There are no PR reviews or review comments.\n\n**Determination:** No durable user/team preference is revealed here. XenonMolecule's image correction is one-off, task-specific feedback (not a repeated pattern, style/workflow rule, or stated future-agent expectation), and their `CONTRIBUTOR` association is untrusted for rubric learning absent a trusted contributor endorsement. The `Requested by` exception doesn't apply because XenonMolecule never authored an explicit request to add/update a rubric within this conversation. There is no existing `/rubrics/` content to update either.\n\n**no rubric changes**\n\n---\n`claude` | `claude-opus-4-8` | `medium` | `GitHub Actions 1000004908`",
+      "createdAt": "2026-08-14T01:07:33Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/89#issuecomment-5288228075",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-08-14T01:05:03Z",
+  "files": [
+    {
+      "path": "content/episodes/ep06.md",
+      "additions": 41,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "content/people/zora-wang.md",
+      "additions": 21,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "quartz/static/covers/EP06-cover.png",
+      "additions": 0,
+      "deletions": 0,
+      "changeType": "ADDED"
+    }
+  ],
+  "headRefName": "agent/implement-issue-88/claude-31759158868",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": "2026-08-14T01:06:29Z",
+  "number": 89,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "MERGED",
+  "title": "Add Episode 6: Zora Wang (Skills, Memory, Collaboration)",
+  "updatedAt": "2026-08-14T01:07:33Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/89"
+}

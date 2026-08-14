@@ -1,0 +1,98 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "body": "@sepo-agent /implement\n\nEpisode 6 was just published to the [RSS feed](https://anchor.fm/s/10dbf5b7c/podcast/rss). Please add it to the website, using episodes 1-5 as examples (new `content/episodes/epNN.md`, guest page under `content/people/` with cross-links, and the cover saved to `quartz/static/covers/EPNN-cover.png`).\n\n**Title:** Skills, Memory, Collaboration: What's Next for Al Agents with Zora Wang | AM Podcast #6\n**Description:**\n\n```\nZora Wang is a CS PhD student at Carnegie Mellon University. Zora’s work lies at the intersection of coding agents and human-ai collaboration.  In this episode we explore how agents work, how humans work, and how we can get more done together.\n\nOutline:\n0:00 - Introduction\n4:57 - Agent Workflow Memory\n9:26 - From Program Synthesis to Agent Research\n11:16 - Tools, Actions, and Skills\n18:47 - Human Work vs. Agent Work\n21:19 - Autonomous Agents vs. Collaborative Agents\n29:47 - Picking Research Problems in the Age of AI Agents\n34:09 - The Role of Coding Ability in Agent Development\n36:49 - Cutting Through the Fear Mongering: Building Agents Responsibly\n45:02 - What’s Next? (The Future of Human-Agent Collaboration)\n52:42 - Final Takeaway\n\nReferences:\nZora’s Homepage: https://zorazrw.github.io/ \nAgent Workflow Memory: https://arxiv.org/abs/2409.07429 \nHow Do AI Agents Do Human Work? Comparing AI and Human Workflows Across Diverse Occupations: https://arxiv.org/abs/2510.22780 \n\nPodcast Links:\nPodcast website: https://augmented-mind.github.io/\nApple Podcasts: https://podcasts.apple.com/us/podcast/augmented-mind-podcast/id1868102170\nSpotify: https://open.spotify.com/show/40KculkYTe2tOpqJm6TAYr?si=PU_UncsMT4mXjVNCRwoXog&nd=1&dlsi=6d9bed7a43d64085\nRSS: https://anchor.fm/s/10dbf5b7c/podcast/rss\n\nAbout the Hosts:\nThe AM Podcast is hosted by Yijia Shao, Shannon Shen, and Michael Ryan, CS PhD students at Stanford University and MIT.\n```\n\n**YouTube:** https://www.youtube.com/watch?v=6JGWwCr_Gdk\n**Spotify:** https://open.spotify.com/episode/6sgB87gf5YtyvgNY48G0cT\n**Apple Podcasts:** https://podcasts.apple.com/us/podcast/its-our-mathematics-ai-verification-and-the-future/id1868102170?i=1000771878436\n**Cover Image:** https://d3t3ozftmdmh3i.cloudfront.net/staging/podcast_uploaded_nologo/45156119/45156119-1768982214898-0968140041ca2.jpg\n\n---\n\n_Filed automatically by the episode-ingest workflow from the podcast RSS feed._\n<!-- episode-ingest guid:6026909c-2742-4f8b-b0df-c51d076e357a episode:6 -->\n",
+  "closedAt": "2026-08-14T01:06:30Z",
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABOzJ0oQ",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent it looks like the image was wrong here is the correct image.\n\n<img width=\"1920\" height=\"1080\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/3b0b1ea2-ae99-43b4-9676-8e7a8dd84fcc\" />",
+      "createdAt": "2026-08-14T00:52:45Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/88#issuecomment-5288129697",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABOzKnbA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "I triaged this as a `implement` request.\n\nI'll request approval to replace the Episode 6 cover image with the corrected one you provided.\n\nReply with:\n\n```text\n@sepo-agent /approve req-af7a81\n```\n\nto start the implementation workflow.\n\n<!-- sepo-agent-request base64:eyJyb3V0ZSI6ImltcGxlbWVudCIsInNvdXJjZV9raW5kIjoiaXNzdWVfY29tbWVudCIsInRhcmdldF9raW5kIjoiaXNzdWUiLCJ0YXJnZXRfbnVtYmVyIjo4OCwidGFyZ2V0X3VybCI6Imh0dHBzOi8vZ2l0aHViLmNvbS9hdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW8vaXNzdWVzLzg4Iiwid29ya2Zsb3ciOiJhZ2VudC1pbXBsZW1lbnQueW1sIiwicmVxdWVzdF9pZCI6InJlcS1hZjdhODEiLCJyZXF1ZXN0X3RleHQiOiJAc2Vwby1hZ2VudCBpdCBsb29rcyBsaWtlIHRoZSBpbWFnZSB3YXMgd3JvbmcgaGVyZSBpcyB0aGUgY29ycmVjdCBpbWFnZS5cblxuPGltZyB3aWR0aD1cIjE5MjBcIiBoZWlnaHQ9XCIxMDgwXCIgYWx0PVwiSW1hZ2VcIiBzcmM9XCJodHRwczovL2dpdGh1Yi5jb20vdXNlci1hdHRhY2htZW50cy9hc3NldHMvM2IwYjFlYTItYWU5OS00M2I0LTk2NzYtOGU3YThkZDg0ZmNjXCIgLz4iLCJpc3N1ZV90aXRsZSI6IkZpeCBFcGlzb2RlIDYgY292ZXIgaW1hZ2Ugd2l0aCBjb3JyZWN0ZWQgdmVyc2lvbiIsImlzc3VlX2JvZHkiOiIjIyBHb2FsXG5SZXBsYWNlIHRoZSBFcGlzb2RlIDYgY292ZXIgaW1hZ2Ugd2l0aCB0aGUgY29ycmVjdGVkIHZlcnNpb24gcHJvdmlkZWQgYnkgWGVub25Nb2xlY3VsZSBpbiBbaXNzdWUgIzg4XShodHRwczovL2dpdGh1Yi5jb20vYXVnbWVudGVkLW1pbmQvYXVnbWVudGVkLW1pbmQuZ2l0aHViLmlvL2lzc3Vlcy84OCNpc3N1ZWNvbW1lbnQtNTI4ODEyOTY5NykuXG5cblRoZSBwcmV2aW91c2x5IHVzZWQgY292ZXIgaW1hZ2UgZm9yIEVwaXNvZGUgNiB3YXMgaW5jb3JyZWN0LiBUaGUgY29ycmVjdCBpbWFnZSBpcyBhdHRhY2hlZCBpbiB0aGUgbWVudGlvbjpcbmh0dHBzOi8vZ2l0aHViLmNvbS91c2VyLWF0dGFjaG1lbnRzL2Fzc2V0cy8zYjBiMWVhMi1hZTk5LTQzYjQtOTY3Ni04ZTdhOGRkODRmY2NcblxuIyMgQWNjZXB0YW5jZSBDcml0ZXJpYVxuLSBEb3dubG9hZCB0aGUgY29ycmVjdGVkIGltYWdlIGZyb20gdGhlIGF0dGFjaG1lbnQgVVJMIGFib3ZlLlxuLSBTYXZlIGl0IHRvIGBxdWFydHovc3RhdGljL2NvdmVycy9FUDA2LWNvdmVyLnBuZ2AsIHJlcGxhY2luZyB0aGUgZXhpc3RpbmcgKGluY29ycmVjdCkgY292ZXIuXG4tIFZlcmlmeSB0aGUgZXBpc29kZSBwYWdlIChgY29udGVudC9lcGlzb2Rlcy9lcDA2Lm1kYCkgYW5kIGFueSBjcm9zcy1saW5rZWQgcmVmZXJlbmNlcyBzdGlsbCBwb2ludCB0byB0aGUgY29ycmVjdCBjb3ZlciBwYXRoLlxuLSBDb25maXJtIG5vIG90aGVyIGVwaXNvZGUgY292ZXJzIGFyZSBhZmZlY3RlZC5cblxuIyMgQ29udGV4dFxuRXBpc29kZSA2IChcIlNraWxscywgTWVtb3J5LCBDb2xsYWJvcmF0aW9uOiBXaGF0J3MgTmV4dCBmb3IgQUkgQWdlbnRzIHdpdGggWm9yYSBXYW5nIHwgQU0gUG9kY2FzdCAjNlwiKSB3YXMgYWRkZWQgdmlhIHRoZSBlcGlzb2RlLWluZ2VzdCB3b3JrZmxvdy4gVGhlIGNvdmVyIGltYWdlIGluZ2VzdGVkIGZyb20gdGhlIFJTUyBmZWVkIHdhcyB3cm9uZzsgdGhpcyB0YXNrIHN3YXBzIGluIHRoZSBjb3JyZWN0IGltYWdlLiJ9 -->\n\n| Approved by | Action | Tracking |\n|---|---|---|\n| @XenonMolecule | `implement` via `agent-implement.yml` | [approval run](https://github.com/augmented-mind/augmented-mind.github.io/actions/runs/31759138984) |\n\n<!-- sepo-agent-approved -->\n",
+      "createdAt": "2026-08-14T00:54:08Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/88#issuecomment-5288142700",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABOzMmIw",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "> I triaged this as a `implement` request.\n> \n> I'll request approval to replace the Episode 6 cover image with the corrected one you provided.\n> \n> Reply with:\n> \n> ```\n> @sepo-agent /approve req-af7a81\n> ```\n> \n> to start the implementation workflow.\n\n@sepo-agent /approve req-af7a81",
+      "createdAt": "2026-08-14T00:58:43Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/88#issuecomment-5288175139",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABOzO6_g",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo implementation finished**\n\n- Branch: `agent/implement-issue-88/claude-31759158868`\n- Pull request: https://github.com/augmented-mind/augmented-mind.github.io/pull/89\n- Approval: https://github.com/augmented-mind/augmented-mind.github.io/issues/88#issuecomment-5288175139\n\nIssue #88 (\"Release Episode 6\") was triaged as a cover-image swap, but Episode 6 had never actually been added to `main` — there was no `ep06.md`, guest page, or cover. I added the full episode following the ep01–ep05 pattern, using the corrected cover image XenonMolecule provided in the issue comment (not the incorrect one from the RSS feed). New files: `content/episodes/ep06.md` (title, EP06, date 2026-08-14 from the RSS pubDate, YouTube 6JGWwCr_Gdk, timestamps, references), `content/people/zora-wang.md` (guest profile cross-linked to ep06), and `quartz/static/covers/EP06-cover.png` (1920×1080 PNG downloaded from the GitHub attachment and visually confirmed as the correct Zora Wang cover). Verified with a full Quartz build against the `content` directory: build succeeds with no errors and no broken-link warnings, EP06 appears on the homepage carousel, and the ep06 ↔ zora-wang wikilinks resolve in both directions.\n\n---\n`claude` | `claude-opus-4-8` | `xhigh` | `GitHub Actions 1000004901`",
+      "createdAt": "2026-08-14T01:05:06Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/88#issuecomment-5288213246",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-08-14T00:50:56Z",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "number": 88,
+  "state": "CLOSED",
+  "title": "Release Episode 6",
+  "updatedAt": "2026-08-14T01:06:30Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/88"
+}
