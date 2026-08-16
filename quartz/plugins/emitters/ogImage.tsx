@@ -149,9 +149,15 @@ export const CustomOgImages: QuartzEmitterPlugin<Partial<SocialImageOptions>> = 
             let userDefinedOgImagePath = pageData.frontmatter?.socialImage
 
             if (userDefinedOgImagePath) {
-              userDefinedOgImagePath = isAbsoluteURL(userDefinedOgImagePath)
-                ? userDefinedOgImagePath
-                : `https://${baseUrl}/static/${userDefinedOgImagePath}`
+              if (isAbsoluteURL(userDefinedOgImagePath)) {
+                // full external URL, use as-is
+              } else if (userDefinedOgImagePath.startsWith("/")) {
+                // site-absolute path (e.g. /static/covers/EP06-cover.png)
+                userDefinedOgImagePath = `https://${baseUrl}${userDefinedOgImagePath}`
+              } else {
+                // bare filename, resolve against the static folder
+                userDefinedOgImagePath = `https://${baseUrl}/static/${userDefinedOgImagePath}`
+              }
             }
 
             const generatedOgImagePath = isRealFile
