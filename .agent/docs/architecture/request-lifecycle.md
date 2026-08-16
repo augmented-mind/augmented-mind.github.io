@@ -4,24 +4,29 @@ title: "The life cycle of an agent request"
 
 ## Entry and routing
 
-Every trigger converges on the portal workflow `agent-router.yml`. It extracts context, validates mentions, records the caller association, optionally runs dispatch triage, applies route authorization, and routes the request to a specialized workflow or inline answer path.
+Every trigger converges on the portal workflow `agent-router.yml`. It extracts context, validates mentions, records the caller association, applies route authorization, and routes the request to a specialized workflow or inline answer path.
 
 Explicit mentions remain the primary trigger. When `AGENT_FOLLOWUP_INTENT_MODE` is `agent-label` (the default), new unmentioned issue/PR comments, new PR review comments, and submitted PR reviews on targets with the fixed `agent` label can also enter the portal as `implicit_followup=true`. The portal checks `answer` route authorization before running the dedicated intent gate with the same communication-rubric selection used by answer runs. The gate can only return `respond` or `ignore`; `respond` is forced to the inline `answer` route, while `ignore` posts nothing.
 
+By default, an explicit mention without a slash command resolves locally to `answer`, so the answer agent is the first model call. If that answer identifies change-shaped or route-specific work, it ends with concise, target-appropriate command guidance; suggesting a command does not start or authorize the action. Set `AGENT_TRIAGE_MODE=agent` to run the model-backed dispatch triage before route authorization for these uncommanded explicit mentions. This setting does not change explicit slash commands, label routes, or the separate implicit-follow-up intent gate.
+
 ## Approval model
 
-- Inline answers are posted immediately.
+- Inline answers are posted immediately. Change-shaped answers may suggest an explicit `/implement`, `/fix-pr`, `/review`, or `/orchestrate` command, but no suggested action starts until the user sends that command.
 - Implicit follow-up answers are posted only after the intent gate returns `respond`; they never dispatch implementation, review, PR-fix, orchestration, install, skill, or create-action workflows.
 - Review and `fix-pr` requests on pull requests are dispatched immediately.
 - Explicit `/orchestrate` (or `agent/orchestrate`) requests dispatch the orchestrator workflow, which chooses one follow-up action from current target state.
 - Edited PR events are blocked from re-triggering review and `fix-pr` routes.
 - Mention and label requests that fail route authorization are posted back as inline `unsupported` replies instead of being dropped silently; that path still runs `Setup agent runtime` before `post-response.js` so posting dependencies are available.
-- Triaged implementation requests (i.e., when the dispatch agent predicts `implement` from a free-form mention) require an approval comment:
+- In `AGENT_TRIAGE_MODE=agent`, triaged implementation requests (i.e., when the dispatch agent predicts `implement` from a free-form mention) require an approval comment:
   - `@sepo-agent /approve req-...`
 - For triaged implementation requests from non-issue surfaces, the router drafts an issue title and body, posts the proposal on the original surface, and creates the issue after approval.
 - Explicit implementation requests (`@sepo-agent /implement ...` or the `agent/implement` label) skip the approval comment. The router creates a tracking issue if the surface isn't already an issue and dispatches `agent-implement.yml` directly, since the explicit mention is itself the approval. For pull request and discussion surfaces, the router asks a metadata-only agent prompt to synthesize the tracking issue title and body from the request and target context; for PR requests that explicitly ask for stacked or follow-up work, that metadata can also provide `base_pr` so the implementation PR stacks on the source PR head. If the inferred source PR is closed or merged, the router omits `base_pr`, adds a base-branch note to the tracking issue, and lets implementation start from the repository default branch while keeping the closed PR link as context. If that metadata is unavailable or invalid, it falls back to the generic implementation issue metadata. Access control (`AGENT_ACCESS_POLICY`) still applies to the `implement` route. The explicit path also passes a session-fork hint from the original target's `answer/default` thread, so implementation can continue from a prior answer session when that bundle exists.
+- Explicit `/add-rubrics` requests use the same implementation workflow but set `base_branch=agent/rubrics` and the add-rubrics prompt. The workflow keeps Sepo runtime files on the default branch and runs the agent in a separate rubrics worktree, then opens a draft proposal PR targeting `agent/rubrics`.
 
 PR fix requests never create a tracking issue or a new pull request. The runner updates the existing PR branch after reading PR metadata and review comments. Dirty worktree changes are committed and pushed back to the PR branch; clean history-only updates, such as a successful rebase, run verification against the original PR head and then push the updated `HEAD` back to the PR branch with a lease against that original head. If persistence fails after a successful agent run, the final status comment reports the run as failed. Automatic pushing is limited to open same-repository pull requests, and route access follows the configured trigger access policy.
+
+Direct implementation and PR-fix runs publish a live progress comment on issue and pull request surfaces by default, while answer runs use report-only progress by default. The shared `run-agent-task` action starts a best-effort reporter before the agent run, passes it the agent's ACP stream file, and tears it down after the run. If the reporter created a comment, the final issue/PR response step patches that same comment with the substantive result first and a collapsed activity log below it; otherwise it falls back to posting the normal final comment. An authorized 👎 reaction from the requester, repository owner, member, or collaborator first marks cancellable progress comments as cancelled, then requests GitHub Actions cancellation. `AGENT_PROGRESS_POLICY` can disable the comment or switch a route to `report-only`; review runs remain disabled by default. Runs with explicit orchestration context ignore normal route progress overrides, default to no progress comment, and report state through orchestrator handoff or status comments unless `orchestration_mode` explicitly opts into report-only progress.
 
 ## Branch naming
 
@@ -45,12 +50,13 @@ Current route-level `acpx` permission modes:
 
 | Route | acpx mode | Rationale |
 |---|---|---|
-| `dispatch` | `approve-all` | classification may gather repo and issue context |
+| `dispatch` | `approve-all` | opt-in classification may gather repo and issue context when `AGENT_TRIAGE_MODE=agent` |
 | `answer` | `approve-all` | may gather context before replying |
 | `orchestrator` | `approve-all` | planner may gather target and repository context before choosing the next route |
 | `agent-self-approve` | `approve-all` | final approval judgment may run the PR/repo inspection commands it needs, while deterministic resolver code owns approval submission or internal approval recording |
 | `agent-self-merge` | none | deterministic workflow code owns current-head approval validation and merge submission |
 | `implement` | `approve-all` | needs full file system access |
+| `add-rubrics` | `approve-all` | edits a separate rubrics worktree and opens a proposal PR against `agent/rubrics` |
 | `fix-pr` | `approve-all` | needs full file system access |
 | `review` | `approve-all` | reviewers and synthesis may gather PR and repo context |
 

@@ -10,7 +10,7 @@ title: "Supported workflows"
 |---|---|---|---|
 | `agent-label.yml` | `issues.labeled`, `pull_request_target.labeled` | Thin entry point for label-based activation into `agent-router.yml` | None |
 | `agent-entrypoint.yml` | `@sepo-agent` in issues, PRs, discussions, comments, reviews | Thin entry point that wires triggers, runner labels, and secrets into `agent-router.yml` | None |
-| `agent-router.yml` | `workflow_call` | Full portal for context extraction, auth gating, mention detection, dispatch triage, routing, approval requests, and response posting | Configurable |
+| `agent-router.yml` | `workflow_call` | Full portal for context extraction, auth gating, mention detection, answer-first routing, optional dispatch triage, approval requests, and response posting | Configurable |
 | `agent-approve.yml` | approval comments | Resolves pending approvals, creates issues when needed, dispatches implementation | None |
 | `agent-orchestrator.yml` | `workflow_dispatch` | Explicit orchestration route that decides whether to dispatch the next action | None in `heuristics` mode; resolved-provider planner in `agent` mode |
 | `agent-self-approve.yml` | `workflow_dispatch` | Opt-in pull request self-approval gate after trusted current-head review synthesis | Auto |
@@ -22,19 +22,28 @@ title: "Supported workflows"
 | `agent-close-stale-issues.yml` | `schedule` (daily), `workflow_dispatch` | Closes open `agent` issues that have had no activity for 30 days by default | None |
 | `agent-daily-summary.yml` | `schedule` (daily, disabled by default), `workflow_dispatch` | Generates a concise repository activity summary and posts it as a Discussion | Auto |
 | `agent-project-manager.yml` | `schedule` (every 6h), `workflow_dispatch` | Opt-in agent-driven triage for open issues and PRs, with dry-run summaries and optional priority/effort label updates | Auto |
+| `agent-self-improvement.yml` | `schedule` (every 6h), `workflow_dispatch` | Opt-in liveness-first self-improvement planner that chooses a new issue, existing issue, or existing PR, then dispatches the orchestrator | Auto |
 | `agent-update.yml` | `schedule` (1st and 15th), `workflow_dispatch` | Checks for Sepo agent infrastructure updates and opens a PR only when updates are available | Auto |
 | `agent-onboarding.yml` | `workflow_dispatch` | First-run setup check that creates built-in labels and opens or updates an agent-tracked setup issue | None |
+| `agent-cache-seed.yml` | `push` to the default branch touching `.agent/**` or the setup action, weekly `schedule` at the ISO-week rollover (honors `AGENT_SCHEDULE_POLICY`), `workflow_dispatch` | Warms the exact-key runtime setup and Claude CLI caches from the trusted default branch so user-facing runs rarely pay the first-miss cost | None |
 | `test-scripts.yml` | `pull_request`, `workflow_dispatch` | CI for helper tests, YAML parsing, and shell syntax | None |
 
 All packaged `agent-*.yml` workflow jobs honor `AGENT_ENABLED=false` as a
 global Sepo pause before checkout, auth, provider resolution, or runtime setup.
 Unset `AGENT_ENABLED` or any value other than exact `false` leaves Sepo enabled.
-`test-scripts.yml` remains normal CI and is not paused by this flag.
+`test-scripts.yml` remains normal CI and is not paused by this flag. Pull request
+runs are limited to changes under `.agent/`, `.github/actions/`,
+`.github/prompts/`, or `.github/workflows/`, and its check job runs by default
+only in `self-evolving/repo`. Downstream repositories can opt in by setting
+`AGENT_TEST_SCRIPTS_ENABLED=true`; manual workflow dispatches always run. Runner
+labels come from `AGENT_TEST_RUNS_ON`, then `AGENT_RUNS_ON`, then
+`["ubuntu-latest"]`.
 
 `agent-orchestrator.yml` is started explicitly through `/orchestrate` or
-`agent/orchestrate`. Dispatch triage can also select `orchestrate` for issue and
-pull request requests that ask for orchestration, follow-up automation, or
-bounded multi-step agent work. On start, it inspects the current target state and
+`agent/orchestrate`. When `AGENT_TRIAGE_MODE=agent`, dispatch triage can also
+select `orchestrate` for issue and pull request requests that ask for
+orchestration, follow-up automation, or bounded multi-step agent work. On start,
+it inspects the current target state and
 dispatches one built-in action (`implement`, `review`, `fix-pr`,
 `agent-self-approve`, or `agent-self-merge`) when useful.
 That dispatch includes explicit orchestration context; only those orchestrator
@@ -89,6 +98,12 @@ Implementation dispatches default to the repository default branch. Callers can
 set `base_branch` to stack directly on another branch, or `base_pr` to stack on
 an open same-repository PR head branch. The implementation workflow rejects
 ambiguous input when both are set.
+
+The `add-rubrics` route reuses `agent-implement.yml` with
+`base_branch=agent/rubrics` and `.github/prompts/agent-add-rubrics.md`. For that
+route, Sepo keeps the default-branch runtime checkout in the main workspace and
+runs the agent in a separate rubrics worktree so the proposal PR can target the
+data-only `agent/rubrics` branch.
 
 For explicit `/implement` requests from pull requests, the router's
 metadata-only prompt may emit `base_pr` when the current user request asks for a
@@ -147,7 +162,7 @@ The `agent-memory-*` workflows and the `agent/memory` branch they share are docu
 | Workflow | Actions name | Trigger | Purpose | Model |
 |---|---|---|---|---|
 | `agent-rubrics-initialization.yml` | `Agent / Rubrics / Initialization` | `workflow_dispatch` | Creates `agent/rubrics`, seeds the layout, and optionally populates initial rubrics from supplied context or repository history | Auto |
-| `agent-rubrics-review.yml` | `Agent / Rubrics / Review` | `workflow_dispatch`, `workflow_call` | Scores a PR against active rubrics selected from `agent/rubrics` | Auto |
+| `agent-rubrics-review.yml` | `Agent / Rubrics / Review` | `workflow_dispatch`, `workflow_call` | Scores a PR against active rubrics selected from `agent/rubrics`; skips model work when there is nothing to score | Auto |
 | `agent-rubrics-update.yml` | `Agent / Rubrics / Update` | merged `pull_request_target.closed`, `workflow_dispatch` | Learns durable user/team preferences from PR interactions and updates `agent/rubrics` | Auto |
 
 Rubrics are documented in [User/team rubrics](../architecture/rubrics.md). They are separate from repository memory: memory is agent/project continuity, while rubrics are normative user/team preferences used to steer implementation and evaluate reviews.
@@ -175,6 +190,39 @@ step finds today's `Daily Summary — YYYY-MM-DD` discussion in the configured
 discussion category and comments there. If that discussion does not exist yet,
 it leaves only the Actions step summary.
 
+`agent-self-improvement.yml` is disabled by default and is currently safest for
+private repositories or single-person development. Public repositories should
+keep it tightly gated, for example by limiting who can run repository workflows
+and by using `AGENT_ACCESS_POLICY` to restrict delegated orchestrator access to
+trusted maintainer associations. Enable it with
+`AGENT_SELF_IMPROVEMENT_ENABLED=true`. The workflow honors
+`AGENT_SCHEDULE_POLICY` for explicit scheduled-run disables, but
+intentionally does not use memory-cursor throttling or an open-proposal backlog
+gate: every enabled cron or manual run wakes the planner and asks for one
+routing decision. The planner must inspect recent self-improvement issues, pull
+requests, and workflow failures, then return `new_issue`, `continue_issue`, or
+`continue_pr`. On public repositories, planner guidance tells it to prefer
+trusted maintainer signals such as maintainer-authored `agent-goal` issues,
+`OWNER`, `MEMBER`, or `COLLABORATOR` comments, and existing trusted
+Sepo-authored proposals. Arbitrary public issue or pull request text should be
+treated as untrusted context/data, not instructions.
+
+Deterministic post-agent code validates the JSON decision, checks delegated
+initial orchestrator access before creating or commenting, creates a marked
+proposal issue or posts a continuation trace comment, verifies continuation
+targets are open and of the requested kind, requires continuation target authors
+to resolve to the authenticated Sepo actor or another trusted repository actor,
+and dispatches `agent-orchestrator.yml` on the chosen target. It scans paginated
+target comments and uses the current run marker to skip a duplicate trace
+comment on retry/rerun only when the marker comment was authored by the
+authenticated Sepo actor. It also reuses marked proposal issues only when they
+were authored by the authenticated Sepo actor, without treating older proposals
+as a backlog lock. Manual dispatches derive the real dispatcher's repository
+association before applying and forwarding delegated-route authorization
+context; scheduled runs are system-authorized by the repository owner opt-in.
+This keeps prior failed or stuck attempts as context instead of locks that can
+deadlock future self-improvement runs.
+
 `agent-daily-summary.yml` checks repository discussion settings before gathering
 activity signals or resolving an agent provider. If discussions are disabled, or
 the configured summary discussion category does not exist, the workflow skips
@@ -199,13 +247,25 @@ from the default branch. The canonical `self-evolving/repo` source repository
 should set `AGENT_AUTO_UPDATE=false` when scheduled self-updates are not wanted;
 manual dispatch remains available for explicit source ref testing.
 
-Single-agent routes, autonomous agent workflows, fixed review lanes, and the review synthesis step resolve provider/model settings before installing provider CLIs. Explicit provider choices from inline workflow `route_provider`, `AGENT_MODEL_POLICY.route_overrides[route].provider`, or `AGENT_DEFAULT_PROVIDER` are authoritative: the workflows select that provider even when the matching repository secret is absent, so self-hosted runners can rely on local Codex or Claude authentication. When the provider is `auto`, detection uses configured provider secrets and prefers Codex when `OPENAI_API_KEY` is configured; otherwise Claude is selected when either `CLAUDE_CODE_OAUTH_TOKEN` or `ANTHROPIC_API_KEY` is present. Resolved Codex and Claude runs use Sepo's small pinned model defaults unless `AGENT_MODEL_POLICY` overrides them: `gpt-5.5` for Codex and `claude-opus-4-8` for Claude. `AGENT_MODEL_POLICY` can also set provider-specific models and route-specific model or reasoning effort overrides; inline workflow `route_provider` remains the native escape hatch. Portal and skill jobs use non-fatal early resolution before non-agent response paths, then require a provider only immediately before invoking an agent. The review workflow's Claude/Codex reviewer lanes keep fixed providers through inline `route_provider`, so provider-specific model settings apply there while route-specific review overrides are left to synthesis.
+Single-agent routes, autonomous agent workflows, fixed review lanes, and the review synthesis step resolve provider/model settings before installing provider CLIs. Explicit provider choices from inline workflow `route_provider`, `AGENT_MODEL_POLICY.route_overrides[route].provider`, or `AGENT_DEFAULT_PROVIDER` are authoritative: the workflows select that provider even when the matching repository secret is absent, so self-hosted runners can rely on local Codex or Claude authentication. When the provider is `auto`, detection uses configured provider secrets and prefers Codex when `OPENAI_API_KEY` is configured; otherwise Claude is selected when either `CLAUDE_CODE_OAUTH_TOKEN` or `ANTHROPIC_API_KEY` is present. Resolved Codex and Claude runs use Sepo's small pinned model defaults unless `AGENT_MODEL_POLICY` overrides them: `gpt-5.6-sol` with `max` reasoning effort for Codex and `claude-opus-4-8` for Claude. `AGENT_MODEL_POLICY` can also set provider-specific models and route-specific model or reasoning effort overrides; inline workflow `route_provider` remains the native escape hatch. Portal and skill jobs use non-fatal early resolution before non-agent response paths, then require a provider only immediately before invoking an agent. The review workflow's Claude/Codex reviewer lanes keep fixed providers through inline `route_provider`, so provider-specific model settings apply there while route-specific review overrides are left to synthesis.
+
+### GitHub attachment downloads
+
+Agent prompts include an on-demand command for private GitHub attachment links:
+
+```shell
+node .agent/dist/cli/download-github-attachment.js --url "<attachment-url>"
+```
+
+The command is attachment-specific. It accepts only `https://github.com/user-attachments/files/...` and `https://github.com/user-attachments/assets/...` URLs, downloads with the normal agent GitHub token from `INPUT_GITHUB_TOKEN`, `GH_TOKEN`, or `GITHUB_TOKEN`, and writes files under `$RUNNER_TEMP/agent-attachments`. It rejects other GitHub URLs and non-GitHub URLs so the command does not become a general authenticated fetch primitive. Downloads use safe filenames, a 30 second timeout, and a 25 MiB default size cap. `GITHUB_ATTACHMENT_TIMEOUT_MS` and `GITHUB_ATTACHMENT_MAX_BYTES` may override those limits for a run. The command prints JSON metadata including the original URL, local path, filename, byte count, content type, and HTTP status.
 
 ## Trigger details
 
 ### `agent-entrypoint.yml`
 
-The broad pre-filter starts the router when the event contains `@sepo-agent`. Real mention validation happens in `agent-router.yml` through `extract-context.js`. That validation is boundary-aware and strips code blocks and quoted text before deciding whether a mention is live.
+The mention branch of the entrypoint pre-filter starts the router only when the active trigger title, body, comment, or review contains `@sepo-agent`. A handle elsewhere in the webhook payload, such as the parent issue body for an unmentioned comment, does not qualify as a mention; unless the separate unmentioned-follow-up branch below applies, no runner is allocated. Real mention validation happens in `agent-router.yml` through `extract-context.js`. That validation is boundary-aware and strips code blocks and quoted text before deciding whether a mention is live.
+
+An explicit mention without a recognized slash command routes directly to the inline `answer` path by default, making the answer agent the first model call. For change-shaped answers, the answer prompt recommends a concise command suited to the target, such as `@sepo-agent /implement ...`, `@sepo-agent /fix-pr ...`, `@sepo-agent /review`, or `@sepo-agent /orchestrate ...`; it does not start that action. Set `AGENT_TRIAGE_MODE=agent` to restore the model-backed dispatch-triage step for only these uncommanded explicit mentions. Explicit slash routes, label routes, authorization checks, and the implicit-follow-up gate do not depend on this setting.
 
 When `AGENT_FOLLOWUP_INTENT_MODE` is unset or `agent-label`, new unmentioned issue/PR comments, new PR review comments, and submitted PR reviews can also wake the router if the target already has the fixed `agent` label. The router marks these as `implicit_followup=true`, checks `answer` route authorization before the intent gate, and only continues to the inline `answer` route when the communication-rubric-aware gate returns `respond`. `ignore` posts nothing. Set `AGENT_FOLLOWUP_INTENT_MODE=disabled` or `false` to require explicit mentions only.
 
@@ -221,7 +281,9 @@ Supported surfaces:
 | `discussion` | discussion title, discussion body |
 | `discussion_comment` | comment body |
 
-By default, the portal responds to `OWNER`, `MEMBER`, `COLLABORATOR`, and `CONTRIBUTOR` associations. `AGENT_ACCESS_POLICY` can tighten or widen access globally or for specific routes; public repositories that do not want prior contributors to trigger Sepo should remove `CONTRIBUTOR` from the allowlist. Bot authors are always skipped. Mention-based implicit route requests are triaged first and then checked against the resolved route, so denied requests get a visible unsupported reply instead of being dropped silently. Unmentioned implicit follow-ups are answer-only and are dropped silently when the answer route is not authorized. See [Trigger access policy](../customization/access-policy.md).
+GitHub still records a workflow run for each configured webhook event. When the entrypoint pre-filter rejects an event, the `agent` job is marked as skipped and no runner is allocated. Bot-authored events are rejected both by this pre-filter and by context extraction, so bot-to-bot mentions are not supported; enabling them would require changing both layers deliberately.
+
+By default, the portal responds to `OWNER`, `MEMBER`, `COLLABORATOR`, and `CONTRIBUTOR` associations. `AGENT_ACCESS_POLICY` can tighten or widen access globally or for specific routes; public repositories that do not want prior contributors to trigger Sepo should remove `CONTRIBUTOR` from the allowlist. Bot authors are always skipped. Uncommanded explicit mentions resolve to `answer` by default, or use dispatch triage in `AGENT_TRIAGE_MODE=agent`, and are then checked against the resolved route so denied requests get a visible unsupported reply instead of being dropped silently. Unmentioned implicit follow-ups are answer-only and are dropped silently when the answer route is not authorized. See [Trigger access policy](../customization/access-policy.md).
 
 Explicit routes are:
 
