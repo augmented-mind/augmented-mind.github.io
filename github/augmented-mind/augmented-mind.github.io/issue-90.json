@@ -7,12 +7,57 @@
   },
   "body": "Right now the og image is kinda blogpost oriented -- but we also have this cover pictures. Can we update it? \n\n@Sepo-agent /answer",
   "closedAt": null,
-  "comments": [],
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABPDD32g",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /answer",
+      "createdAt": "2026-08-15T23:52:34Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/90#issuecomment-5304809434",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABPDEaMQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "I have a full picture. Here's my answer.\n\n---\n\nGood idea — the covers are a much better social preview than the generated card. Here's what I found and how I'd wire it up.\n\n## How OG images work today\n\n- The `CustomOgImages` emitter ([`quartz/plugins/emitters/ogImage.tsx`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/plugins/emitters/ogImage.tsx)) generates a `.webp` per page using the **blogpost-oriented** `defaultImage` template in [`quartz/util/og.tsx`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/util/og.tsx) (title + description + date + reading time + tags).\n- There's already an escape hatch: if a page has `socialImage` frontmatter, the emitter **skips generation and uses that image directly** (`ogImage.tsx` L120, L133, and the `externalResources` hook L149-155). [`Head.tsx`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/Head.tsx) defers to the same hook.\n- The frontmatter transformer coalesces `socialImage` / `image` / `cover` into `data.socialImage` ([`frontmatter.ts:101`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/plugins/transformers/frontmatter.ts#L101)).\n- Episodes already carry the cover as `coverImage: \"/static/covers/EP06-cover.png\"` (e.g. [`ep06.md`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/content/episodes/ep06.md)), and every `EPxx-cover.png` is a 1920×1080 (16:9) file in [`quartz/static/covers/`](https://github.com/augmented-mind/augmented-mind.github.io/tree/main/quartz/static/covers) — good enough for OG (platforms crop toward 1200×630).\n\n**The gap:** `coverImage` isn't in the alias list, so covers are ignored and episodes fall back to the generated card.\n\n## Two paths\n\n**Option A — use the raw cover as the OG image (recommended, minimal).**\nMake episodes' existing `coverImage` feed `socialImage`, so the cover is served directly:\n1. Add `\"coverImage\"` to the alias list in `frontmatter.ts:101`.\n2. Fix path handling for site-absolute values: the `externalResources` hook only handles absolute URLs or bare filenames — a value like `/static/covers/EP06-cover.png` would get double-prefixed to `.../static//static/...`. Add a branch so a leading-`/` path is used as-is. (`isAbsoluteURL` returns false for `/…` paths — [`path.ts:43`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/util/path.ts#L43).)\n3. Verify a built episode page's `og:image` meta resolves to the cover and skips `.webp` generation.\n\nResult: episodes show the cover; all other pages keep the generated card. Zero per-episode edits.\n\n**Option B — composite the cover into a branded card.**\nKeep generating an image but pass a custom `imageStructure` that renders the cover as a full-bleed background with the logo/title overlaid (Satori supports `<img>` via base64, same pattern as the `iconBase64` load in `ogImage.tsx:33-40`). More design work, but gives a consistent branded frame instead of the bare screenshot.\n\n## My recommendation\n\nGo with **Option A** — it reuses the cover art you already ship and needs only two small code changes plus a build check. If you'd rather have a designed card (cover + logo + title) rather than the raw 16:9 image, say so and I'll scope Option B instead.\n\nWant me to proceed with Option A? A couple of things to confirm:\n- Should **only episodes** use covers, or also livestreams (there's an `LS01-cover.png`) and any other cover'd content?\n- Raw cover as-is, or does it need a title/logo overlay?\n\n---\n`claude` | `claude-opus-4-8` | `high` | `GitHub Actions 1000005044`",
+      "createdAt": "2026-08-15T23:55:26Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/90#issuecomment-5304818225",
+      "viewerDidAuthor": true
+    }
+  ],
   "createdAt": "2026-08-14T21:01:01Z",
-  "labels": [],
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
   "number": 90,
   "state": "OPEN",
   "title": "Chang the og image for episode release",
-  "updatedAt": "2026-08-14T21:01:01Z",
+  "updatedAt": "2026-08-15T23:55:26Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/90"
 }
