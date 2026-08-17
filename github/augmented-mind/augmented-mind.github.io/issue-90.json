@@ -6,7 +6,7 @@
     "name": "Shannon Shen"
   },
   "body": "Right now the og image is kinda blogpost oriented -- but we also have this cover pictures. Can we update it? \n\n@Sepo-agent /answer",
-  "closedAt": null,
+  "closedAt": "2026-08-16T20:41:47Z",
   "comments": [
     {
       "id": "IC_kwDOQ106188AAAABPDD32g",
@@ -44,6 +44,64 @@
       "reactionGroups": [],
       "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/90#issuecomment-5304818225",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABPHZxVg",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /orchestrate let's build this ",
+      "createdAt": "2026-08-16T19:52:51Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/90#issuecomment-5309362518",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABPHaUbg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| orchestrate | implement | Issue #90 | 2 / 40 | Dispatched |\n\nReason: agent planner selected implement: Issue #90 requests using episode cover art as the OG/social image. The prior /answer scoped a concrete, minimal Option A (two small code changes + build check) and the user approved with '/orchestrate let's build this' plus a thumbs-up. Small, self-contained change fitting in the current issue.\n\n<!-- sepo-agent-handoff state:dispatched created:1786910104478 base64:aGFuZG9mZjphdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW86MzE5Njg4OTI3MjI6b3JjaGVzdHJhdGU6OTA6aW1wbGVtZW50OjkwOjI -->",
+      "createdAt": "2026-08-16T19:55:04Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/90#issuecomment-5309371502",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABPHbSbA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo implementation finished**\n\n- Branch: `agent/implement-issue-90/claude-31968998693`\n- Pull request: https://github.com/augmented-mind/augmented-mind.github.io/pull/91\n\nImplemented Option A from the approved issue plan: episode/livestream cover art now serves as the Open Graph social image instead of the generated blogpost-style card. Added \"coverImage\" to the socialImage alias list in quartz/plugins/transformers/frontmatter.ts so existing coverImage frontmatter (present on EP00–EP06 and LS01) feeds data.socialImage, and fixed the externalResources hook in quartz/plugins/emitters/ogImage.tsx to resolve site-absolute paths like /static/covers/EP06-cover.png as-is (previously double-prefixed to /static//static/...); bare filenames still resolve against /static/ and full URLs are unchanged. Verified with a full `npx quartz build`: episode pages emit og:image = https://augmented-mind.github.io/static/covers/EPxx-cover.png with no generated .webp, LS01 uses its cover, and non-cover pages (index, guests, topics, listings) still generate the .webp card with width/height meta. Prettier passes on both changed files and no new TypeScript errors are introduced (remaining tsc errors are pre-existing in Footer/EpisodeCarousel/GuestSuggestion).\n\n---\n`claude` | `claude-opus-4-8` | `xhigh` | `GitHub Actions 1000005118`",
+      "createdAt": "2026-08-16T19:58:23Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/90#issuecomment-5309387372",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-08-14T21:01:01Z",
@@ -56,8 +114,8 @@
     }
   ],
   "number": 90,
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "Chang the og image for episode release",
-  "updatedAt": "2026-08-15T23:55:26Z",
+  "updatedAt": "2026-08-16T20:41:47Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/90"
 }

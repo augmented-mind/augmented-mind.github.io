@@ -5,7 +5,7 @@
   },
   "baseRefName": "main",
   "body": "## Summary\n\nRefreshes the installed Sepo agent infrastructure from `0.3.1` to `v0.5.0`. This is an automated infrastructure-only update: it syncs `.agent/` and merges the source `.github/` agent assets without touching target application source, site workflows, or target-owned templates.\n\n**Update Sepo from `0.3.1` to `v0.5.0`/`5f7d2032080e9c0578d0e4cb3b98b2f695f33547`**\n\n- Source: `self-evolving/repo@v0.5.0` (SHA `5f7d2032080e9c0578d0e4cb3b98b2f695f33547`, resolved as latest release)\n- Target branch: `agent/update-agent-infra-20260801` ← `main`\n- Installed version before: `0.3.1` (`.agent/package.json`)\n\n## Changed path groups\n\n`130 files changed, +10258 / -667` (39 new, 91 modified), all within `.agent/` and `.github/`:\n\n- `.agent/src/**` — runtime + tests (progress reporting/cancel, self-improvement, attachment download, actor-association, env)\n- `.agent/docs/**`, `.agent/action-templates/`, `.agent/scripts/`, `.agent/tools/local-runner/**` (adds Linux support + post-job cleanup hook)\n- `.agent/README.md`, `.agent/model-defaults.json` (new bundled files)\n- `.github/workflows/**` — updates plus new `agent-cache-seed.yml` and `agent-self-improvement.yml`\n- `.github/prompts/**` — updates plus new `agent-add-rubrics.md` and `agent-self-improvement.md`\n- `.github/actions/**` — `run-agent-task`, `setup-agent-runtime` (runtime caching), `resolve-agent-provider`\n- `.github/ISSUE_TEMPLATE/**` — new `ask-sepo.md`, `install-sepo.md`\n- `.github/assets/sepo-headline.png` (new)\n\nNotable 0.4.0 → 0.5.0 changes now installed: opt-in self-improvement workflow, runtime + Claude CLI caching, Linux local-runner support, direct-answer default triage (`AGENT_TRIAGE_MODE`), `/add-rubrics` route, live progress comments, and release-workflow-authored changelogs. See `.agent/CHANGELOG.md`.\n\n## Audit summary\n\n| Path | Classification | Action |\n|---|---|---|\n| `.agent/**` (excl. `dist/`, `node_modules/`) | agent-owned | Synced (`rsync --delete`, generated dirs excluded); 32 new files added |\n| `.github/workflows/agent-*.yml`, `.github/actions/**`, `.github/prompts/**` | agent-owned | Merged from source in place; 4 new agent files added |\n| `.github/ISSUE_TEMPLATE/agent-goal.yml`, `ask-sepo.md`, `install-sepo.md` | agent-owned | Updated / added |\n| `.github/workflows/deploy.yml`, `preview.yml` | target-owned (site) | Preserved |\n| `.github/ISSUE_TEMPLATE/bug_report.md`, `feature_request.md` | target-owned | Preserved |\n| `.github/dependabot.yml`, `.github/pull_request_template.md` | target-owned | Preserved |\n| `.github/ISSUE_TEMPLATE/install-sepo.yml` | legacy Sepo template (superseded by `install-sepo.md`) | Preserved (removal not requested) |\n| `.github/actions/resolve-agent-provider/package.json` | legacy Sepo file (dropped upstream) | Preserved (removal not requested) |\n| `.skills/`, root `AGENT.md`/`AGENTS.md`/`CLAUDE.md` | optional, not approved | Not added |\n\n## Customizations preserved\n\n- All target-only `.github` files listed above (site deploy/preview workflows, bug/feature templates, dependabot, PR template) are untouched.\n- `.gitignore` already contains `.agent/dist/` and `.agent/node_modules/`; no change needed.\n- No target-only files existed inside `.agent/`, so the sync introduced no target-side deletions beyond upstream-removed runtime files.\n\n## Removed files\n\nNone. `remove obsolete or legacy files` was `false`, so the two legacy Sepo artifacts (`install-sepo.yml`, `resolve-agent-provider/package.json`) were left in place. Recommended optional follow-up (needs explicit approval): remove `install-sepo.yml` since `install-sepo.md` now supersedes it.\n\n## Memory / rubrics branch status\n\n- `agent/memory` exists (`e73c88e`) — not reinitialized; continue using ongoing sync/scan workflows.\n- `agent/rubrics` does not exist — not created (no rubrics requested). Run `Agent / Rubrics / Initialization` only if rubric steering is wanted.\n- No `agent/*`, `agent/memory`, `agent/rubrics`, or `refs/agent-state/*` refs were modified.\n\n## Validation\n\n- `npm --prefix .agent ci` — OK (47 packages, 0 vulnerabilities)\n- `npm --prefix .agent run build` — OK (`tsc` clean)\n- `npm --prefix .agent test` — OK (869 tests, 0 failures)\n- Workflow/action YAML parse — OK (39/39 files)\n- `git diff --check` / `git diff --cached --check` — clean; all staged changes confined to `.agent/` and `.github/`\n\n## Post-merge notes (document only)\n\nAfter merge:\n1. Confirm required secrets/auth still match updated workflows (provider secret + GitHub App / auth path).\n2. Verify branches: `git ls-remote --heads https://github.com/augmented-mind/augmented-mind.github.io.git agent/memory agent/rubrics`. `agent/memory` already exists — do not reinitialize.\n3. New opt-in workflows (`agent-self-improvement.yml`, `agent-cache-seed.yml`) ship disabled/opt-in by default; enable per their configuration if desired.\n4. Optional: run a smoke-test issue mentioning `@sepo-agent /answer`.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n",
-  "closedAt": null,
+  "closedAt": "2026-08-16T19:52:40Z",
   "comments": [
     {
       "id": "IC_kwDOQ106188AAAABMwfS4A",
@@ -21,6 +21,21 @@
       "reactionGroups": [],
       "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/87#issuecomment-5151118048",
       "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABPHZ-Rw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nNo changes were committed to [`agent/rubrics`](https://github.com/augmented-mind/augmented-mind.github.io/tree/agent/rubrics) from PR #87.\n\n**no rubric changes**\n\nPR #87 is an automated Sepo infrastructure update (`0.3.1` → `v0.5.0`) authored entirely by the `sepo-agent-app` bot. The only conversation activity is a preview-link comment from `github-actions[bot]` (`author_association: NONE`). There are zero human reviews, review comments, or issue comments, and no trusted contributor (owner/member/collaborator) expressed any durable style, workflow, communication, or review-quality preference.\n\nWith no trusted-contributor interaction and only advisory bot output, there's no stable user/team preference to encode. No rubrics branch/directory exists, and nothing here warrants creating one.\n\n---\n`claude` | `claude-opus-4-8` | `medium` | `GitHub Actions 1000005112`",
+      "createdAt": "2026-08-16T19:53:41Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/87#issuecomment-5309365831",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-08-01T10:55:49Z",
@@ -628,12 +643,12 @@
   ],
   "headRefName": "agent/update-agent-infra-20260801",
   "labels": [],
-  "mergedAt": null,
+  "mergedAt": "2026-08-16T19:52:40Z",
   "number": 87,
   "reviewDecision": "",
   "reviews": [],
-  "state": "OPEN",
+  "state": "MERGED",
   "title": "Update Sepo from 0.3.1 to v0.5.0/5f7d2032080e9c0578d0e4cb3b98b2f695f33547",
-  "updatedAt": "2026-08-01T10:56:29Z",
+  "updatedAt": "2026-08-16T19:53:41Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/87"
 }

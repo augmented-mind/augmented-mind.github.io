@@ -1,0 +1,119 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n\nEpisodes and livestreams already ship 16:9 cover art (`coverImage: \"/static/covers/EPxx-cover.png\"`), but their social preview fell back to the generated blogpost-style card. This wires the covers through to the Open Graph / Twitter image (Option A from the approved plan in #90).\n\n## Changes\n\n- **`quartz/plugins/transformers/frontmatter.ts`** — add `\"coverImage\"` to the `socialImage` alias list so existing `coverImage` frontmatter populates `data.socialImage`. (`EpisodeCarousel` still reads `coverImage` directly, so the index cards are unaffected.)\n- **`quartz/plugins/emitters/ogImage.tsx`** — resolve site-absolute paths (`/static/covers/EP06-cover.png`) as-is instead of prefixing `/static/` again (which produced `/static//static/...`). Bare filenames still resolve against `/static/`; full external URLs are unchanged.\n\nBecause the emitter already skips `.webp` generation when `socialImage` is set, cover'd pages now serve the raw cover and other pages keep the generated card.\n\n## Verification\n\nRan a full `npx quartz build`:\n\n- EP06 → `og:image` = `https://augmented-mind.github.io/static/covers/EP06-cover.png`, no `ep06-og-image.webp` emitted, and no `og:image:width/height` (correct, since the cover isn't 1200×630).\n- LS01 → its `LS01-cover.png`.\n- `index`, guest, topic, and listing pages → still generate the `.webp` card with width/height meta.\n\nPrettier passes on both files; no new TypeScript errors.\n\nNote: the pre-existing `og:image:type` value renders as `image/.png` (leading dot from `getFileExtension`) and affects the generated `.webp` too — left as-is since it's out of scope for this issue.\n\nCloses #90\n",
+  "closedAt": "2026-08-16T20:41:46Z",
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABPHbZzw",
+      "author": {
+        "login": "github-actions"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo preview: https://augmented-mind-augmented-mind-pr-91-6259ac.sepo.site",
+      "createdAt": "2026-08-16T19:58:51Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/91#issuecomment-5309389263",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABPHbgEQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| implement | review | PR #91 | 3 / 40 | Dispatched |\n\nReason: agent planner selected review: implement succeeded on issue #90 and produced PR #91 (open draft). Per policy, implement hands off to review when a PR target exists. Round 2/40, budget available.\n\n<!-- sepo-agent-handoff state:dispatched created:1786910354433 base64:aGFuZG9mZjphdWdtZW50ZWQtbWluZC9hdWdtZW50ZWQtbWluZC5naXRodWIuaW86MzE5Njg5OTg2OTM6aW1wbGVtZW50OjkwOnJldmlldzo5MToz -->",
+      "createdAt": "2026-08-16T19:59:14Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/91#issuecomment-5309390865",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABPHd1XQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: 4300bc19685997c8e778936e7cb9badfc5f8e1d2 -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\nHere is the unified review synthesis.\n\n## Summary of PR/Issue\nThis PR wires episode and livestream cover art into the Open Graph / Twitter social image, implementing **Option A** from the approved plan in issue #90. Episodes already ship 16:9 covers (`coverImage: \"/static/covers/EPxx-cover.png\"`) but their social preview fell back to the generated blogpost-style card. The change adds `\"coverImage\"` to the `socialImage` alias list in `frontmatter.ts`, and fixes `ogImage.tsx` so site-absolute paths resolve as-is instead of being double-prefixed to `/static//static/...`. Because the emitter already skips `.webp` generation when `socialImage` is set, cover'd pages now serve the raw cover while all other pages keep the generated card — with zero per-episode edits.\n\n## Review\nOne reviewer evaluated this PR and verified it end-to-end against every consumer (carousel, `Head.tsx`, emitter, RSS/sitemap), finding no bugs or regressions. The change is minimal, faithful to the approved scope, and correct for all real inputs; every finding is optional INFO-level polish with nothing blocking.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Empty `if` branch is a readability smell | INFO | `ogImage.tsx:152` — the `isAbsoluteURL` case is now an empty block containing only a comment. Functionally correct; inverting the guard reads cleaner. Optional. |\n| Pre-existing malformed `og:image:type` | INFO | `ogImage.tsx:162` — `image/${getFileExtension(...)}` yields `image/.png` (leading dot). Pre-existing and out of scope for #90; a one-line fix is cheap since the hunk is already here, but leaving it is defensible. |\n| No unit coverage for new path-resolution branches | INFO | The three-way resolution lives inline in the JSX hook, so it isn't unit-testable without extraction. Acceptable given the small surface and full `npx quartz build` verification. Optional. |\n\n## Progress\n- Faithfully implements **Option A** as approved in issue #90; reuses the existing `socialImage` escape hatch rather than a parallel mechanism.\n- Reviewer verified all no-regression claims: `EpisodeCarousel` unaffected (`coalesceAliases` is non-destructive), no double `og:image` (`Head.tsx:35` `usesCustomOgImage` skips the fallback), no dangling `.webp` references, correct path resolution (`baseUrl` has no protocol/trailing slash), and safe precedence (`coverImage` placed last).\n- PR includes concrete `npx quartz build` output: EP06 and LS01 serve their covers with no `.webp` emitted; `index`/guest/topic/listing pages keep the generated card with width/height meta.\n- Omitting `og:image:width/height` for covers is a confirmed-correct deliberate tradeoff (covers aren't 1200×630; crawlers measure and Twitter `summary_large_image` crops 16:9 cleanly) — no action needed.\n- The `image/.png` mime issue is explicitly acknowledged in the PR description as pre-existing and out of scope.\n- Posted one optional, non-blocking inline nit on `ogImage.tsx:152` (empty-`if` branch). No prior inline comments or review threads existed, so nothing was replied to, resolved, or minimized.\n\n## Issue Details\n\n<details>\n<summary><strong>Empty <code>if</code> branch is a readability smell (<code>ogImage.tsx:152</code>)</strong></summary>\n\n**Cause:** The refactor turned the `isAbsoluteURL` case into an empty block whose only content is a `// full external URL, use as-is` comment, with the real work in the `else if` / `else` branches.\n\n**Candidate solutions:** Invert the guard so all three cases live in one assignment and no empty block remains:\n```ts\nif (!isAbsoluteURL(userDefinedOgImagePath)) {\n  userDefinedOgImagePath = userDefinedOgImagePath.startsWith(\"/\")\n    ? `https://${baseUrl}${userDefinedOgImagePath}`     // site-absolute\n    : `https://${baseUrl}/static/${userDefinedOgImagePath}` // bare filename\n}\n```\n\n**Comments:** Purely optional readability polish — the current form is functionally correct. Flagged inline on line 152 as non-blocking.\n</details>\n\n<details>\n<summary><strong>Pre-existing malformed <code>og:image:type</code> (<code>ogImage.tsx:162</code>)</strong></summary>\n\n**Cause:** `image/${getFileExtension(ogImagePath) ?? \"png\"}` produces `image/.png` because `getFileExtension` returns the extension *with* the leading dot. This also affects the generated `.webp` path and predates this PR.\n\n**Candidate solutions:** `image/${getFileExtension(ogImagePath)?.slice(1) ?? \"png\"}`. Cheap since the diff already touches this hook, but legitimately outside issue #90's scope.\n\n**Comments:** PR description already flags this as pre-existing and out of scope; reviewer agrees it should not block. Left as a maintainer's-discretion call rather than an inline comment because line 162 sits outside the changed hunk.\n</details>\n\n<details>\n<summary><strong>No unit coverage for new path-resolution branches</strong></summary>\n\n**Cause:** The new absolute-URL / site-absolute / bare-filename resolution logic lives inline in the emitter's JSX `additionalHead` hook, so it can't be unit-tested without extraction, even though `quartz/util/path.test.ts` exists for path utilities.\n\n**Candidate solutions:** Extract a `resolveSocialImagePath(path, baseUrl)` helper and add `path.test.ts`-style cases for the three branches. Optional defense-in-depth.\n\n**Comments:** Acceptable to skip given the small surface, verified behavior, and the full build check in the PR.\n</details>\n\n## Recommended Next Step\n`HUMAN_DECISION` — the PR is correct and mergeable as-is; the only open items are optional style/scope judgment calls (empty-`if` cleanup, pre-existing mime nit) that a maintainer may fold in or ship past, so no automated fix pass is warranted.\n\n## Final Verdict\n`SHIP`\n\n## Action Items\n_No blocking or required changes — this PR is safe to merge as-is. The items below are optional polish at the maintainer's discretion; none are required and none should trigger an automated fix pass._\n- [ ] (Optional) `ogImage.tsx:152` — invert the `isAbsoluteURL` guard to remove the empty `if` block (readability only).\n- [ ] (Optional, out of scope) `ogImage.tsx:162` — fix the pre-existing `image/.png` mime type via `getFileExtension(...)?.slice(1)` if this hook is revisited.\n- [ ] (Optional) Extract `resolveSocialImagePath(path, baseUrl)` and add unit tests covering the three resolution branches.\n\n---\n`claude` | `claude-opus-4-8` | `max` | `GitHub Actions 1000005125`",
+      "createdAt": "2026-08-16T20:07:30Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/91#issuecomment-5309429085",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABPHmr_w",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nNo changes were committed to [`agent/rubrics`](https://github.com/augmented-mind/augmented-mind.github.io/tree/agent/rubrics) from PR #91.\n\nNo rubric changes.\n\nThe entire PR #91 conversation is bot/agent-authored — `github-actions[bot]` (preview link) and `sepo-agent-app[bot]` (handoff dispatch, AI review synthesis, one inline nit). All carry `author_association: NONE`. Per the instructions, bot/agent comments are advisory only and cannot be converted into user/team preference without a trusted contributor explicitly agreeing.\n\nKey observations:\n- No human/maintainer comments or reviews exist on the PR.\n- `lolipopshock` (the `Requested by` actor) authored no explicit rubric request or durable preference in the conversation; the \"Requested by @lolipopshock\" line is bot-generated text, not their own content.\n- The only substantive feedback is an optional, non-blocking readability nit (empty `if` branch) — a one-off style suggestion, not a stable, repeated preference.\n- No `/rubrics/` directory or rubrics branch currently exists, and nothing here rises to the bar of establishing a first one.\n\nNothing warranted an update.\n\n---\n`claude` | `claude-opus-4-8` | `medium` | `GitHub Actions 1000005132`",
+      "createdAt": "2026-08-16T20:42:43Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/91#issuecomment-5309574143",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-08-16T19:58:21Z",
+  "files": [
+    {
+      "path": "quartz/plugins/emitters/ogImage.tsx",
+      "additions": 9,
+      "deletions": 3,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/plugins/transformers/frontmatter.ts",
+      "additions": 6,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "agent/implement-issue-90/claude-31968998693",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": "2026-08-16T20:41:46Z",
+  "number": 91,
+  "reviewDecision": "",
+  "reviews": [
+    {
+      "id": "PRR_kwDOQ106188AAAABJuBY2g",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-08-16T20:05:55Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "4300bc19685997c8e778936e7cb9badfc5f8e1d2"
+      }
+    }
+  ],
+  "state": "MERGED",
+  "title": "Use episode cover art as the OG social image",
+  "updatedAt": "2026-08-16T20:42:43Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/91"
+}
