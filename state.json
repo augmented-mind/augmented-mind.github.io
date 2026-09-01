@@ -5,7 +5,7 @@
   "acpxSessionId": "",
   "agentSessionId": "",
   "branch": "",
-  "status": "completed",
+  "status": "running",
   "resume_status": "not_attempted",
   "last_resume_error": "",
   "resumed_from_session_id": "",
@@ -17,9 +17,9 @@
   "last_bundle_restore_error": "",
   "forked_from_thread_key": "",
   "forked_from_acpx_session_id": "",
-  "last_run_url": "https://github.com/augmented-mind/augmented-mind.github.io/actions/runs/31877631502",
+  "last_run_url": "https://github.com/augmented-mind/augmented-mind.github.io/actions/runs/33517688642",
   "last_comment_url": "",
-  "attempt_count": 5,
+  "attempt_count": 6,
   "created_at": "2026-06-15T15:25:26.960Z",
-  "updated_at": "2026-08-15T09:46:45.009Z"
+  "updated_at": "2026-09-01T14:09:21.619Z"
 }
