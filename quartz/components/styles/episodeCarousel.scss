@@ -214,6 +214,10 @@
     line-height: 1.35;
     color: var(--dark);
 
+    // Reserve two lines of height so the author name below aligns across cards
+    // regardless of title length. em-based so it scales with responsive font-size.
+    min-height: calc(1.35em * 2);
+
     // Truncate long titles to 2 lines
     display: -webkit-box;
     -webkit-line-clamp: 2;
