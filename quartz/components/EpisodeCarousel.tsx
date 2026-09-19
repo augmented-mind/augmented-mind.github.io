@@ -57,6 +57,11 @@ export default ((userOpts?: Partial<Options>) => {
               const episodeId = (page.frontmatter?.episodeId ?? page.frontmatter?.streamId) as string | undefined
               const coverImage = (page.frontmatter?.coverImage as string) || DEFAULT_COVER
               const youtubeUrl = page.frontmatter?.youtubeUrl as string | undefined
+              // The guest name is pinned to the card's bottom-right, so it aligns naturally
+              // when the title wraps to two lines. Short titles that render on a single line
+              // leave the guest name colliding with the title — set `guestOffset` (rem, e.g.
+              // 1.275 like ep00/ep01) to push it down. Avoid `titleLetterSpacing` to squeeze a
+              // borderline title onto one line, since that reintroduces the collision.
               const guestOffset = (page.frontmatter?.guestOffset as number) ?? 0
               const titleLetterSpacing = page.frontmatter?.titleLetterSpacing as string | undefined
 
