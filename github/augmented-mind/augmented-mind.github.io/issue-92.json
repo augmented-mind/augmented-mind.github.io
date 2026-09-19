@@ -1,0 +1,104 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "body": "@sepo-agent /implement\n\nEpisode 7 was just published to the [RSS feed](https://anchor.fm/s/10dbf5b7c/podcast/rss). Please add it to the website, using episodes 1-5 as examples (new `content/episodes/epNN.md`, guest page under `content/people/` with cross-links, and the cover saved to `quartz/static/covers/EPNN-cover.png`).\n\n**Title:** Software with Taste with Geoffrey Litt | AM Podcast #7\n**Description:**\n\n```\nGeoffrey Litt is a design engineer at Notion. Previously, he was a senior researcher at the independent research lab Ink & Switch, and he got his PhD in HCI at MIT. Geoffrey’s work focuses on malleable software and designing environments for thinking.\n\nOutline:\n0:00 - Introduction\n0:47 - Design Is More Than Better Animation\n3:32 - Malleable Software and Coding Agents\n9:06 - Human-Software Interaction is a Full-Stack Problem\n12:43 - Getting Users On Board and Deeper\n15:53 - The Trap of Just Building More\n20:27 - Primitive Design Is a Taste Problem\n22:20 - Understanding Is the New Bottleneck\n27:22 - How To Develop Taste?\n34:49 - Productivity vs. Speed\n38:10 - Will Better AI Hurt Human-Human Collaboration?\n44:34 - Advice for Designing Better Products\n\nReferences:\nGeoffrey’s Homepage: https://www.geoffreylitt.com\nMalleable Software: https://www.inkandswitch.com/essay/malleable-software/\nUnderstanding is the new bottleneck: https://www.geoffreylitt.com/2026/07/02/understanding-is-the-new-bottleneck\nNotion Workers: https://developers.notion.com/workers/get-started/overview\n\nPodcast Links:\nPodcast website: https://augmented-mind.github.io/\nApple Podcasts: https://podcasts.apple.com/us/podcast/augmented-mind-podcast/id1868102170\nSpotify: https://open.spotify.com/show/40KculkYTe2tOpqJm6TAYr?si=PU_UncsMT4mXjVNCRwoXog&nd=1&dlsi=6d9bed7a43d64085\nRSS: https://anchor.fm/s/10dbf5b7c/podcast/rss\n\nAbout the Hosts:\nThe AM Podcast is hosted by Yijia Shao, Shannon Shen, and Michael Ryan, CS PhD students at Stanford University and MIT.\n```\n\n**YouTube:** https://www.youtube.com/watch?v=cqZRrFJJDfc\n**Spotify:** https://open.spotify.com/episode/2QjWLbmiEKJMxAh77vcAtE\n**Apple Podcasts:** https://podcasts.apple.com/us/podcast/skills-memory-collaboration-whats-next-for-al-agents/id1868102170?i=1000783231809\n**Cover Image:** https://d3t3ozftmdmh3i.cloudfront.net/staging/podcast_uploaded_nologo/45156119/45156119-1768982214898-0968140041ca2.jpg\n\n---\n\n_Filed automatically by the episode-ingest workflow from the podcast RSS feed._\n<!-- episode-ingest guid:07900042-bd95-4721-96bf-d997cde645c8 episode:7 -->\n",
+  "closedAt": "2026-09-19T01:03:01Z",
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABVfOZjA",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "Cover image was incorrect @sepo-agent besides implementing this can you also file an issue to get the cover image fixed in the Agent / Ingest Episode action?\n\nHere is the correct cover image this time: \n\n<img width=\"1920\" height=\"1080\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/49913ffe-20c5-4cc4-b2bd-541476bad3bd\" />",
+      "createdAt": "2026-09-18T22:34:08Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/92#issuecomment-5736995212",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABVfOuTQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "I have the context I need. Here's my reply:\n\n---\n\nThanks — I've got the corrected cover image from your comment. Note this is an answer-only route, so I can't implement the episode or open the fix issue directly here; I'll lay out the diagnosis and the exact commands to trigger both.\n\n**Why the cover was wrong**\n\nThe ingest workflow pulls the cover straight from each RSS `<item>`'s `itunes:image href` — see [`episode-ingest.ts:96`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.agent/src/episode-ingest.ts#L96), which flows into the issue body at [`episode-ingest.ts:287`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.agent/src/episode-ingest.ts#L287). The URL it filed for ep 7 was:\n\n```\nhttps://d3t3ozftmdmh3i.cloudfront.net/staging/podcast_uploaded_nologo/45156119/45156119-1768982214898-0968140041ca2.jpg\n```\n\nThat's a `staging/podcast_uploaded_nologo` asset — i.e. a pre-publish/no-logo staging image the feed served for that item, not the final episode artwork. So the extractor is doing what it's told; the per-item `itunes:image` in the feed just isn't reliable as the source of truth for final cover art.\n\n**Next steps (send whichever you want Sepo to run)**\n\n1. Release ep 7 with the correct art — the image is already attached in your comment above, so:\n   - `@sepo-agent /implement` on this issue (#92). The implementer will read your corrected cover from the thread and save it to `quartz/static/covers/EP07-cover.png`.\n\n2. Track the ingest bug. I can't open the issue from here, but you can file one and hand it to the agent in one shot. Suggested title/body:\n\n   > **Title:** Episode-ingest picks up wrong (staging/no-logo) cover art\n   >\n   > **Body:** The episode-ingest action reads the cover from each RSS item's `itunes:image href` ([`episode-ingest.ts:96`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.agent/src/episode-ingest.ts#L96)). For ep 7 this resolved to a `staging/podcast_uploaded_nologo/...` asset instead of the final artwork, so the filed issue carried the wrong cover. Fix options to evaluate: prefer the channel-level `itunes:image` when an item's image points at a `staging`/`nologo` path, validate/skip staging URLs, or flag low-confidence covers in the issue body so a human confirms before implement. `@sepo-agent /implement`\n\nIf you'd rather not open a separate issue, reply here and I can outline the fix in more detail so it can be folded into the ep 7 implement run.\n\n---\n\n<details>\n<summary>Sepo activity</summary>\n\n**Sepo finished — answer · 1m11s · 10 steps**\n\nLast message\n> I have the context I need. Here's my reply: --- Thanks — I've got the corrected cover image from your comment. Note this is an answer-only route, so I can't implement the episode or open the fix issue directly here; I'll lay out the diagno…\n\nActivity\n\n- 📖 Read `Read File` (completed)\n- 💬 Message \"Let me look at the episode-ingest source to understand how the cover URL is derived.\"\n- 💻 Ran `Terminal` (completed)\n- 💻 Ran `Terminal` (completed)\n- 📖 Read `Read File` (completed)\n- 💬 Message \"I have the context I need. Here's my reply: --- Thanks — I've got the corrected cover image from your comment. Note this is an answer-only route, so I can't implement the episode or open the fix issue directly here; I'll lay out the diagno…\"\n</details>\n\n<!-- sepo-progress:run-35402124403 -->\n\n---\n`claude` | `claude-opus-4-8` | `high` | `GitHub Actions 1000006842`",
+      "createdAt": "2026-09-18T22:34:48Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/92#issuecomment-5737000525",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABVfPwDQ",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /implement",
+      "createdAt": "2026-09-18T22:37:01Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/92#issuecomment-5737017357",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABVfQUNQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo implementation finished**\n\n- Branch: `agent/implement-issue-92/claude-35402388966`\n- Pull request: https://github.com/augmented-mind/augmented-mind.github.io/pull/94\n\nAdded Episode 7 \"Software with Taste with Geoffrey Litt\" to the site. Created content/episodes/ep07.md (frontmatter, timestamps, and references from the issue; YouTube link, date 2026-09-18 from the RSS pubDate) and a new guest page content/people/geoffrey-litt.md, with reciprocal [[wikilink]] cross-links matching the ep05/ep06 pattern. Saved the corrected cover from the issue comment (a valid 1920x1080 PNG) to quartz/static/covers/EP07-cover.png instead of the wrong staging URL from the ingest issue. Formatting mirrors existing episodes; prettier/build could not run since node_modules is not installed in this environment.\n\n---\n\n<details>\n<summary>Sepo activity</summary>\n\n**Sepo finished — implement · 2m20s · 31 steps**\n\nLast message\n> Dependencies aren't installed in this environment, so prettier/build can't run — but the two markdown files mirror the exact formatting of ep05/ep06, and the change is content-only (2 markdown files + 1 PNG). Everything is in place: `conte…\n\nActivity\n\n- 💻 Ran `Terminal` (completed)\n- 💻 Ran `Terminal` (completed)\n- 💬 Message \"Let me run a prettier check on the new markdown files to confirm formatting is consistent.\"\n- 💻 Ran `Terminal` (completed)\n- 💻 Ran `Terminal` (completed)\n- 💬 Message \"Dependencies aren't installed in this environment, so prettier/build can't run — but the two markdown files mirror the exact formatting of ep05/ep06, and the change is content-only (2 markdown files + 1 PNG). Everything is in place: `conte…\"\n</details>\n\n<!-- sepo-progress:run-35402388966 -->\n\n---\n`claude` | `claude-opus-4-8` | `xhigh` | `GitHub Actions 1000006845`",
+      "createdAt": "2026-09-18T22:38:13Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/92#issuecomment-5737026613",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-09-18T22:32:59Z",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "number": 92,
+  "state": "CLOSED",
+  "title": "Release Episode 7",
+  "updatedAt": "2026-09-19T01:03:01Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/92"
+}

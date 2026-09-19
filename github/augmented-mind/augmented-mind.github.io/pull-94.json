@@ -1,0 +1,260 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n\nAdds Episode 7, \"Software with Taste with Geoffrey Litt,\" to the podcast site.\n\n- New episode page [`content/episodes/ep07.md`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/content/episodes/ep07.md) with title, timestamps, and references from the issue, YouTube link, and publish date `2026-09-18` (from the RSS `pubDate`).\n- New guest page [`content/people/geoffrey-litt.md`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/content/people/geoffrey-litt.md) with reciprocal `[[wikilink]]` cross-links, following the ep05/ep06 pattern.\n- Cover art saved to `quartz/static/covers/EP07-cover.png` using the **corrected** 1920x1080 image supplied in the issue comment — not the wrong `staging/podcast_uploaded_nologo` URL the ingest workflow filed.\n\n## Notes\n\nThe ingest action pulled the wrong cover because it reads each RSS item's `itunes:image href`, which resolved to a staging/no-logo asset. That root-cause fix is out of scope here and should be tracked as a separate issue against the Episode Ingest action.\n\nprettier/build were not run because `node_modules` is not installed in this environment; the two markdown files match the formatting of existing episodes.\n\nCloses #92\n",
+  "closedAt": "2026-09-19T01:03:00Z",
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABVfRzUw",
+      "author": {
+        "login": "github-actions"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo preview: https://augmented-mind-augmented-mind-pr-94-56a4e6.sepo.site",
+      "createdAt": "2026-09-18T22:41:30Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/94#issuecomment-5737050963",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABVfSKRw",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "<img width=\"692\" height=\"332\" alt=\"Screenshot 2026-09-18 at 3 41 53 PM\" src=\"https://github.com/user-attachments/assets/0c789823-b85e-4adb-907d-50c125d70502\" />\r\nFor single line (short title) episodes can we still move the author name to the right place @sepo-agent ?",
+      "createdAt": "2026-09-18T22:42:18Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/94#issuecomment-5737056839",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABVfScTg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Yes — and here's exactly how it works today.\n\n## What controls the author name position\n\nOn the episode cards ([`quartz/components/EpisodeCarousel.tsx`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/EpisodeCarousel.tsx#L99-L106)), the guest/author name (`.episode-guest`) is **absolutely positioned to the bottom-right** of the card content:\n\n```scss\n.episode-guest {\n  position: absolute;\n  right: 1rem;\n  bottom: 0.6rem;   // anchored to the bottom of .card-content\n}\n```\n([`quartz/components/styles/episodeCarousel.scss#L224-L232`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/styles/episodeCarousel.scss#L224-L232))\n\nBecause it's anchored to the bottom of `.card-content`, its vertical spot depends on how tall the title is. `.card-title` clamps to **2 lines** but has no reserved min-height, so a **single-line short title** makes the content box shorter and the name floats up out of place.\n\n## How to move it back\n\nThere's a per-episode knob already wired up: the **`guestOffset`** frontmatter field, applied as `transform: translateY(${guestOffset}rem)` ([`EpisodeCarousel.tsx#L60`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/EpisodeCarousel.tsx#L60) and [L102](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/EpisodeCarousel.tsx#L102)). Ep07 currently has `guestOffset: 0`. A **positive value nudges the name down**, so a short-title card can be aligned by setting e.g. `guestOffset: 0.6` on that episode's frontmatter.\n\nSo two paths:\n\n- **Quick, per-episode** — set `guestOffset` in the short-title episode's `.md` frontmatter (rem units; positive = down). Fits within this PR branch.\n- **Robust, one-time fix** — give `.card-title` a `min-height` equal to two lines so single- and two-line titles occupy the same height, which keeps the bottom-anchored name aligned for *all* episodes and removes the need for per-episode `guestOffset` tuning.\n\n## Next step\n\n- To tune just this PR's episode: `@sepo-agent /fix-pr set guestOffset on ep07 so the author name aligns for its single-line title`\n- To fix it globally (reserve 2-line title height): `@sepo-agent /implement give .card-title a min-height of two lines in episodeCarousel.scss so the author name aligns regardless of title length`\n\nSend whichever you prefer and I'll make the change.\n\n---\n\n<details>\n<summary>Sepo activity</summary>\n\n**Sepo finished — answer · 2m26s · 24 steps**\n\nLast message\n> Yes — and here's exactly how it works today. ## What controls the author name position On the episode cards ([`quartz/components/EpisodeCarousel.tsx`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/E…\n\nActivity\n\n- 🔍 Searched `grep` (completed)\n- 🔍 Searched `grep` (completed)\n- 📖 Read `Read File` (completed)\n- 💻 Ran `Terminal` (completed)\n- 📖 Read `Read File` (completed)\n- 💬 Message \"Yes — and here's exactly how it works today. ## What controls the author name position On the episode cards ([`quartz/components/EpisodeCarousel.tsx`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/E…\"\n</details>\n\n<!-- sepo-progress:run-35402715786 -->\n\n---\n`claude` | `claude-opus-4-8` | `high` | `GitHub Actions 1000006850`",
+      "createdAt": "2026-09-18T22:42:57Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/94#issuecomment-5737061454",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABVfYicg",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "Can I get another preview? @sepo-agent ",
+      "createdAt": "2026-09-18T22:56:18Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/94#issuecomment-5737161330",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABVfYyQg",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /implement give .card-title a min-height of two lines in episodeCarousel.scss so the author name aligns regardless of title length",
+      "createdAt": "2026-09-18T22:56:49Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/94#issuecomment-5737165378",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABVfY8cA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Short answer: a plain comment won't rebuild it — the preview only regenerates on pull_request events, not on `issue_comment`.\n\nLooking at [`.github/workflows/preview.yml`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.github/workflows/preview.yml#L2-L21), the preview job fires on `opened`, `synchronize`, `reopened`, and `labeled`. So to get a fresh one you have two options:\n\n- **Push a new commit to the PR branch** (a `synchronize` event) — this agent branch (`agent/…`) auto-previews on every push, and the URL comment is updated in place.\n- **Re-apply the `sepo-preview` label** (remove it, then add it back) — the `labeled` trigger only builds when the added label is exactly `sepo-preview`.\n\nI can't kick the workflow off myself from this answer-only route, but the natural way to get a refreshed preview *with the author-name fix baked in* is to make the change we discussed — that push will regenerate the preview automatically.\n\n- To do both at once: `@sepo-agent /fix-pr set guestOffset on ep07 so the author name aligns for its single-line title`\n\nIf you just want a rebuild of the current branch as-is, toggle the `sepo-preview` label off and on.\n\n---\n\n<details>\n<summary>Sepo activity</summary>\n\n**Sepo finished — answer · 39s · 2 steps**\n\nLast message\n> Short answer: a plain comment won't rebuild it — the preview only regenerates on pull_request events, not on `issue_comment`. Looking at [`.github/workflows/preview.yml`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main…\n\nActivity\n\n- 📖 Read `Read File` (completed)\n- 💬 Message \"Short answer: a plain comment won't rebuild it — the preview only regenerates on pull_request events, not on `issue_comment`. Looking at [`.github/workflows/preview.yml`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main…\"\n</details>\n\n<!-- sepo-progress:run-35403677265 -->\n\n---\n`claude` | `claude-opus-4-8` | `high` | `GitHub Actions 1000006852`",
+      "createdAt": "2026-09-18T22:57:06Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/94#issuecomment-5737167984",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABVfZuaA",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /implement give .card-title a min-height of two lines in episodeCarousel.scss so the author name aligns regardless of title length",
+      "createdAt": "2026-09-18T22:58:39Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/94#issuecomment-5737180776",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABVfahWQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Implementing this request — tracking in https://github.com/augmented-mind/augmented-mind.github.io/issues/95.\n",
+      "createdAt": "2026-09-18T23:00:05Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/94#issuecomment-5737193817",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABVgItYw",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /fix-pr Set guestOffset to 0 on content/episodes/ep07.md or otherwise copy ep00 and ep01 so that the offset isn't broken.  Make a note that short titles may need to be handled in this way.",
+      "createdAt": "2026-09-19T00:43:34Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/94#issuecomment-5737950563",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABVgJBnQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo pushed fixes for this PR.** Branch: `agent/implement-issue-92/claude-35402388966`. Requested by @XenonMolecule.\n\n<!-- sepo-agent-fix-pr-status -->\n\n**Fixed the broken guest-name offset on Episode 7.**\n\n- Root cause: `titleLetterSpacing: \"-0.02em\"` squeezed *\"Software with Taste with Geoffrey Litt\"* onto a single line, so the `guestOffset: 0` guest name collided with the title (verified by rendering the card in headless Chromium).\n- Removed `titleLetterSpacing` from [`content/episodes/ep07.md`](https://github.com/augmented-mind/augmented-mind.github.io/blob/agent/implement-issue-92/claude-35402388966/content/episodes/ep07.md) and kept `guestOffset: 0`. The title now wraps to two lines and the guest name sits correctly beside line two — identical to the known-good ep02–ep04 cards.\n- Added a note in [`quartz/components/EpisodeCarousel.tsx`](https://github.com/augmented-mind/augmented-mind.github.io/blob/agent/implement-issue-92/claude-35402388966/quartz/components/EpisodeCarousel.tsx) documenting that short one-line titles need `guestOffset` (e.g. 1.275 like ep00/ep01) and that `titleLetterSpacing` should not be used to force a borderline title onto one line.\n\n<details><summary>Why not just `guestOffset: 0` or a literal ep00/ep01 copy?</summary>\n\n`guestOffset` was already `0`; the letter-spacing was the actual culprit. A literal ep00/ep01 copy (`guestOffset: 1.275`, no letter-spacing) renders badly here because ep07's longer title wraps to two lines, pushing the guest name off the card. Removing the letter-spacing is the smallest change that satisfies \"keep guestOffset 0\" and \"offset isn't broken.\" The `titleLetterSpacing` field is still honored for ep05/ep06.\n\n</details>\n\n---\n\n<details>\n<summary>Sepo activity</summary>\n\n**Sepo finished — fix-pr · 9m24s · 43 steps**\n\nLast message\n> The fix is complete and minimal. I verified via headless-chromium rendering that removing `titleLetterSpacing` (keeping `guestOffset: 0`) makes ep07's title wrap to two lines with the guest name correctly positioned beside it — identical t…\n\nActivity\n\n- ✏️ Edited `Edit` (completed)\n- 💬 Message \"Now the documentation note in the carousel component where these fields are read.\"\n- ✏️ Edited `Edit` (completed)\n- 💬 Message \"Let me verify the final diff.\"\n- 💻 Ran `Terminal` (completed)\n- 💬 Message \"The fix is complete and minimal. I verified via headless-chromium rendering that removing `titleLetterSpacing` (keeping `guestOffset: 0`) makes ep07's title wrap to two lines with the guest name correctly positioned beside it — identical t…\"\n</details>\n\n<!-- sepo-progress:run-35410328540 -->\n\n---\n`claude` | `claude-opus-4-8` | `xhigh` | `GitHub Actions 1000006863`",
+      "createdAt": "2026-09-19T00:44:19Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/94#issuecomment-5737955741",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABVgRoVw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nNo changes were committed to [`agent/rubrics`](https://github.com/augmented-mind/augmented-mind.github.io/tree/agent/rubrics) from PR #94.\n\nAdded one draft rubric.\n\n**Summary of changes**\n\nCreated `rubrics/coding_style/document-edge-case-workarounds.yaml` (status: `draft`, severity: `should`, weight: 3).\n\n**Why:** In PR #94, XenonMolecule — the trusted requester who merged the PR — explicitly instructed `@sepo-agent /fix-pr ... Make a note that short titles may need to be handled in this way.` The agent responded by adding an explanatory comment in `EpisodeCarousel.tsx` documenting the guest-name/short-title collision, the `guestOffset` fix, and the `titleLetterSpacing` pitfall. This reveals a durable preference: pair minimal edge-case fixes with a documenting note so future contributors understand the non-obvious knob. Marked `draft` since it's a single observed instance.\n\n**Skipped:** the preview-rebuild mechanics discussion, the RSS/ingest root-cause note, and the min-height global fix (moved to issue #95) — all one-off or task-specific. Bot/agent comments were treated as advisory only.\n\n---\n`claude` | `claude-opus-4-8` | `medium` | `GitHub Actions 1000006867`",
+      "createdAt": "2026-09-19T01:05:04Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/94#issuecomment-5738096727",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-09-18T22:40:41Z",
+  "files": [
+    {
+      "path": "content/episodes/ep07.md",
+      "additions": 42,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "content/people/geoffrey-litt.md",
+      "additions": 21,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "quartz/components/EpisodeCarousel.tsx",
+      "additions": 5,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/static/covers/EP07-cover.png",
+      "additions": 0,
+      "deletions": 0,
+      "changeType": "ADDED"
+    }
+  ],
+  "headRefName": "agent/implement-issue-92/claude-35402388966",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": "2026-09-19T01:03:00Z",
+  "number": 94,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "MERGED",
+  "title": "Add Episode 7: Software with Taste with Geoffrey Litt",
+  "updatedAt": "2026-09-19T01:05:04Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/94"
+}

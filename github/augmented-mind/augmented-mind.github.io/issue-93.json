@@ -1,0 +1,63 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjE0MjA1MTY2",
+    "is_bot": false,
+    "login": "XenonMolecule",
+    "name": "Michael Ryan"
+  },
+  "body": "When new episodes are injested they use the incorrect cover art.  See #88 and #92 both of which I needed to manually correct.  There have to be ways to get the correct image either from the RSS feed or the YouTube api for this.  I want to redesign this part of the workflow for \"Agent / Ingest Episode\" so we no longer need to manually upload the thumbnail each time.",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABVfQ_iA",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent investigate this please and come up with an implementation plan.",
+      "createdAt": "2026-09-18T22:39:41Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/93#issuecomment-5737037704",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABVfRTgg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "I have everything needed. Here's my investigation and plan.\n\n## Investigation\n\n**Root cause:** The episode-ingest pipeline pulls cover art from the RSS feed's per-item `<itunes:image href=\"…\">` tag ([`.agent/src/episode-ingest.ts:96`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.agent/src/episode-ingest.ts#L96)). But the Anchor feed sets **the same** `itunes:image` on every `<item>` — the show-level staging artwork `…/staging/podcast_uploaded_nologo/45156119/…jpg`. I fetched the live feed and confirmed all 9 items carry that identical no-logo URL. That's exactly the URL that landed in both #88 and #92 and had to be corrected by hand. **The RSS feed simply does not carry episode-specific cover art**, so no amount of parsing fixes it.\n\n**The right source:** The site's real covers (`EP00`–`EP06` in [`quartz/static/covers/`](https://github.com/augmented-mind/augmented-mind.github.io/tree/main/quartz/static/covers)) are the per-episode YouTube thumbnails. The pipeline *already* resolves the episode's YouTube video via `yt-dlp` ([`matchYoutubeUrl`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.agent/src/episode-ingest.ts#L235), called in [`cli/episode-ingest.ts:143`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.agent/src/cli/episode-ingest.ts#L143)). YouTube exposes a deterministic thumbnail at `https://i.ytimg.com/vi/<VIDEO_ID>/maxresdefault.jpg` — I verified `maxresdefault` returns HTTP 200 for episodes 5, 6, and 7. This gives us the correct, episode-specific art with no API key.\n\n## Existing architecture\n\n- **Deterministic core** in [`episode-ingest.ts`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.agent/src/episode-ingest.ts) (pure, unit-tested via [`__tests__/episode-ingest.test.ts`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.agent/src/__tests__/episode-ingest.test.ts)); **network I/O** in [`cli/episode-ingest.ts`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.agent/src/cli/episode-ingest.ts).\n- The CLI currently downloads `episode.coverUrl` to an artifact ([`downloadCover`, lines 146–150](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.agent/src/cli/episode-ingest.ts#L146-L150)) and stamps it into the issue's `**Cover Image:**` field via [`buildIssueBody`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.agent/src/episode-ingest.ts#L287). The [`/implement`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.github/workflows/agent-episode-ingest.yml) agent then saves it to `quartz/static/covers/EPNN-cover.png`.\n- Everything degrades gracefully — a missing link is reported as \"not found,\" never a hard failure.\n\n## Proposed approach\n\nDerive the cover from the resolved YouTube video ID instead of the feed's `itunes:image`, preserving the pure-core / IO-shell split and graceful degradation.\n\n## Step-by-step plan\n\n1. **Add pure helpers** to [`episode-ingest.ts`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.agent/src/episode-ingest.ts):\n   - `videoIdFromYoutubeUrl(url)` → extract the `v=` id.\n   - `youtubeThumbnailUrls(id)` → ordered candidates `[maxresdefault, hqdefault]` (hqdefault always exists as a fallback for brand-new uploads where maxres may lag).\n2. **Wire the cover source** in [`cli/episode-ingest.ts`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.agent/src/cli/episode-ingest.ts): after `matchYoutubeUrl`, compute the thumbnail candidates, try each with the existing `downloadCover` (checking HTTP 200), and use the first that succeeds. Pass that URL as `coverUrl` into `buildIssueBody` and the `cover_url` output.\n3. **Fallback behavior:** if YouTube didn't resolve (yt-dlp blocked/absent), keep the current feed `coverUrl` only as a last resort, or mark cover \"please add manually\" so a human notices — decision point below.\n4. **Tests:** extend [`episode-ingest.test.ts`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/.agent/src/__tests__/episode-ingest.test.ts) for the new helpers (id extraction, candidate ordering) and update the `buildIssueBody` cover assertion.\n5. **Build & verify:** recompile `.agent` (`dist/` is committed), run `npm test`, and dispatch the workflow with `force_episode_number` to confirm the issue body now carries the YouTube thumbnail.\n\n## One decision for you\n\nWhen `yt-dlp` fails to resolve the video (it's `continue-on-error` and YouTube sometimes blocks CI runners), there's no thumbnail. Do you prefer we **(a)** fall back to the old feed art, or **(b)** leave the cover blank with a \"please add manually\" note so it's obvious a human must supply it? I'd lean toward **(b)** — silently reusing the wrong art is what caused this issue.\n\nIf that plan looks right, reply with **`@sepo-agent /implement`** on this issue (confirm the fallback choice) and I'll build it.\n\n---\n\n<details>\n<summary>Sepo activity</summary>\n\n**Sepo finished — answer · 1m44s · 18 steps**\n\nLast message\n> I have everything needed. Here's my investigation and plan. ## Investigation **Root cause:** The episode-ingest pipeline pulls cover art from the RSS feed's per-item `<itunes:image href=\"…\">` tag ([`.agent/src/episode-ingest.ts:96`](https:…\n\nActivity\n\n- 💻 Ran `Terminal` (completed)\n- 💬 Message \"Root cause confirmed: every `itunes:image` in the feed is the **same** show-level staging/no-logo URL — the RSS feed carries no per-episode art. The real episode covers on the site (EP00–EP06) are episode-specific. Let me verify the YouTub…\"\n- 💻 Ran `Terminal` (completed)\n- 💬 Message \"I have enough to form the plan. Let me confirm the test file location so the plan can reference it.\"\n- 💻 Ran `Terminal` (completed)\n- 💬 Message \"I have everything needed. Here's my investigation and plan. ## Investigation **Root cause:** The episode-ingest pipeline pulls cover art from the RSS feed's per-item `<itunes:image href=\"…\">` tag ([`.agent/src/episode-ingest.ts:96`](https:…\"\n</details>\n\n<!-- sepo-progress:run-35402531879 -->\n\n---\n`claude` | `claude-opus-4-8` | `high` | `GitHub Actions 1000006847`",
+      "createdAt": "2026-09-18T22:40:22Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/93#issuecomment-5737042818",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-09-18T22:39:21Z",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "number": 93,
+  "state": "OPEN",
+  "title": "Episode-ingest picks up wrong (staging/no-logo) cover art",
+  "updatedAt": "2026-09-18T22:42:11Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/93"
+}
