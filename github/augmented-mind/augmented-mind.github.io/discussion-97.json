@@ -1,0 +1,38 @@
+{
+  "number": 97,
+  "title": "Human-in-the-loop is not one thing: a small probe on CollabSkill trajectories",
+  "url": "https://github.com/orgs/augmented-mind/discussions/97",
+  "body": "I have been thinking about an adjacent question to **CollabSkill**:\n\n> CollabSkill asks how much skill the human and the agent contribute. Could it also be useful to label **why the human had to intervene at all**?\n\nThis came from a practical problem in a system I am building, EckoYa. We kept finding that \"human in the loop\" collapsed very different things:\n\n- a human choosing what they actually want,\n- a human adding domain expertise,\n- a human granting legitimate authority,\n- a human checking whether something is correct,\n- a human manually relaying state between systems,\n- and a human repairing a failed artifact/tool/access boundary.\n\nThose are all human turns, but removing them would have very different consequences.\n\n## A quick attempt - and where it broke\n\nI pulled the public SALT-NLP/cogym-collabskill-trajectories dataset (CC BY 4.0) and used a deterministic extractor to identify **1,058 conversational user follow-up turns** after the initial request.\n\nThat number is only a search universe. I am **not** claiming label prevalence.\n\nMy first coding vocabulary was:\n\nPREFERENCE | EXPERTISE | AUTHORITY | VERIFICATION | RELAY\n\nIt broke quickly.\n\nOne trajectory has a user report that the generated file cannot be opened and asks for a working link/new file. That turn is not preference, expertise, authority, verification, or simple relay. The human is doing **recovery work because the collaboration failed**.\n\nSo the current exploratory vocabulary became:\n\n- **INTENT / PREFERENCE** - change or clarify target, scope, format, trade-off, or subjective definition of good\n- **EXPERTISE** - contribute domain knowledge/correction\n- **AUTHORITY** - provide legitimate permission/approval\n- **VERIFICATION** - inspect correctness, provenance, readiness, or post-condition\n- **RELAY** - move state/information between systems that could in principle be bridged\n- **RECOVERY** - intervene because execution, access, artifact delivery, or another boundary failed\n\nLabels can be multi-valued.\n\n## A few examples from the public trajectories\n\n- \"cut the word length to under 1,000 words\" -> INTENT/PREFERENCE\n- \"The permissions have been updated. Transfer this data to the sheet.\" -> AUTHORITY + RELAY\n- \"Show me the 10 rows in a readable table here before I open the file.\" -> VERIFICATION\n- \"Approved installation of Pandoc.\" -> AUTHORITY\n- \"The summary finding tab is returning all #NA... simulate a 5% increase... ensure the visualizations are working.\" -> RECOVERY + VERIFICATION\n- \"I am unable to open the file... provide a link or a possible new file...\" -> RECOVERY\n\nThe interesting thing to me is that **human skill and human necessity look like different axes**.\n\nA strong human may contribute a lot because the task genuinely needs human judgment. But a strong human may also contribute a lot because the system forced them to relay state or repair broken execution.\n\nThose cases should probably not be optimized the same way.\n\n## A possible decomposition\n\nVery tentatively:\n\nproductive human load = intent + expertise + authority + necessary verification\n\ncoordination tax = avoidable relay + avoidable recovery + avoidable verification\n\nI would **not** optimize for minimizing all human intervention.\n\nRemoving RELAY may reduce burden without reducing agency.\n\nRemoving AUTHORITY can make a system look more autonomous while actually crossing a governance boundary.\n\nRemoving INTENT can produce a very efficient system that optimizes the wrong thing.\n\nAnd RECOVERY seems worth measuring explicitly: if humans repeatedly step in because files are missing, permissions fail, tools cannot reach a surface, or state is lost, that is collaboration cost that a task score may hide.\n\n## What would falsify this?\n\nI would abandon or heavily revise the idea if:\n\n1. the labels cannot achieve reasonable inter-rater agreement;\n2. they collapse mostly into generic preference;\n3. they add no explanatory/predictive value beyond existing trajectory features;\n4. relay/recovery cannot be distinguished without private state unavailable in the trace;\n5. reducing apparent coordination tax harms outcome quality or human agency;\n6. this is already captured by a better construct in HCI/CSCW that I have missed.\n\nThe next experiment I would run is deliberately small: **20-50 turns, two independent annotators, disagreement analysis before any benchmark or metric.**\n\n### Question\n\nFor people working on CollabSkill / human-agent collaboration: **does an orthogonal \"why was the human intervention necessary?\" label add useful signal, or is this already represented by a better construct/framework?**\n\nI would especially appreciate counterexamples that break the taxonomy.\n\nSources:\n- CollabSkill: https://arxiv.org/abs/2606.09833\n- Public trajectories: https://huggingface.co/datasets/SALT-NLP/cogym-collabskill-trajectories\n- Collaborative Gym: https://github.com/SALT-NLP/collaborative-gym\n\n- Kayky, building EckoYa",
+  "createdAt": "2026-09-21T04:15:03Z",
+  "updatedAt": "2026-09-21T04:16:32Z",
+  "author": {
+    "login": "kaykylacerdaoficial-max"
+  },
+  "category": {
+    "name": "Posts"
+  },
+  "comments": {
+    "nodes": [
+      {
+        "id": "DC_kwDOQ106184BGs3-",
+        "body": "@shaoyijia - tagging you once because this probe came directly from the public CollabSkill trajectories. The part I am least confident about is whether \"human necessity\" is actually orthogonal to skill, or whether HCI/CSCW already has a better construct for it. A counterexample would be more useful to me than agreement.",
+        "createdAt": "2026-09-21T04:16:31Z",
+        "url": "https://github.com/augmented-mind/augmented-mind.github.io/discussions/97#discussioncomment-18533886",
+        "author": {
+          "login": "kaykylacerdaoficial-max"
+        },
+        "replies": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    ],
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    }
+  }
+}
