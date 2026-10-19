@@ -4,7 +4,7 @@
     "login": "app/sepo-agent-app"
   },
   "body": "## Goal\n\nGive `.card-title` a `min-height` equal to two lines of text in [`quartz/components/styles/episodeCarousel.scss`](https://github.com/augmented-mind/augmented-mind.github.io/blob/main/quartz/components/styles/episodeCarousel.scss) so the guest/author name below the title aligns consistently across cards regardless of whether the title spans one or two lines.\n\n## Context\n\nRequested by @XenonMolecule via `/implement` on PR #94.\n\nThe `.card-title` rule (around line 210) already clamps titles to two lines with `-webkit-line-clamp: 2` and uses `line-height: 1.35` at `font-size: 0.95rem`. Single-line titles currently occupy less vertical space than two-line titles, causing the `.episode-guest` author name to sit at different heights across cards in the carousel.\n\nReserving two lines of height for every title (e.g. `min-height: calc(1.35em * 2)`, or `2 * line-height`) will keep the author name vertically aligned.\n\nNote there is also a responsive `.card-title` override (around line 304) that sets `font-size: 0.85rem`. Ensure the min-height approach still aligns correctly at that breakpoint, since a fixed `em`-based min-height scales with the smaller font size while a fixed `px`/`rem` value would not.\n\n## Acceptance Criteria\n\n- `.card-title` reserves the vertical space of two lines of text, so the author name (`.episode-guest`) aligns across cards whether the title is one or two lines.\n- Existing two-line truncation behavior (`-webkit-line-clamp: 2`, overflow hidden) is preserved.\n- Alignment holds at the responsive breakpoint where `.card-title` font-size changes.\n- Change is scoped to `episodeCarousel.scss`.\n\n---\n\nRequested via issue_comment at https://github.com/augmented-mind/augmented-mind.github.io/pull/94\n",
-  "closedAt": null,
+  "closedAt": "2026-10-19T15:59:28Z",
   "comments": [
     {
       "id": "IC_kwDOQ106188AAAABVfazHg",
@@ -20,6 +20,21 @@
       "reactionGroups": [],
       "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/95#issuecomment-5737198366",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABdc8zDw",
+      "author": {
+        "login": "github-actions"
+      },
+      "authorAssociation": "NONE",
+      "body": "Closing because this agent issue has had no activity for 30 days.",
+      "createdAt": "2026-10-19T15:59:28Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/95#issuecomment-6271480591",
+      "viewerDidAuthor": false
     }
   ],
   "createdAt": "2026-09-18T23:00:03Z",
@@ -32,8 +47,8 @@
     }
   ],
   "number": 95,
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "Give .card-title a two-line min-height in episodeCarousel.scss",
-  "updatedAt": "2026-09-18T23:01:33Z",
+  "updatedAt": "2026-10-19T15:59:28Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/95"
 }

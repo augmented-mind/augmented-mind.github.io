@@ -6,7 +6,7 @@
     "name": "Michael Ryan"
   },
   "body": "When new episodes are injested they use the incorrect cover art.  See #88 and #92 both of which I needed to manually correct.  There have to be ways to get the correct image either from the RSS feed or the YouTube api for this.  I want to redesign this part of the workflow for \"Agent / Ingest Episode\" so we no longer need to manually upload the thumbnail each time.",
-  "closedAt": null,
+  "closedAt": "2026-10-19T15:59:31Z",
   "comments": [
     {
       "id": "IC_kwDOQ106188AAAABVfQ_iA",
@@ -44,6 +44,21 @@
       "reactionGroups": [],
       "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/93#issuecomment-5737042818",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABdc81TA",
+      "author": {
+        "login": "github-actions"
+      },
+      "authorAssociation": "NONE",
+      "body": "Closing because this agent issue has had no activity for 30 days.",
+      "createdAt": "2026-10-19T15:59:30Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/93#issuecomment-6271481164",
+      "viewerDidAuthor": false
     }
   ],
   "createdAt": "2026-09-18T22:39:21Z",
@@ -56,8 +71,8 @@
     }
   ],
   "number": 93,
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "Episode-ingest picks up wrong (staging/no-logo) cover art",
-  "updatedAt": "2026-09-18T22:42:11Z",
+  "updatedAt": "2026-10-19T15:59:31Z",
   "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/93"
 }
