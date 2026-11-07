@@ -11,7 +11,7 @@ tags:
 His work spans AI research, software engineering, and education.
 
 ## Appearances
-- [[ep08|EP08: After Data and Compute, What's the Next Frontier in AI with Peter Norvig]]
+- [[ep08|EP08: After Data and Compute, What's the Next Frontier in AI]]
 
 ## Key Contributions
 - **Artificial Intelligence: A Modern Approach**: Co-authored one of the most widely used AI textbooks in university courses.
