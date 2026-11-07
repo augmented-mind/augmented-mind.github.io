@@ -221,24 +221,18 @@
     overflow: hidden;
   }
 
+  // Right end of the meta row (EP badge + date)
   .episode-guest {
-    position: absolute;
-    right: 1rem;
-    bottom: 0.6rem;
+    margin-left: auto;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
     font-family: "Caveat", cursive;
     font-weight: 500;
     font-size: 1rem;
+    line-height: 1;
     color: var(--secondary);
-  }
-
-  // Set by EpisodeCarousel's script when the title would run under the guest name
-  .episode-card.guest-below .episode-guest {
-    position: static;
-    display: block;
-    text-align: right;
-    transform: none !important; // override the inline guestOffset translate
-    margin-top: 0.1rem;
-    margin-bottom: -0.5rem;
   }
 
   .see-more {
