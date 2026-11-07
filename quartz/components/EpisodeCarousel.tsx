@@ -57,8 +57,10 @@ export default ((userOpts?: Partial<Options>) => {
               const episodeId = (page.frontmatter?.episodeId ?? page.frontmatter?.streamId) as string | undefined
               const coverImage = (page.frontmatter?.coverImage as string) || DEFAULT_COVER
               const youtubeUrl = page.frontmatter?.youtubeUrl as string | undefined
-              // The guest name sits at the right end of the meta row (EP badge + date), so it
-              // never collides with the title however the title wraps.
+              // The guest name is pinned to the card's bottom-right, beside the title's second
+              // line. The title always reserves two lines (see .card-title in the stylesheet),
+              // so one-line titles leave that spot free. Its font size is chosen so current
+              // titles end before the name; a much longer title could still reach it.
               const titleLetterSpacing = page.frontmatter?.titleLetterSpacing as string | undefined
 
               // Always jump to the internal episode page when the card is clicked
@@ -90,9 +92,6 @@ export default ((userOpts?: Partial<Options>) => {
                           <Date date={getDate(cfg, page)!} locale={cfg.locale} />
                         </span>
                       )}
-                      {opts.showTags && tags.length > 0 && (
-                        <span class="episode-guest">{tags[0].replace(/-/g, " ")}</span>
-                      )}
                     </div>
                     <h4
                       class="card-title"
@@ -100,6 +99,9 @@ export default ((userOpts?: Partial<Options>) => {
                     >
                       {title}
                     </h4>
+                    {opts.showTags && tags.length > 0 && (
+                      <span class="episode-guest">{tags[0].replace(/-/g, " ")}</span>
+                    )}
                   </div>
                 </a>
               )
