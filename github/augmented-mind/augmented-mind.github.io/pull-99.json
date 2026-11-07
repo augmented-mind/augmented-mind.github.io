@@ -1,0 +1,147 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjE0MjA1MTY2",
+    "is_bot": false,
+    "login": "XenonMolecule",
+    "name": "Michael Ryan"
+  },
+  "baseRefName": "main",
+  "body": "Closes #98\n\n## Summary\n- `content/episodes/ep08.md`: title, date (2026-11-06, from the RSS pubDate), YouTube link, description, timestamps, and references\n- `content/people/peter-norvig.md`: new guest page that links back to the episode\n- `quartz/static/covers/EP08-cover.png`: the 1920×1080 thumbnail from the issue comment. The **Cover Image** URL in the issue is the show-wide logo again, same as with EP07.\n- **Carousel titles** (`episodeCarousel.scss`, `EpisodeCarousel.tsx`): the guest name stays pinned to the card's bottom-right corner. Three changes keep titles from running under it:\n  - **`text-wrap: wrap` on `.card-title`.** `base.scss` gives every link `text-wrap: pretty`, and each card is a link, so its title inherited it. Safari's `pretty` evens out line lengths: it moved \"What's the\" off EP08's first line even though there was room, which pushed the second line into the guest name. Chrome fills line one first, which hid the problem in Chrome.\n  - **Titles always reserve two lines of height,** so a one-line title still leaves the guest name on the second-line row. This replaces the per-episode `guestOffset` setting, which is removed from the component and from the episode and livestream frontmatter. EP00 and EP01 look the same as before.\n  - **Phones only: title font 0.95rem → 0.8rem.** On the narrower phone cards, EP05, EP06, and EP08 reach the guest name at 0.95rem however the lines break. EP05 and EP06 already do this on the live site. Desktop keeps 0.95rem.\n\n## Notes\n- The site title leaves out \"with Peter Norvig\". That matches the cover art, and EP05 and EP06 also leave the guest out of their titles.\n- The References list in the RSS description runs two items together (`.../the-unreasonable-effectiveness-of-data/- Recursive: ...`). Here they're split into two separate links.\n- Curly apostrophes are changed to straight ones, to match the earlier episodes.\n- Checked in headless Chrome at 1400, 1000, 420, and 375px, including a run with `text-wrap: balance` forced on the card link to mimic Safari. Every card is the same height, the guest names line up, and no title overlaps its name: every title ends at least 32px before the name on desktop and 17px on phones.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)",
+  "closedAt": "2026-11-07T02:39:24Z",
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABj2OMYg",
+      "author": {
+        "login": "github-actions"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo preview: https://augmented-mind-augmented-mind-pr-99-8ffdc2.sepo.site",
+      "createdAt": "2026-11-07T01:53:23Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/99#issuecomment-6700633186",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABj2tbzw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nRubrics update did not complete successfully for PR #99; inspect the workflow logs.\n\n---\n`claude` | `claude-opus-4-8` | `medium` | `GitHub Actions 1000008929`",
+      "createdAt": "2026-11-07T02:39:57Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/99#issuecomment-6701145039",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-11-07T01:47:41Z",
+  "files": [
+    {
+      "path": "content/episodes/ep00.md",
+      "additions": 0,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "content/episodes/ep01.md",
+      "additions": 0,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "content/episodes/ep02.md",
+      "additions": 0,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "content/episodes/ep03.md",
+      "additions": 0,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "content/episodes/ep04.md",
+      "additions": 0,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "content/episodes/ep05.md",
+      "additions": 0,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "content/episodes/ep06.md",
+      "additions": 0,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "content/episodes/ep07.md",
+      "additions": 0,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "content/episodes/ep08.md",
+      "additions": 41,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "content/livestreams/ls01.md",
+      "additions": 0,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "content/people/peter-norvig.md",
+      "additions": 22,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "quartz/components/EpisodeCarousel.tsx",
+      "additions": 5,
+      "deletions": 12,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/components/styles/episodeCarousel.scss",
+      "additions": 12,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/static/covers/EP08-cover.png",
+      "additions": 0,
+      "deletions": 0,
+      "changeType": "ADDED"
+    }
+  ],
+  "headRefName": "episode-8-peter-norvig",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAACmwL2Xg",
+      "name": "sepo-preview",
+      "description": "Trigger Sepo preview",
+      "color": "5319e7"
+    }
+  ],
+  "mergedAt": "2026-11-07T02:39:24Z",
+  "number": 99,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "MERGED",
+  "title": "Add Episode 8 (Peter Norvig)",
+  "updatedAt": "2026-11-07T02:39:57Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/pull/99"
+}

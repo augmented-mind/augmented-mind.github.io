@@ -1,0 +1,91 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "body": "@sepo-agent /implement\n\nEpisode 8 was just published to the [RSS feed](https://anchor.fm/s/10dbf5b7c/podcast/rss). Please add it to the website, using episodes 1-5 as examples (new `content/episodes/epNN.md`, guest page under `content/people/` with cross-links, and the cover saved to `quartz/static/covers/EPNN-cover.png`).\n\n**Title:** After Data and Compute, What's the Next Frontier in AI with Peter Norvig | AM Podcast #8\n**Description:**\n\n```\nPeter Norvig is the co-author of Artificial Intelligence: A Modern Approach and a former director of research at Google. He is now a Distinguished Education Fellow at Stanford’s Human-Centered AI Institute and a researcher at Recursive, working on self-improving AI. His work spans AI research, software engineering, and education.\n\nOutline:\n0:00 - Introduction\n2:32 - What Has (and Hasn’t) Changed Throughout Peter’s Career?\n7:03 - How Peter Makes Career Pivots\n11:17 - Is This AI Moment Different From Previous Cycles?\n15:32 - What’s Still Worth Learning in AI and Programming?\n19:55 - How Will AI Transform Higher Education?\n24:10 - Main Bottlenecks to Building Human-Centered AI\n35:10 - Reward Hacking vs. Creativity\n41:51 - Continual Learning Remains an Unsolved Challenge\n44:16 - Open Source AI Models\n46:32 - AI, Inequality, and Winner-Take-All Markets\n\nReferences:\n- Peter’s Homepage: https://www.norvig.com/ \n- Artificial Intelligence: A Modern Approach: https://aima.cs.berkeley.edu/ \n- Teach Yourself Programming in Ten Years: https://www.norvig.com/21-days.html \n- The Unreasonable Effectiveness of Data: https://research.google/pubs/the-unreasonable-effectiveness-of-data/- Recursive: https://recursive.com/ \n\nPodcast Links:\nPodcast website: https://augmented-mind.github.io/\nApple Podcasts: https://podcasts.apple.com/us/podcast/augmented-mind-podcast/id1868102170\nSpotify: https://open.spotify.com/show/40KculkYTe2tOpqJm6TAYr?si=PU_UncsMT4mXjVNCRwoXog&nd=1&dlsi=6d9bed7a43d64085\nRSS: https://anchor.fm/s/10dbf5b7c/podcast/rss\n\nAbout the Hosts:\nThe AM Podcast is hosted by Yijia Shao, Shannon Shen, and Michael Ryan, CS PhD students at Stanford University and MIT.\n```\n\n**YouTube:** https://www.youtube.com/watch?v=4L4YADxld6E\n**Spotify:** https://open.spotify.com/episode/1xIEgQAZZK3GTFcjqNVkCx\n**Apple Podcasts:** https://podcasts.apple.com/us/podcast/after-data-and-compute-whats-the-next-frontier-in/id1868102170?i=1000800287768\n**Cover Image:** https://d3t3ozftmdmh3i.cloudfront.net/staging/podcast_uploaded_nologo/45156119/45156119-1768982214898-0968140041ca2.jpg\n\n---\n\n_Filed automatically by the episode-ingest workflow from the podcast RSS feed._\n<!-- episode-ingest guid:8210a7d6-e7a7-4b5f-92a3-4583599e2622 episode:8 -->\n",
+  "closedAt": "2026-11-07T02:39:26Z",
+  "comments": [
+    {
+      "id": "IC_kwDOQ106188AAAABjzEJRQ",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent Just a note that this is the thumbnail image for the episode\n\n<img width=\"1920\" height=\"1080\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/6f43786d-92c3-4a3b-9984-7808cf1082e5\" />",
+      "createdAt": "2026-11-06T22:23:02Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/98#issuecomment-6697322821",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABjzE2sA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "I was unable to produce a response. Please check the workflow logs.\n\n---\n\n<details>\n<summary>Sepo activity</summary>\n\n**Sepo finished — answer · 14s · 0 steps**\n\nActivity\n\nNo activity captured yet.\n</details>\n\n<!-- sepo-progress:run-42304295103 -->\n\n---\n`claude` | `claude-opus-4-8` | `high` | `GitHub Actions 1000008912`",
+      "createdAt": "2026-11-06T22:23:44Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/98#issuecomment-6697334448",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABjzSqrg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "I was unable to produce a response. Please check the workflow logs.\n\n---\n\n<details>\n<summary>Sepo activity</summary>\n\n**Sepo finished — answer · 11s · 0 steps**\n\nActivity\n\nNo activity captured yet.\n</details>\n\n<!-- sepo-progress:run-42304295103 -->\n\n---\n`claude` | `claude-opus-4-8` | `high` | `GitHub Actions 1000008914`",
+      "createdAt": "2026-11-06T22:37:30Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/98#issuecomment-6697560750",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOQ106188AAAABj2HI1w",
+      "author": {
+        "login": "XenonMolecule"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@claude could you handle this?  Otherwise I'll do it the old fashioned way haha",
+      "createdAt": "2026-11-07T01:42:42Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/98#issuecomment-6700517591",
+      "viewerDidAuthor": false
+    }
+  ],
+  "createdAt": "2026-11-06T21:39:17Z",
+  "labels": [
+    {
+      "id": "LA_kwDOQ106188AAAAChI2eKQ",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "number": 98,
+  "state": "CLOSED",
+  "title": "Release Episode 8",
+  "updatedAt": "2026-11-07T02:39:26Z",
+  "url": "https://github.com/augmented-mind/augmented-mind.github.io/issues/98"
+}
