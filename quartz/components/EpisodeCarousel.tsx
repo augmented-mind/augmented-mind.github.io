@@ -58,9 +58,9 @@ export default ((userOpts?: Partial<Options>) => {
               const coverImage = (page.frontmatter?.coverImage as string) || DEFAULT_COVER
               const youtubeUrl = page.frontmatter?.youtubeUrl as string | undefined
               // The guest name is pinned to the card's bottom-right, beside the title's second
-              // line. The title always reserves two lines (see .card-title in the stylesheet),
-              // so one-line titles leave that spot free. Its font size is chosen so current
-              // titles end before the name; a much longer title could still reach it.
+              // line. The title always reserves two lines and fills line one before wrapping
+              // (see .card-title in the stylesheet), so current titles end before the name;
+              // a much longer title could still reach it.
               const titleLetterSpacing = page.frontmatter?.titleLetterSpacing as string | undefined
 
               // Always jump to the internal episode page when the card is clicked
