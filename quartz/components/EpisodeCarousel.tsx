@@ -57,12 +57,10 @@ export default ((userOpts?: Partial<Options>) => {
               const episodeId = (page.frontmatter?.episodeId ?? page.frontmatter?.streamId) as string | undefined
               const coverImage = (page.frontmatter?.coverImage as string) || DEFAULT_COVER
               const youtubeUrl = page.frontmatter?.youtubeUrl as string | undefined
-              // The guest name is pinned to the card's bottom-right, so it aligns naturally
-              // when the title wraps to two lines. Short titles that render on a single line
-              // leave the guest name colliding with the title — set `guestOffset` (rem, e.g.
-              // 1.275 like ep00/ep01) to push it down. Avoid `titleLetterSpacing` to squeeze a
-              // borderline title onto one line, since that reintroduces the collision.
-              const guestOffset = (page.frontmatter?.guestOffset as number) ?? 0
+              // The guest name is pinned to the card's bottom-right, beside the title's second
+              // line. The title always reserves two lines and fills line one before wrapping
+              // (see .card-title in the stylesheet), so current titles end before the name;
+              // a much longer title could still reach it.
               const titleLetterSpacing = page.frontmatter?.titleLetterSpacing as string | undefined
 
               // Always jump to the internal episode page when the card is clicked
@@ -102,12 +100,7 @@ export default ((userOpts?: Partial<Options>) => {
                       {title}
                     </h4>
                     {opts.showTags && tags.length > 0 && (
-                      <span
-                        class="episode-guest"
-                        style={{ transform: `translateY(${guestOffset}rem)` }}
-                      >
-                        {tags[0].replace(/-/g, " ")}
-                      </span>
+                      <span class="episode-guest">{tags[0].replace(/-/g, " ")}</span>
                     )}
                   </div>
                 </a>

@@ -213,6 +213,18 @@
     font-weight: 600;
     line-height: 1.35;
     color: var(--dark);
+    // Always reserve two lines so the guest name sits beside the second line,
+    // even for one-line titles
+    min-height: calc(1.35em * 2);
+    // Fill each line before wrapping. The card is a link, and base.scss gives links
+    // `text-wrap: pretty`; Safari's version evens out line lengths, which moves words
+    // off a first line that has room and runs the second line into the guest name.
+    text-wrap: wrap;
+
+    // Narrower cards on phones: shrink so long titles (e.g. EP05) end before the name
+    @media all and ($mobile) {
+      font-size: 0.8rem;
+    }
 
     // Truncate long titles to 2 lines
     display: -webkit-box;
