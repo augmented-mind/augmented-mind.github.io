@@ -171,6 +171,37 @@ document.querySelectorAll(".carousel-wrapper").forEach((wrapper) => {
     }
   }, 800)
 })
+
+// The guest name is pinned to the card's bottom-right. When the title's last line runs
+// under it (depends on card width, font rendering and zoom), drop the name onto its own
+// line below the title instead of overlapping.
+function placeGuestNames() {
+  document.querySelectorAll(".episode-card").forEach((card) => {
+    const title = card.querySelector(".card-title")
+    const guest = card.querySelector(".episode-guest")
+    if (!title || !guest) return
+    card.classList.remove("guest-below")
+    const titleBox = title.getBoundingClientRect()
+    const guestBox = guest.getBoundingClientRect()
+    const range = document.createRange()
+    range.selectNodeContents(title)
+    const collides = Array.from(range.getClientRects()).some(
+      (line) =>
+        line.width > 0 &&
+        line.bottom <= titleBox.bottom + 1 &&
+        line.right > guestBox.left - 6 &&
+        line.left < guestBox.right &&
+        line.bottom > guestBox.top &&
+        line.top < guestBox.bottom,
+    )
+    card.classList.toggle("guest-below", collides)
+  })
+}
+
+placeGuestNames()
+document.addEventListener("nav", placeGuestNames)
+window.addEventListener("resize", placeGuestNames)
+if (document.fonts) document.fonts.ready.then(placeGuestNames)
 `
   return EpisodeCarousel
 }) satisfies QuartzComponentConstructor

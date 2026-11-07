@@ -231,6 +231,16 @@
     color: var(--secondary);
   }
 
+  // Set by EpisodeCarousel's script when the title would run under the guest name
+  .episode-card.guest-below .episode-guest {
+    position: static;
+    display: block;
+    text-align: right;
+    transform: none !important; // override the inline guestOffset translate
+    margin-top: 0.1rem;
+    margin-bottom: -0.5rem;
+  }
+
   .see-more {
     margin: 1rem 0 0 0;
     font-size: 0.9rem;
